@@ -1,166 +1,638 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BINMASTER | ORD Delta - Order & Customer</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <style>
-        .drop-zone { border: 2px dashed #cbd5e1; transition: all 0.3s ease; }
-        .drop-zone.dragover { border-color: #be123c; background-color: #fff1f2; }
-        .binmaster-red { background-color: #be123c; }
-        .binmaster-red:hover { background-color: #9f1239; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3D MultiVision - BinMaster</title>
+<link rel="stylesheet" href="css/main.css">
 </head>
-<body class="bg-gray-100 font-sans text-gray-900">
+<body>
 
-    <header class="bg-white p-4 shadow-sm border-b-2 border-black">
-        <div class="max-w-7xl mx-auto flex items-baseline gap-4">
-            <h1 class="text-3xl font-black italic tracking-tighter text-red-700">BINMASTER</h1>
-            <div class="flex flex-col">
-                <span class="text-xl font-bold uppercase">ORD Delta Tool</span>
-                <span class="text-[10px] tracking-widest text-gray-400 uppercase font-bold">New Orders & Customer Mapping</span>
+<div class="title-bar">
+  <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%23cc0000' rx='2'/%3E%3Ctext x='8' y='12' font-size='10' fill='white' text-anchor='middle' font-weight='bold'%3E3D%3C/text%3E%3C/svg%3E" class="title-icon" alt="icon">
+  <span class="title-text">3D MultiVision (demoUser - localhost:127.0.0.1) - Power</span>
+  <div class="title-controls">
+    <button class="title-btn">─</button>
+    <button class="title-btn">□</button>
+    <button class="title-btn close-btn">✕</button>
+  </div>
+</div>
+
+<div class="menu-bar" id="menuBar">
+  <div class="menu-item" id="menuFile" onclick="toggleMenu('menuFile')">File</div>
+  <div class="menu-item" id="menuCommunication" onclick="toggleMenu('menuCommunication')">Communication</div>
+  <div class="menu-item" id="menuEdit" onclick="toggleMenu('menuEdit')">Edit</div>
+  <div class="menu-item" id="menuDevice" onclick="toggleMenu('menuDevice')">Device</div>
+  <div class="menu-item" id="menuTools" onclick="toggleMenu('menuTools')">Tools</div>
+  <div class="menu-item" id="menuHelp" onclick="toggleMenu('menuHelp')">Help</div>
+
+  <div class="dropdown" id="dropFile">
+    <div class="dd-item" onclick="closeMenus()">New Project...</div>
+    <div class="dd-item" onclick="closeMenus()">Open Project...</div>
+    <div class="dd-sep"></div>
+    <div class="dd-item" onclick="closeMenus()">Save Project <span class="shortcut">Ctrl+S</span></div>
+    <div class="dd-item" onclick="closeMenus()">Save Project As...</div>
+    <div class="dd-sep"></div>
+    <div class="dd-item" onclick="closeMenus()">Export Project from Server...</div>
+    <div class="dd-item" onclick="closeMenus()">Import Project to Server...</div>
+    <div class="dd-item" onclick="closeMenus()">Delete Project</div>
+    <div class="dd-sep"></div>
+    <div class="dd-item" onclick="closeMenus()">Browse to Local Folder... <span class="shortcut">Ctrl+B</span></div>
+    <div class="dd-sep"></div>
+    <div class="dd-item" onclick="closeMenus()">Exit</div>
+  </div>
+
+  <div class="dropdown" id="dropCommunication">
+    <div class="dd-item" onclick="closeMenus()">Connect All</div>
+    <div class="dd-item active-item" onclick="closeMenus()">Disconnect All</div>
+    <div class="dd-item" onclick="closeMenus()">Load from Vessels</div>
+    <div class="dd-sep"></div>
+    <div class="dd-item" onclick="closeMenus()">Connect Vessel</div>
+    <div class="dd-item" onclick="closeMenus()">Disconnect Vessel</div>
+    <div class="dd-item" onclick="closeMenus()">Load from Vessel</div>
+  </div>
+
+  <div class="dropdown" id="dropEdit">
+    <div class="dd-item dd-has-sub">Add ▶</div>
+    <div class="dd-item dd-has-sub">Delete ▶</div>
+    <div class="dd-item" onclick="closeMenus()">Properties</div>
+    <div class="dd-item" onclick="closeMenus()">Edit Project...</div>
+    <div class="dd-sep"></div>
+    <div class="dd-item" onclick="closeMenus()">Save Selected Vessel Configuration As...</div>
+    <div class="dd-item" onclick="closeMenus()">Load Vessel Configuration Online...</div>
+    <div class="dd-item dd-has-sub">Offline Configuration ▶</div>
+  </div>
+
+  <div class="dropdown" id="dropDevice">
+    <div class="dd-item" onclick="openWizardDialog(); closeMenus()">Device Configuration Wizard... <span class="shortcut">F4</span></div>
+    <div class="dd-item" onclick="openAdvancedParams(); closeMenus()">Advanced Parameters... <span class="shortcut">F3</span></div>
+    <div class="dd-sep"></div>
+    <div class="dd-item" onclick="closeMenus()">Device Current Simulation Settings... <span class="shortcut">F6</span></div>
+    <div class="dd-item" onclick="closeMenus()">Device Output Current... <span class="shortcut">F8</span></div>
+    <div class="dd-item" onclick="closeMenus()">Device Output Settings... <span class="shortcut">F7</span></div>
+    <div class="dd-sep"></div>
+    <div class="dd-item" onclick="openEchoCurveAnalysis(); closeMenus()">Echo Curve Analysis... <span class="shortcut">Ctrl+Z</span></div>
+    <div class="dd-item" onclick="closeMenus()">Echo Curve Analyze Viewer... <span class="shortcut">Ctrl+V</span></div>
+    <div class="dd-sep"></div>
+    <div class="dd-item" onclick="openFalseEchoMapping(); closeMenus()">Device False Echo Mapping...</div>
+    <div class="dd-item" onclick="openDeviceActivations(); closeMenus()">Devices Activations...</div>
+    <div class="dd-item" onclick="closeMenus()">Update Model...</div>
+  </div>
+
+  <div class="dropdown" id="dropTools">
+    <div class="dd-item dd-has-sub">Reports ▶</div>
+    <div class="dd-item" onclick="closeMenus()">Material Configuration...</div>
+    <div class="dd-item" onclick="closeMenus()">Server Options...</div>
+    <div class="dd-item" onclick="closeMenus()">Connect to Server...</div>
+    <div class="dd-sep"></div>
+    <div class="dd-item" onclick="closeMenus()">Sign Out</div>
+    <div class="dd-item" onclick="closeMenus()">Switch User...</div>
+    <div class="dd-item dd-disabled" onclick="closeMenus()">Users Management...</div>
+    <div class="dd-sep"></div>
+    <div class="dd-item" onclick="closeMenus()">Client Options...</div>
+    <div class="dd-item" onclick="closeMenus()">Refresh Display <span class="shortcut">F5</span></div>
+    <div class="dd-item dd-has-sub">Demo ▶</div>
+  </div>
+
+  <div class="dropdown" id="dropHelp">
+    <div class="dd-item" onclick="closeMenus()">Help Contents</div>
+    <div class="dd-item" onclick="closeMenus()">About...</div>
+  </div>
+</div>
+
+<div class="header-bar">
+  <div class="logo-area">
+    <div class="bm-logo"><span class="bm-red">BIN</span><span class="bm-white">MASTER</span></div>
+    <span class="app-title">3D MultiVision</span>
+  </div>
+  <div class="nav-arrows">
+    <button class="nav-arrow">◀</button>
+    <div class="power-icon" title="Power">
+      <svg width="54" height="54" viewBox="0 0 54 54">
+        <defs><radialGradient id="pg" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#6af"/><stop offset="100%" stop-color="#1a5fa8"/></radialGradient></defs>
+        <circle cx="27" cy="27" r="26" fill="url(#pg)" stroke="#2a8fdf" stroke-width="1.5"/>
+        <path d="M27 14 L27 27" stroke="white" stroke-width="3" stroke-linecap="round"/>
+        <path d="M19 18 Q10 24 10 33 Q10 44 27 44 Q44 44 44 33 Q44 24 35 18" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+      <div class="power-label">Power</div>
+    </div>
+    <button class="nav-arrow">▶</button>
+  </div>
+</div>
+
+<div class="toolbar" id="toolbar">
+  <button class="tb-btn" id="tbLevel" onclick="setToolbarMode('Level')" title="Level">
+    <svg width="14" height="14" viewBox="0 0 14 14"><rect x="1" y="5" width="12" height="3" fill="white" rx="1"/><rect x="3" y="2" width="2" height="10" fill="white" rx="1"/></svg>
+    Level
+  </button>
+  <div class="tb-sep"></div>
+  <button class="tb-btn" id="tbConnect" onclick="simulateConnect()" title="Connect">
+    <svg width="14" height="14" viewBox="0 0 14 14"><circle cx="4" cy="7" r="3" fill="none" stroke="white" stroke-width="1.5"/><line x1="7" y1="7" x2="11" y2="7" stroke="white" stroke-width="1.5"/><circle cx="12" cy="7" r="1.5" fill="#4f4"/></svg>
+    Connect
+  </button>
+  <button class="tb-btn" id="tbDisconnect" title="Disconnect">
+    <svg width="14" height="14" viewBox="0 0 14 14"><circle cx="4" cy="7" r="3" fill="none" stroke="white" stroke-width="1.5"/><line x1="7" y1="7" x2="11" y2="7" stroke="white" stroke-width="1.5" stroke-dasharray="2,2"/><circle cx="12" cy="7" r="1.5" fill="#f44"/></svg>
+    Disconnect
+  </button>
+  <button class="tb-btn" id="tbLoadVessel" onclick="simulateLoad()" title="Load from Vessel">
+    <svg width="14" height="14" viewBox="0 0 14 14"><polygon points="7,2 12,10 2,10" fill="none" stroke="white" stroke-width="1.5"/><line x1="7" y1="10" x2="7" y2="13" stroke="white" stroke-width="1.5"/></svg>
+    Load from Vessel
+  </button>
+  <button class="tb-btn" id="tbEchoCurve" onclick="openEchoCurveAnalysis()" title="Echo Curve">
+    <svg width="14" height="14" viewBox="0 0 14 14"><polyline points="1,10 4,5 7,8 10,3 13,6" fill="none" stroke="white" stroke-width="1.5"/></svg>
+    Echo Curve
+  </button>
+  <button class="tb-btn" id="tbWizard" onclick="openWizardDialog()" title="Wizard">
+    <svg width="14" height="14" viewBox="0 0 14 14"><path d="M7 1 L8.5 5 L13 5 L9.5 7.5 L11 12 L7 9 L3 12 L4.5 7.5 L1 5 L5.5 5 Z" fill="white"/></svg>
+    Wizard
+  </button>
+  <button class="tb-btn" id="tbVDC" onclick="openVDC()" title="VDC">
+    <svg width="14" height="14" viewBox="0 0 14 14"><rect x="2" y="2" width="10" height="10" fill="none" stroke="white" stroke-width="1.5" rx="1"/><line x1="4" y1="5" x2="10" y2="5" stroke="white" stroke-width="1"/><line x1="4" y1="7" x2="10" y2="7" stroke="white" stroke-width="1"/><line x1="4" y1="9" x2="8" y2="9" stroke="white" stroke-width="1"/></svg>
+    VDC
+  </button>
+  <div style="flex:1"></div>
+  <span style="font-size:11px;color:#ccc;margin-right:6px;">Sort By:</span>
+  <select class="tb-select"><option>All</option><option>Coal</option><option>Fly Ash</option></select>
+  <div class="connected-indicator">
+    <span class="conn-dot"></span>
+    <span>Connected</span>
+  </div>
+</div>
+
+<div class="vessel-selector">
+  <button class="vs-arrow">◀</button>
+  <div class="vessel-tab active-vessel" id="vesselCoal" onclick="selectVessel('Coal')">
+    <div class="vessel-icon-wrap">
+      <svg width="32" height="40" viewBox="0 0 32 40">
+        <polygon points="8,4 24,4 28,36 4,36" fill="#5a8a5a" stroke="#3a6a3a" stroke-width="1"/>
+        <polygon points="4,36 28,36 24,40 8,40" fill="#4a7a4a"/>
+        <circle cx="26" cy="8" r="4" fill="#44cc44" stroke="#228822" stroke-width="1"/>
+      </svg>
+    </div>
+    <span class="vessel-label">Coal</span>
+  </div>
+  <div class="vessel-tab" id="vesselFlyAsh" onclick="selectVessel('FlyAsh')">
+    <div class="vessel-icon-wrap">
+      <svg width="32" height="40" viewBox="0 0 32 40">
+        <polygon points="8,4 24,4 28,36 4,36" fill="#5a7a8a" stroke="#3a5a6a" stroke-width="1"/>
+        <polygon points="4,36 28,36 24,40 8,40" fill="#4a6a7a"/>
+        <circle cx="26" cy="8" r="4" fill="#44cc44" stroke="#228822" stroke-width="1"/>
+      </svg>
+    </div>
+    <span class="vessel-label">Fly Ash</span>
+  </div>
+  <button class="vs-arrow">▶</button>
+</div>
+
+<!-- HOME VIEW -->
+<div class="main-content" id="mainHome">
+  <div class="vessels-bar">
+    <span class="tab-link active-tab" onclick="showHome()">Vessels</span>
+    <span class="tab-sep">|</span>
+    <span class="tab-link" onclick="showHome()">Logs</span>
+  </div>
+  <div class="silo-cards">
+    <div class="silo-card" id="cardCoal" onclick="openVesselDetail('Coal')">
+      <div class="silo-card-header">
+        <span class="silo-dot green"></span>
+        <span class="silo-name">Coal (MV)</span>
+        <span class="silo-poll">Poll:0</span>
+      </div>
+      <div class="silo-card-body">
+        <div class="silo-visual-col">
+          <div class="silo-title-sm">Coal</div>
+          <div class="silo-2d" id="coal2d">
+            <div class="silo-2d-inner">
+              <div class="silo-label-f">F</div>
+              <div class="silo-fill coal-fill" id="coalFill" style="height:41%"></div>
+              <div class="silo-label-e">E</div>
             </div>
+          </div>
         </div>
-    </header>
-
-    <main class="max-w-4xl mx-auto p-6 space-y-6">
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="bg-white rounded shadow-sm overflow-hidden border border-gray-200">
-                <div class="bg-black text-white px-4 py-2 flex items-center gap-2">
-                    <span class="bg-red-600 rounded-full w-4 h-4 flex items-center justify-center text-[10px] font-bold">1</span>
-                    <span class="text-[10px] font-bold uppercase tracking-wider">Baseline File (Older)</span>
-                </div>
-                <div id="drop-baseline" class="drop-zone m-4 p-8 rounded-lg flex flex-col items-center justify-center text-center cursor-pointer">
-                    <svg class="w-8 h-8 text-yellow-400 mb-2" fill="currentColor" viewBox="0 0 20 20"><path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"></path></svg>
-                    <p id="name-baseline" class="text-[10px] text-gray-400 font-bold uppercase">Drag Baseline Here</p>
-                    <input type="file" id="file-baseline" class="hidden" accept=".xlsx, .xls, .csv">
-                </div>
-            </div>
-
-            <div class="bg-white rounded shadow-sm overflow-hidden border border-gray-200">
-                <div class="bg-black text-white px-4 py-2 flex items-center gap-2">
-                    <span class="bg-red-600 rounded-full w-4 h-4 flex items-center justify-center text-[10px] font-bold">2</span>
-                    <span class="text-[10px] font-bold uppercase tracking-wider">Current File (Newer)</span>
-                </div>
-                <div id="drop-current" class="drop-zone m-4 p-8 rounded-lg flex flex-col items-center justify-center text-center cursor-pointer">
-                    <svg class="w-8 h-8 text-yellow-400 mb-2" fill="currentColor" viewBox="0 0 20 20"><path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"></path></svg>
-                    <p id="name-current" class="text-[10px] text-gray-400 font-bold uppercase">Drag Current Here</p>
-                    <input type="file" id="file-current" class="hidden" accept=".xlsx, .xls, .csv">
-                </div>
-            </div>
+        <div class="silo-stats">
+          <div class="stat-row"><span class="stat-label">Avg. Dist</span><span class="stat-val" id="coalAvgDist">10.60 m</span></div>
+          <div class="stat-row"><span class="stat-label">Max Dist.</span><span class="stat-val" id="coalMaxDist">11.09 m</span></div>
+          <div class="stat-row"><span class="stat-label">Min Dist.</span><span class="stat-val" id="coalMinDist">8.93 m</span></div>
+          <div class="stat-row"><span class="stat-label">Volume (%)</span><span class="stat-val" id="coalVol">41.02 %</span></div>
         </div>
+      </div>
+    </div>
 
-        <button id="process-btn" class="binmaster-red text-white px-10 py-4 rounded font-bold uppercase text-xs w-full shadow-md transition-all active:scale-[0.98]">
-            Identify New Orders & Customers
-        </button>
-
-        <div id="results" class="hidden animate-in fade-in duration-500">
-            <div class="bg-white border border-gray-200 rounded shadow-sm overflow-hidden">
-                <div class="bg-gray-50 border-b px-6 py-3 flex justify-between items-center">
-                    <h3 class="text-xs font-black uppercase tracking-widest text-gray-600">Delta Report</h3>
-                    <span id="summary-count" class="text-[10px] font-bold bg-red-100 text-red-700 px-2 py-1 rounded-full uppercase"></span>
-                </div>
-                <table class="min-w-full text-left">
-                    <thead class="bg-white border-b uppercase text-[10px] font-bold text-gray-400">
-                        <tr>
-                            <th class="px-6 py-3">Order Number</th>
-                            <th class="px-6 py-3 border-l">Customer</th>
-                        </tr>
-                    </thead>
-                    <tbody id="report-output" class="text-sm font-medium"></tbody>
-                </table>
+    <div class="silo-card" id="cardFlyAsh" onclick="openVesselDetail('FlyAsh')">
+      <div class="silo-card-header">
+        <span class="silo-dot green"></span>
+        <span class="silo-name">Fly Ash (MV)</span>
+        <span class="silo-poll">Poll:1</span>
+      </div>
+      <div class="silo-card-body">
+        <div class="silo-visual-col">
+          <div class="silo-title-sm">Fly Ash</div>
+          <div class="silo-2d" id="flyash2d">
+            <div class="silo-2d-inner">
+              <div class="silo-label-f">F</div>
+              <div class="silo-fill flyash-fill" id="flyashFill" style="height:75%"></div>
+              <div class="silo-label-e">E</div>
             </div>
+          </div>
         </div>
-    </main>
+        <div class="silo-stats">
+          <div class="stat-row"><span class="stat-label">Avg. Dist</span><span class="stat-val" id="flyashAvgDist">4.53 m</span></div>
+          <div class="stat-row"><span class="stat-label">Max Dist.</span><span class="stat-val" id="flyashMaxDist">5.30 m</span></div>
+          <div class="stat-row"><span class="stat-label">Min Dist.</span><span class="stat-val" id="flyashMinDist">3.44 m</span></div>
+          <div class="stat-row"><span class="stat-label">Volume (%)</span><span class="stat-val" id="flyashVol">75.41 %</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
-    <script>
-        let dataStore = { baseline: null, current: null };
+<!-- VESSEL DETAIL VIEW -->
+<div class="main-content hidden" id="mainDetail">
+  <div class="detail-tabs-bar">
+    <span class="tab-link" id="dtOverview" onclick="showDetailTab('Overview')">Overview</span>
+    <span class="tab-sep">|</span>
+    <span class="tab-link" id="dtLogs" onclick="showDetailTab('Logs')">Logs</span>
+    <span class="tab-sep">|</span>
+    <span class="tab-link" id="dtParameters" onclick="showDetailTab('Parameters')">Parameters</span>
+    <span class="tab-sep">|</span>
+    <span class="tab-link" id="dtDevices" onclick="showDetailTab('Devices')">Devices</span>
+    <div style="flex:1"></div>
+    <span class="tab-label-right">Scanners:</span>
+    <select class="dt-scanner-select" id="dtScannerSelect"><option>Coal (MV)</option><option>Fly Ash (MV)</option></select>
+    <button class="back-btn" onclick="showHome()">← Back</button>
+  </div>
 
-        function setupDropZone(zoneId, inputId, key) {
-            const zone = document.getElementById(zoneId);
-            const input = document.getElementById(inputId);
-            const nameDisp = document.getElementById(`name-${key}`);
+  <div id="tabOverview" class="tab-content">
+    <div class="overview-layout">
+      <div class="overview-left">
+        <div class="ov-vessel-name"><span class="silo-dot green"></span> <span id="ovVesselName">Coal (MV)</span></div>
+        <div class="ov-material-row">Material Type: <strong id="ovMaterial">Coal</strong>
+          <button class="material-btn">Material...</button>
+        </div>
+        <div class="silo-2d ov-silo">
+          <div class="silo-2d-inner">
+            <div class="silo-label-f">F</div>
+            <div class="silo-fill coal-fill" id="ovFill" style="height:75%"></div>
+            <div class="silo-label-e">E</div>
+          </div>
+        </div>
+        <div class="ov-params">
+          <div class="ov-param-row"><span class="ov-pl">Avg. Dist.:</span><span class="ov-pv" id="ovAvgDist">4.53</span><span class="ov-pu">m</span></div>
+          <div class="ov-param-row"><span class="ov-pl">Min. Distance:</span><span class="ov-pv" id="ovMinDist">3.44</span><span class="ov-pu">m</span></div>
+          <div class="ov-param-row"><span class="ov-pl">Max. Distance:</span><span class="ov-pv" id="ovMaxDist">5.30</span><span class="ov-pu">m</span></div>
+          <div class="ov-param-row"><span class="ov-pl">Avg. Distance (%):</span><span class="ov-pv">0.00</span><span class="ov-pu">%</span></div>
+          <div class="ov-param-row"><span class="ov-pl">Volume:</span><span class="ov-pv" id="ovVolume">80.55</span><span class="ov-pu">m^3</span></div>
+          <div class="ov-param-row"><span class="ov-pl">Volume (%):</span><span class="ov-pv" id="ovVolPct">75.41</span><span class="ov-pu">%</span></div>
+          <div class="ov-param-row"><span class="ov-pl">Mass:</span><span class="ov-pv">-</span><span class="ov-pu">ton</span></div>
+          <div class="ov-param-row"><span class="ov-pl">Max Scale Vol.:</span><span class="ov-pv">100.00</span><span class="ov-pu">m^3</span></div>
+          <div class="ov-param-row"><span class="ov-pl">Max Scale Mass:</span><span class="ov-pv">-</span><span class="ov-pu">ton</span></div>
+          <div class="ov-param-row"><span class="ov-pl">Temperature:</span><span class="ov-pv" id="ovTemp">24.83</span><span class="ov-pu">C</span></div>
+          <div class="ov-param-row snr-row"><span class="ov-pl">SNR</span><span class="ov-pv" id="ovSNR">62.24</span><span class="ov-pu">dB</span></div>
+          <div class="ov-param-row"><span class="ov-pl">Output Current:</span><span class="ov-pv" id="ovOutput">16.89</span><span class="ov-pu">mA</span></div>
+        </div>
+      </div>
+      <div class="overview-center">
+        <div class="silo-3d-view">
+          <canvas id="silo3dCanvas" width="340" height="420"></canvas>
+        </div>
+      </div>
+      <div class="overview-right">
+        <div class="ov-minimap"><canvas id="miniMapCanvas" width="160" height="90"></canvas></div>
+        <div class="ov-zoom-controls">
+          <button class="zoom-btn">+</button>
+          <div class="zoom-track"><div class="zoom-thumb"></div></div>
+          <button class="zoom-btn">-</button>
+        </div>
+        <div class="ov-nav-pad">
+          <button class="nav-pad-btn" style="grid-column:2">▲</button>
+          <button class="nav-pad-btn" style="grid-column:1;grid-row:2">◀</button>
+          <button class="nav-pad-btn nav-pad-center" style="grid-column:2;grid-row:2">●</button>
+          <button class="nav-pad-btn" style="grid-column:3;grid-row:2">▶</button>
+          <button class="nav-pad-btn" style="grid-column:2;grid-row:3">▼</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-            zone.onclick = () => input.click();
-            zone.ondragover = (e) => { e.preventDefault(); zone.classList.add('dragover'); };
-            zone.ondragleave = () => zone.classList.remove('dragover');
-            zone.ondrop = (e) => {
-                e.preventDefault();
-                zone.classList.remove('dragover');
-                handleFile(e.dataTransfer.files[0], key, nameDisp);
-            };
-            input.onchange = (e) => handleFile(e.target.files[0], key, nameDisp);
-        }
+  <div id="tabLogs" class="tab-content hidden">
+    <div class="logs-toolbar">
+      <button class="log-btn red-x">✕</button>
+      <button class="log-btn">⚙</button>
+      <label class="log-checkbox"><input type="checkbox" checked> On line</label>
+      <span class="log-label">Log Duration:</span>
+      <input type="text" class="log-duration-input">
+      <button class="log-action-btn">Browse...</button>
+      <button class="log-action-btn">Server Logs...</button>
+    </div>
+    <div class="logs-charts">
+      <div class="log-chart-cell"><div class="chart-title">Avg. Dist.</div><canvas id="chartAvgDist" width="560" height="200"></canvas></div>
+      <div class="log-chart-cell"><div class="chart-title">Volume/Mass (%)</div><canvas id="chartVolume" width="560" height="200"></canvas></div>
+      <div class="log-chart-cell"><div class="chart-title">SNR</div><canvas id="chartSNR" width="560" height="200"></canvas></div>
+      <div class="log-chart-cell"><div class="chart-title">Temperature</div><canvas id="chartTemp" width="560" height="200"></canvas></div>
+    </div>
+  </div>
 
-        async function handleFile(file, key, display) {
-            if (!file) return;
-            display.innerText = file.name;
-            display.classList.remove('text-gray-400');
-            display.classList.add('text-blue-600');
-            const data = await file.arrayBuffer();
-            const workbook = XLSX.read(data);
-            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-            dataStore[key] = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
-        }
+  <div id="tabParameters" class="tab-content hidden">
+    <div class="params-panel">
+      <div class="params-scada-row">Vessel Scada ID: <strong>1</strong></div>
+      <table class="params-table">
+        <tr><td class="pt-label">Scanner:</td><td class="pt-val right-align"><strong>Carmel Ulpinim</strong></td></tr>
+        <tr><td class="pt-label">Poll Addr:</td><td class="pt-val right-align">0</td></tr>
+        <tr><td class="pt-label">S/N:</td><td class="pt-val right-align">709001467</td></tr>
+        <tr><td class="pt-label">Hardware:</td><td class="pt-val right-align">16</td></tr>
+        <tr><td class="pt-label">Firmware:</td><td class="pt-val right-align">2.9.986</td></tr>
+        <tr><td class="pt-label">Device Type:</td><td class="pt-val right-align">MV</td></tr>
+        <tr><td class="pt-label">Avg. Dist.:</td><td class="pt-val right-align">m &nbsp;&nbsp; 5.49</td></tr>
+        <tr><td class="pt-label">Min. Distance:</td><td class="pt-val right-align">m &nbsp;&nbsp; 4.26</td></tr>
+        <tr><td class="pt-label">Max. Distance:</td><td class="pt-val right-align">m &nbsp;&nbsp; 6.45</td></tr>
+        <tr><td class="pt-label">Avg. Dist.:</td><td class="pt-val right-align">% &nbsp;&nbsp; 0.00</td></tr>
+        <tr><td class="pt-label">Volume:</td><td class="pt-val right-align">m^3 &nbsp; 72.53</td></tr>
+        <tr><td class="pt-label">Volume:</td><td class="pt-val right-align">% &nbsp;&nbsp; 73.02</td></tr>
+        <tr><td class="pt-label">Mass:</td><td class="pt-val right-align">ton &nbsp; -</td></tr>
+        <tr><td class="pt-label">Max Volume Capacity:</td><td class="pt-val right-align">m^3 &nbsp; 100.00</td></tr>
+        <tr><td class="pt-label">Max Mass Capacity:</td><td class="pt-val right-align">ton &nbsp; -</td></tr>
+        <tr><td class="pt-label">Temperature:</td><td class="pt-val right-align">C &nbsp;&nbsp; 24.83</td></tr>
+        <tr><td class="pt-label">SNR:</td><td class="pt-val right-align">dB &nbsp; 47.08</td></tr>
+        <tr><td class="pt-label">Output Current:</td><td class="pt-val right-align">mA &nbsp; 15.60</td></tr>
+      </table>
+    </div>
+  </div>
 
-        setupDropZone('drop-baseline', 'file-baseline', 'baseline');
-        setupDropZone('drop-current', 'file-current', 'current');
+  <div id="tabDevices" class="tab-content hidden">
+    <div class="devices-layout">
+      <div class="devices-left">
+        <div class="devices-section-title">Connection</div>
+        <div class="devices-conn-type">
+          <div class="devices-sub-title">Connection Type</div>
+          <div class="conn-grid">
+            <label class="radio-label"><input type="radio" name="connType" value="HART"> HART</label>
+            <label class="radio-label"><input type="radio" name="connType" value="GPRS"> GPRS</label>
+            <label class="radio-label"><input type="radio" name="connType" value="RS485" checked> RS-485</label>
+            <label class="radio-label"><input type="radio" name="connType" value="GPRS+SMS"> GPRS + SMS</label>
+            <label class="radio-label"><input type="radio" name="connType" value="TCPIP"> TCP/IP</label>
+            <label class="radio-label"><input type="radio" name="connType" value="SmartGPRS"> Smart GPRS</label>
+          </div>
+        </div>
+        <div class="devices-config">
+          <div class="devices-sub-title">Configuration</div>
+          <div class="config-row">
+            <span class="config-label">Serial Port:</span>
+            <select class="config-select"><option>COM3</option><option>COM1</option><option>COM2</option></select>
+          </div>
+        </div>
+      </div>
+      <div class="devices-right">
+        <div class="devices-section-title">Device Polling Addresses</div>
+        <table class="poll-table">
+          <tr><th>Device Name</th><th>Polling Address:</th><th></th></tr>
+          <tr>
+            <td>Carmel Ulpinim</td>
+            <td><select class="poll-select"><option>0</option><option>1</option><option>2</option><option>3</option></select></td>
+            <td><button class="disconnect-poll-btn">Disconnect</button></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
 
-        document.getElementById('process-btn').onclick = () => {
-            if (!dataStore.baseline || !dataStore.current) {
-                alert("Please upload both files.");
-                return;
-            }
+<!-- MODAL: ADVANCED PARAMETERS -->
+<div class="modal-overlay hidden" id="modalAdvanced">
+  <div class="modal-win" style="width:480px">
+    <div class="modal-title-bar">
+      <span>Advanced Parameters — Coal</span>
+      <button class="modal-close" onclick="closeModal('modalAdvanced')">✕</button>
+    </div>
+    <div class="modal-tabs">
+      <button class="modal-tab active-modal-tab" onclick="switchModalTab('adv','Basic')">Basic</button>
+      <button class="modal-tab" onclick="switchModalTab('adv','Advanced')">Advanced</button>
+      <button class="modal-tab" onclick="switchModalTab('adv','Beams')">Beams</button>
+    </div>
+    <div class="modal-body">
+      <div id="advBasic">
+        <div class="adv-param-row"><label class="adv-label">Output Dampening Power (s):</label><input type="number" class="adv-input" id="apDampening" value="420"></div>
+        <div class="adv-param-row"><label class="adv-label">Steepest Material Slope (°):</label><input type="number" class="adv-input" value="32"></div>
+        <div class="adv-param-row"><label class="adv-label">Maximum Capacity (mass):</label><input type="number" class="adv-input" value="100"></div>
+        <div class="adv-param-row"><label class="adv-label">MPN Rate (mass/hour):</label><input type="number" class="adv-input" id="apMPNRate" value="7"></div>
+        <div class="adv-param-row"><label class="adv-label">Max Fill (mass/hour):</label><input type="number" class="adv-input" id="apMaxFill" value="7"></div>
+      </div>
+      <div id="advAdvanced" class="hidden">
+        <div class="adv-param-row"><label class="adv-label">Angle Adapter Side Margin:</label><input type="number" class="adv-input" value="0"></div>
+        <div class="adv-param-row"><label class="adv-label">Restraint:</label><input type="number" class="adv-input" value="0"></div>
+        <div class="adv-param-row"><label class="adv-label">Threshold:</label><input type="number" class="adv-input" value="0"></div>
+        <div class="adv-param-row"><label class="adv-label">After Transmission Mask:</label><input type="number" class="adv-input" value="0"></div>
+        <div class="adv-param-row"><label class="adv-label">User False Echoes:</label><select class="adv-select"><option>Activated</option><option selected>Deactivated</option></select></div>
+        <div class="adv-param-row"><label class="adv-label">Auto False Echoes:</label><select class="adv-select" id="apAutoFalseEcho"><option>Activated</option><option selected>Deactivated</option></select></div>
+      </div>
+      <div id="advBeams" class="hidden">
+        <p class="adv-note">Beam checkmarks (all should be checked at top):</p>
+        <div class="beam-checks">
+          <label><input type="checkbox" checked> Beam 1</label>
+          <label><input type="checkbox" checked> Beam 2</label>
+          <label><input type="checkbox" checked> Beam 3</label>
+          <label><input type="checkbox" checked> Beam 4</label>
+          <label><input type="checkbox" checked> Beam 5</label>
+          <label><input type="checkbox" checked> Beam 6</label>
+        </div>
+        <div class="beam-bottom">
+          <label><input type="checkbox" id="apAutoBeam"> Auto Beam Selection</label>
+          <label><input type="checkbox"> Manual Override</label>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn-primary" onclick="uploadAll()">Upload All</button>
+      <button class="modal-btn" onclick="closeModal('modalAdvanced')">Cancel</button>
+    </div>
+  </div>
+</div>
 
-            const baselineRows = dataStore.baseline;
-            const currentRows = dataStore.current;
-            const header = currentRows[0];
-            
-            const orderColIndex = header.findIndex(h => String(h).toLowerCase().includes('order'));
-            const customerColIndex = header.findIndex(h => String(h).toLowerCase().includes('customer'));
-            
-            if (orderColIndex === -1 || customerColIndex === -1) {
-                alert(`Missing Columns: ${orderColIndex === -1 ? '[Order] ' : ''}${customerColIndex === -1 ? '[Customer]' : ''}`);
-                return;
-            }
+<!-- MODAL: DEVICE ACTIVATIONS -->
+<div class="modal-overlay hidden" id="modalActivations">
+  <div class="modal-win" style="width:360px">
+    <div class="modal-title-bar">
+      <span>Devices Activations</span>
+      <button class="modal-close" onclick="closeModal('modalActivations')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p class="adv-note">Select an action to perform on the device:</p>
+      <div class="activation-btns">
+        <button class="activation-btn" id="btnReset" onclick="doReset()">Reset</button>
+        <button class="activation-btn danger" onclick="confirmFactoryReset()">Reset to Factory</button>
+        <button class="activation-btn" onclick="closeModal('modalActivations')">Restart Device</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn" onclick="closeModal('modalActivations')">Close</button>
+    </div>
+  </div>
+</div>
 
-            const baselineSet = new Set(baselineRows.slice(1).map(row => String(row[orderColIndex]).trim()));
-            
-            let outputRowsHtml = "";
-            let count = 0;
+<!-- MODAL: FALSE ECHO MAPPING -->
+<div class="modal-overlay hidden" id="modalFalseEcho">
+  <div class="modal-win" style="width:400px">
+    <div class="modal-title-bar">
+      <span>Device False Echo Mapping</span>
+      <button class="modal-close" onclick="closeModal('modalFalseEcho')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="adv-param-row">
+        <label class="adv-label">Action:</label>
+        <select class="adv-select" id="falseEchoAction">
+          <option>Reset Mapping</option>
+          <option>Reset User and Auto False Echoes</option>
+          <option>Learn New Map</option>
+        </select>
+      </div>
+      <p class="adv-note" id="falseEchoStatus">Select an action and click Execute.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn-primary" onclick="executeFalseEcho()">Execute</button>
+      <button class="modal-btn" onclick="closeModal('modalFalseEcho')">Cancel</button>
+    </div>
+  </div>
+</div>
 
-            for (let i = 1; i < currentRows.length; i++) {
-                const orderId = String(currentRows[i][orderColIndex] || "").trim();
-                const customerName = String(currentRows[i][customerColIndex] || "").trim();
+<!-- MODAL: ECHO CURVE ANALYSIS -->
+<div class="modal-overlay hidden" id="modalEchoCurve">
+  <div class="modal-win" style="width:520px">
+    <div class="modal-title-bar">
+      <span>Activate Echo Curve Analysis</span>
+      <button class="modal-close" onclick="closeModal('modalEchoCurve')">✕</button>
+    </div>
+    <div class="modal-body echo-body">
+      <div class="echo-tree">
+        <div class="tree-item tree-parent"><input type="checkbox" checked> Power</div>
+        <div class="tree-item tree-child"><input type="checkbox" checked> Coal</div>
+        <div class="tree-item tree-grandchild"><input type="checkbox" checked> Carmel Ulpinim (0)</div>
+        <div class="tree-item tree-child"><input type="checkbox"> Fly Ash</div>
+      </div>
+      <div class="echo-right">
+        <p class="echo-status" id="echoStatus">Server Echo Curve analysis status: Not active.</p>
+        <div class="echo-type-row">
+          <label>Type:</label>
+          <select class="adv-select" style="width:180px"><option>All Echoes Info</option><option>Primary Echo Only</option></select>
+        </div>
+        <div class="echo-grades">
+          <div class="echo-grades-title">Continuous Grades</div>
+          <label class="echo-grade-row"><input type="checkbox"> Every (mins) <input type="number" class="echo-num" value="5"></label>
+          <label class="echo-grade-row"><input type="checkbox" disabled> Duration (hours) <input type="number" class="echo-num" value="1" disabled></label>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn-primary" onclick="openEchoViewer()">Open Viewer</button>
+      <button class="modal-btn-primary" onclick="startEchoAnalysis()">Start</button>
+      <button class="modal-btn" onclick="stopEchoAnalysis()">Stop</button>
+    </div>
+  </div>
+</div>
 
-                if (orderId && !baselineSet.has(orderId)) {
-                    count++;
-                    outputRowsHtml += `
-                        <tr class="border-b hover:bg-gray-50 transition-colors">
-                            <td class="px-6 py-3 font-mono text-blue-600">${orderId}</td>
-                            <td class="px-6 py-3 border-l text-gray-700">${customerName}</td>
-                        </tr>`;
-                }
-            }
+<!-- MODAL: CONFIGURATION WIZARD -->
+<div class="modal-overlay hidden" id="modalWizard">
+  <div class="modal-win" style="width:700px;max-height:90vh">
+    <div class="modal-title-bar">
+      <span id="wizardTitle">Coal - Configuration Wizard</span>
+      <button class="modal-close" onclick="closeModal('modalWizard')">✕</button>
+    </div>
+    <div class="modal-body wizard-body" id="wizardBody"></div>
+    <div class="modal-footer">
+      <button class="modal-btn" id="wizBack" onclick="wizardNav(-1)">◀ Back</button>
+      <button class="modal-btn-primary" id="wizNext" onclick="wizardNav(1)">Next ▶</button>
+      <button class="modal-btn" onclick="closeModal('modalWizard')">Cancel</button>
+    </div>
+  </div>
+</div>
 
-            const resultsDiv = document.getElementById('results');
-            const output = document.getElementById('report-output');
-            const summary = document.getElementById('summary-count');
-            
-            if (count > 0) {
-                output.innerHTML = outputRowsHtml;
-                summary.innerText = `${count} New Orders Found`;
-            } else {
-                output.innerHTML = `<tr><td colspan="2" class="px-6 py-8 text-center text-gray-400 italic">No new entries found.</td></tr>`;
-                summary.innerText = "0 New Orders";
-            }
+<!-- MODAL: VDC -->
+<div class="modal-overlay hidden" id="modalVDC">
+  <div class="modal-win" style="width:480px">
+    <div class="modal-title-bar">
+      <span>Vessel Data Collection</span>
+      <button class="modal-close" onclick="closeModal('modalVDC')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="vdc-row"><label>Client:</label><input type="text" class="vdc-input readonly" value="demoUser   GARNERIND\David.Zelnio,fe80::1f82:d2c5:4bb4:e6" readonly></div>
+      <div class="vdc-row"><label>Vessel:</label><input type="text" class="vdc-input readonly" value="Site:Power [ Vessel:Coal]" readonly></div>
+      <div class="vdc-row"><label>Name:</label><input type="text" class="vdc-input vdc-required"></div>
+      <div class="vdc-row"><label>Phone:</label><input type="text" class="vdc-input vdc-required"></div>
+      <div class="vdc-row"><label>E-Mail:</label><input type="text" class="vdc-input vdc-required"></div>
+      <div class="vdc-row"><label>Company:</label><input type="text" class="vdc-input vdc-required"></div>
+      <div class="vdc-row"><label>Country:</label><input type="text" class="vdc-input vdc-required"></div>
+      <div class="vdc-row"><label>Problem:</label><input type="text" class="vdc-input vdc-required"></div>
+      <label class="vdc-check-row"><input type="checkbox" checked> Send file automatically to tech. support data storage</label>
+    </div>
+    <div class="modal-footer" style="flex-wrap:wrap;gap:6px">
+      <button class="modal-btn-primary">Setup</button>
+      <button class="modal-btn">Clear</button>
+      <button class="modal-btn-primary">Run</button>
+      <button class="modal-btn disabled-btn" disabled>Cancel Run</button>
+      <div style="width:100%;height:1px;background:#ccc;margin:4px 0"></div>
+      <button class="modal-btn">Download Test File</button>
+      <button class="modal-btn">Upload Test File</button>
+      <button class="modal-btn" onclick="closeModal('modalVDC')">Close</button>
+    </div>
+  </div>
+</div>
 
-            resultsDiv.classList.remove('hidden');
-            resultsDiv.scrollIntoView({ behavior: 'smooth' });
-        };
-    </script>
+<!-- TOAST -->
+<div class="toast hidden" id="toast"></div>
+
+<!-- TROUBLESHOOTING OVERLAY -->
+<div class="ts-panel" id="tsPanel">
+  <div class="ts-header" id="tsPanelHeader">
+    <span class="ts-title">⚙ Troubleshoot</span>
+    <div class="ts-header-btns">
+      <button class="ts-hbtn" onclick="toggleTSPanel()" id="tsMinBtn">−</button>
+      <button class="ts-hbtn admin-btn" onclick="openAdmin()" title="Edit Paths">✎</button>
+    </div>
+  </div>
+  <div class="ts-body" id="tsBody">
+    <div class="ts-problem-list" id="tsProblemList"></div>
+  </div>
+</div>
+
+<!-- GUIDE ARROW -->
+<div class="guide-arrow hidden" id="guideArrow">
+  <svg width="50" height="50" viewBox="0 0 50 50">
+    <defs><filter id="glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+    <polygon points="25,2 48,28 34,28 34,48 16,48 16,28 2,28" fill="#ff9800" stroke="#e65100" stroke-width="2" filter="url(#glow)"/>
+  </svg>
+</div>
+
+<!-- GUIDE PANEL -->
+<div class="guide-panel hidden" id="guidePanel">
+  <div class="gp-header">
+    <span class="gp-title" id="gpTitle">Step 1 of 5</span>
+    <button class="gp-close" onclick="endGuide()">✕</button>
+  </div>
+  <div class="gp-problem" id="gpProblem"></div>
+  <div class="gp-instruction" id="gpInstruction"></div>
+  <div class="gp-footer">
+    <button class="gp-btn" id="gpPrev" onclick="guideNav(-1)">◀ Prev</button>
+    <span class="gp-counter" id="gpCounter">1 / 5</span>
+    <button class="gp-btn-next" id="gpNext" onclick="guideNav(1)">Next ▶</button>
+  </div>
+</div>
+
+<div class="highlight-ring hidden" id="highlightRing"></div>
+
+<!-- ADMIN PANEL -->
+<div class="modal-overlay hidden" id="adminPanel">
+  <div class="modal-win" style="width:700px;max-height:90vh;overflow-y:auto">
+    <div class="modal-title-bar">
+      <span>🛠 Troubleshooting Path Editor</span>
+      <button class="modal-close" onclick="closeModal('adminPanel')">✕</button>
+    </div>
+    <div class="modal-body" id="adminBody"></div>
+    <div class="modal-footer">
+      <button class="modal-btn-primary" onclick="addNewProblem()">+ Add Problem</button>
+      <button class="modal-btn-primary" onclick="saveAdminAndClose()">Save & Close</button>
+      <button class="modal-btn" onclick="closeModal('adminPanel')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/app.js"></script>
 </body>
 </html>
