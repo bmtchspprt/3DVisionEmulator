@@ -1,1 +1,336 @@
+<script>
+// ═══════════════════════════════════════════════
+// INDEX3 — CORE APPLICATION LOGIC
+// Menus · Vessel · 3D Canvas · Charts · Modals · Wizard · Sim
+// ═══════════════════════════════════════════════
 
+let curV='Coal', curDTab='Overview', wizStep=1;
+
+const sim={
+  Coal:  {avgD:10.60,maxD:11.09,minD:8.93,vol:41.02,snr:62.24,temp:24.83,out:16.89},
+  FlyAsh:{avgD:4.53,maxD:5.30,minD:3.44,vol:75.41,snr:47.08,temp:23.10,out:15.60}
+};
+
+// ── MENU ──────────────────────────────────────
+let openDrop=null;
+
+function openMenu(e,itemId,dropId){
+  e.stopPropagation(); e.preventDefault();
+  if(openDrop===dropId){cm();return;}
+  cm();
+  const item=document.getElementById(itemId);
+  const drop=document.getElementById(dropId);
+  const r=item.getBoundingClientRect();
+  drop.style.left=r.left+'px';
+  drop.style.top=r.bottom+'px';
+  drop.classList.add('show');
+  item.classList.add('open');
+  openDrop=dropId;
+}
+
+function cm(){
+  document.querySelectorAll('.dropdown').forEach(d=>d.classList.remove('show'));
+  document.querySelectorAll('.menu-item').forEach(m=>m.classList.remove('open'));
+  openDrop=null;
+}
+
+const menuPairs={mFile:'ddFile',mComm:'ddComm',mEdit:'ddEdit',mDevice:'ddDevice',mTools:'ddTools',mHelp:'ddHelp'};
+document.querySelectorAll('.menu-item').forEach(item=>{
+  item.addEventListener('mouseenter',()=>{
+    if(openDrop&&menuPairs[item.id]&&menuPairs[item.id]!==openDrop){
+      const fakeE={stopPropagation:()=>{},preventDefault:()=>{}};
+      openMenu(fakeE,item.id,menuPairs[item.id]);
+    }
+  });
+});
+document.addEventListener('mousedown',e=>{
+  if(!e.target.closest('.menu-bar')&&!e.target.closest('.dropdown')) cm();
+});
+
+// ── VESSEL ────────────────────────────────────
+function selVessel(v){
+  curV=v;
+  document.querySelectorAll('.vtab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('vt'+v).classList.add('active');
+}
+
+function showHome(){
+  document.getElementById('viewHome').classList.remove('hidden');
+  document.getElementById('viewDetail').classList.add('hidden');
+}
+
+function openDetail(v){
+  selVessel(v); curV=v;
+  document.getElementById('viewHome').classList.add('hidden');
+  document.getElementById('viewDetail').classList.remove('hidden');
+  const isFA=v==='FlyAsh',lbl=isFA?'Fly Ash':v,d=sim[v];
+  document.getElementById('scanSel').value=lbl+' (MV)';
+  document.getElementById('ovName').textContent=lbl+' (MV)';
+  document.getElementById('ovMat').textContent=lbl;
+  document.getElementById('ovAD').textContent=d.avgD.toFixed(2);
+  document.getElementById('ovMiD').textContent=d.minD.toFixed(2);
+  document.getElementById('ovMaD').textContent=d.maxD.toFixed(2);
+  document.getElementById('ovVolP').textContent=d.vol.toFixed(2);
+  document.getElementById('ovTemp').textContent=d.temp.toFixed(2);
+  document.getElementById('ovSNR').textContent=d.snr.toFixed(2);
+  document.getElementById('ovOut').textContent=d.out.toFixed(2);
+  const f=document.getElementById('ovFill');
+  f.style.height=d.vol+'%'; f.className='sfill '+(isFA?'flyash':'coal');
+  showDTab('Overview');
+  draw3D(d.vol/100,isFA);
+  drawMinimap();
+}
+
+function showDTab(t){
+  curDTab=t;
+  const tabs={Overview:'tabOv',Logs:'tabLg',Parameters:'tabPr',Devices:'tabDv'};
+  Object.entries(tabs).forEach(([name,id])=>{
+    document.getElementById(id).classList.toggle('hidden',name!==t);
+  });
+  document.querySelectorAll('.dtab').forEach((el,i)=>{
+    el.classList.toggle('active',['Overview','Logs','Parameters','Devices'][i]===t);
+  });
+  if(t==='Logs') setTimeout(drawCharts,60);
+  if(t==='Overview') setTimeout(()=>draw3D(sim[curV].vol/100,curV==='FlyAsh'),60);
+}
+
+// ── 3D CANVAS ─────────────────────────────────
+function draw3D(fill,isFA){
+  const cv=document.getElementById('c3d'); if(!cv)return;
+  const ctx=cv.getContext('2d'),W=cv.width,H=cv.height;
+  ctx.clearRect(0,0,W,H);
+  const cx=W/2,bT=75,bB=H-55,bW=160,bH=bB-bT,hw=bW/2;
+  ctx.fillStyle='#b8c8d8'; ctx.fillRect(0,0,W,H);
+  ctx.beginPath(); ctx.moveTo(cx-hw,bT); ctx.lineTo(cx,bT-50); ctx.lineTo(cx+hw,bT); ctx.closePath();
+  ctx.fillStyle='#90a8bc'; ctx.fill(); ctx.strokeStyle='#607888'; ctx.lineWidth=1.5; ctx.stroke();
+  ctx.fillStyle='#445566'; ctx.fillRect(cx-8,bT-57,16,13);
+  ctx.fillStyle='#667788'; ctx.fillRect(cx-4,bT-61,8,6);
+  ctx.fillStyle='#80a8c8'; ctx.fillRect(cx-hw,bT,bW,bH);
+  const fH=bH*fill,fT=bB-fH;
+  const g=ctx.createLinearGradient(cx-hw,fT,cx+hw,bB);
+  if(isFA){g.addColorStop(0,'rgba(30,80,200,0.85)');g.addColorStop(0.5,'rgba(70,130,255,0.9)');g.addColorStop(1,'rgba(20,60,180,0.95)')}
+  else{g.addColorStop(0,'rgba(0,170,220,0.8)');g.addColorStop(0.4,'rgba(80,220,255,0.85)');g.addColorStop(1,'rgba(0,150,210,0.9)')}
+  ctx.beginPath(); ctx.moveTo(cx-hw,fT);
+  for(let x=cx-hw;x<=cx+hw;x+=6) ctx.lineTo(x,fT+Math.sin((x-cx)*0.1)*4);
+  ctx.lineTo(cx+hw,bB); ctx.lineTo(cx-hw,bB); ctx.closePath();
+  ctx.fillStyle=g; ctx.fill();
+  ctx.strokeStyle='#5888a8'; ctx.lineWidth=2; ctx.strokeRect(cx-hw,bT,bW,bH);
+  ctx.beginPath(); ctx.moveTo(cx-hw,bB); ctx.lineTo(cx,bB+38); ctx.lineTo(cx+hw,bB); ctx.closePath();
+  ctx.fillStyle='#6888a0'; ctx.fill(); ctx.stroke();
+  ctx.fillStyle='#cc2222'; ctx.font='bold 13px sans-serif'; ctx.fillText('F',cx+hw+7,bT+12);
+  ctx.fillStyle='#cc8800'; ctx.fillText('E',cx+hw+7,bB-4);
+  if(fH>20){
+    const hg=ctx.createLinearGradient(cx-hw,fT,cx+hw,fT+Math.min(fH*0.5,60));
+    hg.addColorStop(0,'rgba(255,80,0,0)');hg.addColorStop(0.4,'rgba(255,200,0,0.2)');
+    hg.addColorStop(0.75,'rgba(0,220,80,0.16)');hg.addColorStop(1,'rgba(0,80,255,0)');
+    ctx.fillStyle=hg; ctx.fillRect(cx-hw,fT,bW,Math.min(fH*0.5,60));
+  }
+}
+
+function drawMinimap(){
+  const cv=document.getElementById('minimap'); if(!cv)return;
+  const ctx=cv.getContext('2d'),W=cv.width,H=cv.height;
+  ctx.fillStyle='#1a2a3a'; ctx.fillRect(0,0,W,H);
+  for(let x=0;x<W;x+=3)for(let y=0;y<H;y+=3){
+    const dx=x-W/2,dy=y-H/2,r=Math.sqrt(dx*dx+dy*dy);
+    const v=Math.cos(r*0.22)*0.5+0.5;
+    ctx.fillStyle=`hsl(${v*240},75%,${28+v*38}%)`; ctx.fillRect(x,y,3,3);
+  }
+  ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.strokeRect(1,1,W-2,H-2);
+}
+
+// ── CHARTS ────────────────────────────────────
+function drawCharts(){
+  const t=['10:35','10:40','10:45','10:50','10:55'];
+  drawLC('chAD',t,[4.1,4.0,4.15,4.08,4.02],'#2244cc',0,18,'[m]');
+  drawLC('chVol',t,[75,75,75,80,80],'#2244cc',0,100,'[%]');
+  drawLC('chSNR',t,[40,40,40,65,50],'#cc2222',0,100,'[dB]');
+  drawLC('chTemp',t,[25,25,25,25,25],'#44aa44',-50,200,'[C]');
+}
+function drawLC(id,lbls,data,color,yMin,yMax,unit){
+  const cv=document.getElementById(id); if(!cv)return;
+  const ctx=cv.getContext('2d'),W=cv.width,H=cv.height;
+  const p={t:10,r:8,b:36,l:38},cW=W-p.l-p.r,cH=H-p.t-p.b,yr=yMax-yMin,xs=cW/(lbls.length-1);
+  ctx.clearRect(0,0,W,H); ctx.fillStyle='white'; ctx.fillRect(0,0,W,H);
+  for(let i=0;i<=5;i++){
+    const y=p.t+cH-(i/5)*cH;
+    ctx.strokeStyle='#e8e8e8'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(p.l,y); ctx.lineTo(p.l+cW,y); ctx.stroke();
+    ctx.fillStyle='#888'; ctx.font='9px sans-serif'; ctx.textAlign='right';
+    ctx.fillText((yMin+(i/5)*yr).toFixed(0),p.l-3,y+3);
+  }
+  ctx.fillStyle='#555'; ctx.font='9px sans-serif'; ctx.textAlign='center';
+  lbls.forEach((l,i)=>{
+    const x=p.l+i*xs; ctx.fillText(l,x,H-5);
+    ctx.strokeStyle='#eee'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(x,p.t); ctx.lineTo(x,p.t+cH); ctx.stroke();
+  });
+  ctx.fillStyle='#666'; ctx.font='9px sans-serif'; ctx.textAlign='left'; ctx.fillText(unit,1,14);
+  ctx.strokeStyle=color; ctx.lineWidth=2; ctx.lineJoin='round';
+  ctx.beginPath();
+  data.forEach((v,i)=>{const x=p.l+i*xs,y=p.t+cH-((v-yMin)/yr)*cH; i?ctx.lineTo(x,y):ctx.moveTo(x,y)});
+  ctx.stroke();
+  ctx.beginPath();
+  data.forEach((v,i)=>{const x=p.l+i*xs,y=p.t+cH-((v-yMin)/yr)*cH; i?ctx.lineTo(x,y):ctx.moveTo(x,y)});
+  ctx.lineTo(p.l+(data.length-1)*xs,p.t+cH); ctx.lineTo(p.l,p.t+cH); ctx.closePath();
+  const ag=ctx.createLinearGradient(0,p.t,0,p.t+cH);
+  ag.addColorStop(0,color+'44'); ag.addColorStop(1,color+'06');
+  ctx.fillStyle=ag; ctx.fill();
+}
+
+// ── TOOLBAR ACTIONS ───────────────────────────
+function simulateConnect(){toast('Connecting to '+curV+'...'); setTimeout(()=>toast('✓ Connected to '+curV),1100)}
+function simulateLoad(){
+  toast('Loading measurement...');
+  const v=sim[curV];
+  v.avgD=+(v.avgD+(Math.random()-.5)*0.3).toFixed(2);
+  v.snr=+(Math.max(0,v.snr+(Math.random()-.5)*2)).toFixed(2);
+  updateCards(); setTimeout(()=>toast('✓ Measurement updated'),700);
+}
+function updateCards(){
+  const c=sim.Coal,f=sim.FlyAsh;
+  document.getElementById('cAvgD').textContent=c.avgD+' m';
+  document.getElementById('cMaxD').textContent=c.maxD+' m';
+  document.getElementById('cMinD').textContent=c.minD+' m';
+  document.getElementById('cVol').textContent=c.vol+' %';
+  document.getElementById('cFill').style.height=c.vol+'%';
+  document.getElementById('fAvgD').textContent=f.avgD+' m';
+  document.getElementById('fMaxD').textContent=f.maxD+' m';
+  document.getElementById('fMinD').textContent=f.minD+' m';
+  document.getElementById('fVol').textContent=f.vol+' %';
+  document.getElementById('fFill').style.height=f.vol+'%';
+}
+
+// ── MODALS ────────────────────────────────────
+function openM(id){document.getElementById(id).classList.remove('hidden')}
+function closeM(id){document.getElementById(id).classList.add('hidden')}
+function openAdvParams(){document.getElementById('advTitle').textContent=curV; openM('mAdvanced')}
+function openActivations(){openM('mActivations')}
+function openFalseEcho(){openM('mFalseEcho')}
+function openEcho(){openM('mEcho')}
+function openVDC(){openM('mVDC')}
+
+function advTab(name,btn){
+  ['Basic','Advanced','Beams'].forEach(t=>{
+    const e=document.getElementById('adv'+t); if(e) e.classList.toggle('hidden',t!==name);
+  });
+  document.querySelectorAll('#mAdvanced .mtab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+function uploadAll(){toast('Uploading parameters...'); closeM('mAdvanced'); setTimeout(()=>toast('✓ Parameters uploaded'),900)}
+function doReset(){closeM('mActivations'); toast('Sensor resetting...'); setTimeout(()=>toast('✓ Sensor online — 20 mA output'),3000)}
+function doFactoryReset(){if(confirm('WARNING: Reset to Factory erases all parameters. Continue?')){closeM('mActivations');toast('⚠ Factory reset complete')}}
+function execFE(){
+  const a=document.getElementById('feAction').value;
+  document.getElementById('feStatus').textContent='Executing: '+a+'... Calculating...';
+  setTimeout(()=>document.getElementById('feStatus').textContent='✓ '+a+' completed.',2000);
+}
+function startEcho(){document.getElementById('echoStat').textContent='Server Echo Curve analysis status: Active ✓'; toast('Echo Analysis started')}
+function stopEcho(){document.getElementById('echoStat').textContent='Server Echo Curve analysis status: Not active.'; toast('Echo Analysis stopped')}
+
+// ── WIZARD ────────────────────────────────────
+function openWizard(){wizStep=1; renderWiz(); openM('mWizard')}
+function wizNav(d){wizStep=Math.max(1,Math.min(4,wizStep+d)); renderWiz()}
+function renderWiz(){
+  document.getElementById('wizTitle').textContent=curV+' - Configuration Wizard';
+  const back=document.getElementById('wizBack'),next=document.getElementById('wizNext');
+  back.disabled=wizStep===1; back.style.opacity=wizStep===1?'0.5':'1';
+  if(wizStep===4){next.textContent='Finish'; next.onclick=()=>{closeM('mWizard');toast('✓ Configuration saved')}}
+  else{next.textContent='Next ▶'; next.onclick=()=>wizNav(1)}
+  const s=[null,wiz1,wiz2,wiz3,wiz4];
+  document.getElementById('wizBody').innerHTML='<div class="wiz-lay"><div class="wiz-left">'+s[wizStep]()+'</div><div class="wiz-right">'+wizPrev()+'</div></div>';
+}
+function wiz1(){return`<div class="wiz-stitle">Step 1/4</div>
+<div class="wiz-sec">General</div>
+<div class="wiz-frow"><label class="wiz-flbl">Distance:</label><select class="wiz-fsel"><option>m</option><option>ft</option></select></div>
+<div class="wiz-frow"><label class="wiz-flbl">Temperature:</label><select class="wiz-fsel"><option>Celsius</option><option>Fahrenheit</option></select></div>
+<div class="wiz-sec">Vessel Dimension — Top Shape</div>
+<div class="wiz-frow"><label class="wiz-flbl">Shape:</label><select class="wiz-fsel"><option>Cone</option><option>Flat</option></select></div>
+<div class="wiz-frow"><label class="wiz-flbl">Height:</label><input type="number" class="wiz-fin" value="1.000"></div>
+<div class="wiz-frow"><label class="wiz-flbl">Diameter:</label><input type="number" class="wiz-fin" value="0"></div>
+<div class="wiz-sec">Center Shape</div>
+<div class="wiz-frow"><label class="wiz-flbl">Shape:</label><select class="wiz-fsel"><option>Cylinder</option><option>Rectangle</option></select></div>
+<div class="wiz-frow"><label class="wiz-flbl">Height:</label><input type="number" class="wiz-fin" value="16"></div>
+<div class="wiz-frow"><label class="wiz-flbl">Diameter:</label><input type="number" class="wiz-fin" value="9"></div>
+<div class="wiz-sec">Bottom Shape</div>
+<div class="wiz-frow"><label class="wiz-flbl">Shape:</label><select class="wiz-fsel"><option>Cone</option><option>Flat</option></select></div>
+<div class="wiz-frow"><label class="wiz-flbl">Height:</label><input type="number" class="wiz-fin" value="1.000"></div>
+<div class="wiz-frow"><label class="wiz-flbl">Diameter:</label><input type="number" class="wiz-fin" value="0"></div>`}
+function wiz2(){return`<div class="wiz-stitle">Step 2/4</div>
+<div class="wiz-sec">Device Position</div>
+<label style="font-size:12px;display:flex;align-items:center;gap:5px;margin-bottom:9px"><input type="checkbox"> Set device angle manually</label>
+<table style="font-size:12px;border-collapse:collapse;width:100%">
+<tr style="background:#2a6db5;color:white"><th style="padding:5px 7px">Name</th><th style="padding:5px 7px">X</th><th style="padding:5px 7px">Y</th><th style="padding:5px 7px">Z</th><th style="padding:5px 7px">Offset</th><th style="padding:5px 7px">Angle</th><th style="padding:5px 7px">Addr.</th></tr>
+<tr style="background:#f0f4f8"><td style="padding:4px 7px">Coal_0</td>
+<td><input type="number" style="width:38px;border:1px solid #bbb;padding:2px;font-size:11px" value="0"></td>
+<td><input type="number" style="width:38px;border:1px solid #bbb;padding:2px;font-size:11px" value="0"></td>
+<td><input type="number" style="width:38px;border:1px solid #bbb;padding:2px;font-size:11px" value="18"></td>
+<td><input type="number" style="width:38px;border:1px solid #bbb;padding:2px;font-size:11px" value="0"></td>
+<td><input type="number" style="width:42px;border:1px solid #bbb;padding:2px;font-size:11px" value="180"></td>
+<td><input type="number" style="width:38px;border:1px solid #bbb;padding:2px;font-size:11px" value="0"></td></tr></table>`}
+function wiz3(){return`<div class="wiz-stitle">Step 3/4</div>
+<div class="wiz-sec">Device Position</div>
+<table style="font-size:12px;border-collapse:collapse;width:100%;margin-bottom:12px">
+<tr style="background:#2a6db5;color:white"><th style="padding:5px 7px">Name</th><th style="padding:5px 7px">X</th><th style="padding:5px 7px">Y</th><th style="padding:5px 7px">Z</th><th style="padding:5px 7px">Offset</th><th style="padding:5px 7px">Angle</th><th style="padding:5px 7px">Addr.</th></tr>
+<tr style="background:#f0f4f8"><td style="padding:4px 7px">Coal_0</td><td style="padding:4px 7px">0</td><td style="padding:4px 7px">0</td><td style="padding:4px 7px">18</td><td style="padding:4px 7px">0</td><td style="padding:4px 7px">180</td><td style="padding:4px 7px">0</td></tr></table>
+<div class="wiz-sec">Filling Points</div>
+<table style="font-size:12px;border-collapse:collapse;width:100%;margin-bottom:8px">
+<tr style="background:#2a6db5;color:white"><th style="padding:5px 50px">X</th><th style="padding:5px 50px">Y</th></tr></table>
+<div style="display:flex;gap:7px"><button class="mbtn" style="font-size:11px">Add</button><button class="mbtn" style="font-size:11px">Delete</button><button class="mbtn" style="font-size:11px">Clear</button></div>`}
+function wiz4(){return`<div class="wiz-stitle">Step 4/4</div>
+<div class="wiz-sec">Filling Points</div>
+<table style="font-size:12px;border-collapse:collapse;width:100%;margin-bottom:8px">
+<tr style="background:#2a6db5;color:white"><th style="padding:5px 50px">X</th><th style="padding:5px 50px">Y</th></tr></table>
+<div style="display:flex;gap:7px;margin-bottom:14px"><button class="mbtn" style="font-size:11px">Add</button><button class="mbtn" style="font-size:11px">Delete</button><button class="mbtn" style="font-size:11px">Clear</button></div>
+<div class="wiz-sec">Full Empty Calibration</div>
+<table style="font-size:12px;width:100%;margin-bottom:10px">
+<tr style="background:#eee;font-size:11px"><td style="padding:3px 6px"></td><td style="padding:3px 6px">Level (Bottom)</td><td></td><td style="padding:3px 6px">Distance (Top)</td><td></td><td style="padding:3px 6px">Vessel Height</td></tr>
+<tr><td style="padding:5px 6px;font-size:12px">Full Calib</td>
+<td><input type="number" style="width:70px;border:1px solid #bbb;padding:4px 6px;font-size:12px;border-radius:3px" value="17"></td>
+<td style="padding:0 7px">+</td>
+<td><input type="number" id="wizFD" style="width:70px;border:1px solid #bbb;padding:4px 6px;font-size:12px;border-radius:3px" value="1"></td>
+<td style="padding:0 7px">=</td>
+<td><input type="number" style="width:70px;border:1px solid #bbb;padding:4px 6px;font-size:12px;border-radius:3px;background:#eee" value="18" readonly></td></tr>
+<tr><td style="padding:5px 6px;font-size:12px">Empty Calib</td>
+<td><input type="number" style="width:70px;border:1px solid #bbb;padding:4px 6px;font-size:12px;border-radius:3px" value="0"></td>
+<td style="padding:0 7px">+</td>
+<td><input type="number" style="width:70px;border:1px solid #bbb;padding:4px 6px;font-size:12px;border-radius:3px" value="18"></td>
+<td style="padding:0 7px">=</td>
+<td><input type="number" style="width:70px;border:1px solid #bbb;padding:4px 6px;font-size:12px;border-radius:3px;background:#eee" value="18" readonly></td></tr></table>
+<div style="display:flex;gap:7px"><button class="mbtn" style="font-size:11px">Default</button><button class="mbtn" style="font-size:11px">View Table</button></div>`}
+function wizPrev(){return`<svg width="240" height="300" viewBox="0 0 240 300" xmlns="http://www.w3.org/2000/svg">
+<defs><linearGradient id="yg" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#c0b850"/><stop offset="50%" stop-color="#e0d860"/><stop offset="100%" stop-color="#b0a840"/></linearGradient></defs>
+<polygon points="120,28 185,65 185,260 55,260 55,65" fill="url(#yg)" stroke="#9a9030" stroke-width="2"/>
+<polygon points="55,65 120,28 185,65" fill="#d0c858" stroke="#9a9030" stroke-width="1.5"/>
+<polygon points="55,260 185,260 170,288 70,288" fill="#a8a038"/>
+<rect x="113" y="13" width="14" height="18" fill="#445566" rx="2"/>
+<text x="192" y="69" fill="#cc2222" font-size="12" font-weight="bold" font-family="sans-serif">F</text>
+<text x="192" y="264" fill="#cc8800" font-size="12" font-weight="bold" font-family="sans-serif">E</text>
+<circle cx="120" cy="30" r="5" fill="#2244bb" stroke="#88aaff" stroke-width="1.5"/></svg>`}
+
+// ── TOAST ─────────────────────────────────────
+let toastT=null;
+function toast(msg){
+  const el=document.getElementById('toastEl');
+  el.textContent=msg; el.classList.remove('hidden');
+  clearTimeout(toastT); toastT=setTimeout(()=>el.classList.add('hidden'),2800);
+}
+
+// ── LIVE SIM ──────────────────────────────────
+setInterval(()=>{
+  ['Coal','FlyAsh'].forEach(v=>{
+    const d=sim[v];
+    d.temp=+(d.temp+(Math.random()-.5)*0.06).toFixed(2);
+    d.snr=+(Math.max(0,d.snr+(Math.random()-.5)*0.9)).toFixed(2);
+    d.out=+(d.out+(Math.random()-.5)*0.03).toFixed(2);
+  });
+  if(!document.getElementById('viewDetail').classList.contains('hidden')&&curDTab==='Overview'){
+    const d=sim[curV];
+    const s=id=>document.getElementById(id);
+    if(s('ovSNR')) s('ovSNR').textContent=d.snr.toFixed(2);
+    if(s('ovTemp')) s('ovTemp').textContent=d.temp.toFixed(2);
+    if(s('ovOut')) s('ovOut').textContent=d.out.toFixed(2);
+    draw3D(d.vol/100,curV==='FlyAsh');
+  }
+},2000);
+</script>
