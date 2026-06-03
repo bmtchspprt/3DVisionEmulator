@@ -525,6 +525,20 @@
       <button class="mbtn-p" onclick="addProblem()">+ Add Problem</button>
       <button class="mbtn-p" onclick="saveAdmin()">Save & Close</button>
       <button class="mbtn" onclick="closeM('mAdmin')">Cancel</button>
+      <!-- STEP BUILDER MODAL -->
+<div class="modal-bg hidden" id="mStepBuilder">
+  <div class="modal-win" style="width:740px;max-height:92vh">
+    <div class="modal-tbar">
+      ➕ Add Step
+      <button class="modal-x" onclick="closeM('mStepBuilder')">✕</button>
+    </div>
+    <div class="modal-body" id="stepBuilderBody" style="padding:16px"></div>
+    <div class="modal-foot">
+      <button class="mbtn-p" onclick="saveBuilderStep()">✓ Add This Step</button>
+      <button class="mbtn" onclick="closeM('mStepBuilder')">Cancel</button>
+    </div>
+  </div>
+</div>
     </div>
   </div>
 </div>
