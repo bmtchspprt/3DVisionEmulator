@@ -1,43 +1,23 @@
 // ═══════════════════════════════════════════════════════════════
 // GUIDE.JS — Troubleshoot panel · Guide engine · AI generator
-//
-// HOW TO EDIT TROUBLESHOOTING PATHS:
-//   1. Find tsData array below
-//   2. Each object = one problem button in the panel
-//   3. Each step needs:
-//      - target: CSS selector of element to highlight
-//      - inst: instruction text shown to technician (HTML ok)
-//
-// COMMON SELECTORS:
-//   #mDevice        → Device menu
-//   #mComm          → Communication menu
-//   #ddAdvParams    → Advanced Parameters menu item
-//   #ddFalseEcho    → False Echo Mapping menu item
-//   #ddActivations  → Devices Activations menu item
-//   #tbLoad         → Load from Vessel toolbar button
-//   #tbWizard       → Wizard toolbar button
-//   #tbEcho         → Echo Curve toolbar button
-//   #apDamp         → Output Dampening Power field
-//   #apMPN          → MPN Rate field
-//   #apMFill        → Max Fill field
-//   #apMEmpty       → Max Empty field
-//   #apAutoBeam     → Auto Beam Selection checkbox
-//   #btnReset       → Reset button in Activations
-//   #feAction       → False Echo action dropdown
-//   #wizFD          → Full calibration distance field
-//   #wizNext        → Wizard Next/Finish button
-//   .title-bar      → Title bar (for Windows OS steps)
-//   .toolbar        → Toolbar area
-//   #menuBar        → Menu bar (fallback)
 // ═══════════════════════════════════════════════════════════════
 
-let activeGuide = null;
-let guideIdx    = 0;
-let tsMini      = false;
+let activeGuide  = null;
+let guideIdx     = 0;
+let tsMini       = false;
 let aiResultData = null;
 
 // ─────────────────────────────────────────────────────────────
-// TROUBLESHOOTING PATHS — ADD / EDIT HERE
+// TROUBLESHOOTING PATHS
+// Each step can have an optional autoAction that drives the UI:
+//
+// autoAction types:
+//   { type:'openMenu',  menuId:'mDevice' }           → opens a menu
+//   { type:'closeMenu' }                              → closes open menus
+//   { type:'openModal', fn:'openAdvParams' }          → calls a JS function
+//   { type:'click',     sel:'#btnReset' }             → clicks an element
+//   { type:'switchTab', tabName:'Beams' }             → switches adv params tab
+//   { type:'none' }                                   → just highlight, no action
 // ─────────────────────────────────────────────────────────────
 let tsData = [
 
@@ -47,24 +27,47 @@ let tsData = [
     title: "SNR Reading is 0",
     steps: [
       { target: "#mDevice",
+        autoAction: { type: 'openMenu', menuId: 'mDevice' },
         inst: "Click the <strong>Device</strong> menu in the top menu bar." },
+
       { target: "#ddAdvParams",
+        autoAction: { type: 'openModal', fn: 'openAdvParams' },
         inst: "Select <strong>Advanced Parameters…</strong> (F3) from the Device menu." },
+
       { target: "#apDamp",
+        autoAction: { type: 'none' },
         inst: "Change <strong>Output Dampening Power</strong> to <strong>420</strong> seconds." },
+
       { target: "#apMPN",
+        autoAction: { type: 'none' },
         inst: "Change <strong>MPN Rate</strong> to <strong>7</strong> mass/hour." },
+
       { target: "#apMFill",
+        autoAction: { type: 'none' },
         inst: "Change <strong>Max Fill</strong> to <strong>7</strong> and <strong>Max Empty</strong> to <strong>8</strong>." },
+
       { target: "#mAdvanced .mbtn-p",
+        autoAction: { type: 'none' },
         inst: "Click <strong>Upload All</strong> to push parameters to the sensor." },
+
       { target: "#mDevice",
-        inst: "Go back to the <strong>Device</strong> menu." },
+        autoAction: { type: 'closeModal', modalId: 'mAdvanced' },
+        inst: "Close Advanced Parameters. Now go back to the <strong>Device</strong> menu." },
+
+      { target: "#mDevice",
+        autoAction: { type: 'openMenu', menuId: 'mDevice' },
+        inst: "Click the <strong>Device</strong> menu." },
+
       { target: "#ddFalseEcho",
+        autoAction: { type: 'openModal', fn: 'openFalseEcho' },
         inst: "Select <strong>Device False Echo Mapping…</strong>" },
+
       { target: "#feAction",
+        autoAction: { type: 'none' },
         inst: "Choose <strong>Reset Mapping</strong> from the dropdown and click <strong>Execute</strong>. Wait while it calculates." },
+
       { target: "#tbLoad",
+        autoAction: { type: 'closeModal', modalId: 'mFalseEcho' },
         inst: "Click <strong>Load from Vessel</strong> in the toolbar. Repeat once per minute while monitoring SNR." }
     ]
   },
@@ -75,14 +78,23 @@ let tsData = [
     title: "Sensor Reading Full (Wrong Level)",
     steps: [
       { target: "#tbWizard",
+        autoAction: { type: 'openModal', fn: 'openWizard' },
         inst: "Click the <strong>Wizard</strong> button in the toolbar." },
+
       { target: "#wizBody",
+        autoAction: { type: 'none' },
         inst: "Click <strong>Next</strong> through Steps 1–3 to reach Step 4/4 — <strong>Full/Empty Calibration</strong>." },
+
       { target: "#wizFD",
-        inst: "Change the <strong>Distance (Top)</strong> field for Full Calibration to <strong>1.64 feet</strong>. The sensor auto-calculates the rest." },
+        autoAction: { type: 'wizardGoToStep', step: 4 },
+        inst: "Change the <strong>Distance (Top)</strong> field for Full Calibration to <strong>1.64 feet</strong>." },
+
       { target: "#wizNext",
+        autoAction: { type: 'none' },
         inst: "Click <strong>Finish</strong> to apply the calibration." },
+
       { target: "#tbLoad",
+        autoAction: { type: 'closeModal', modalId: 'mWizard' },
         inst: "Click <strong>Load from Vessel</strong> to confirm the level has corrected." }
     ]
   },
@@ -93,13 +105,20 @@ let tsData = [
     title: "Sensor Reset After Mapping Clear",
     steps: [
       { target: "#mDevice",
+        autoAction: { type: 'openMenu', menuId: 'mDevice' },
         inst: "Click the <strong>Device</strong> menu at the top." },
+
       { target: "#ddActivations",
+        autoAction: { type: 'openModal', fn: 'openActivations' },
         inst: "Select <strong>Devices Activations…</strong> from the Device menu." },
+
       { target: "#btnReset",
-        inst: "Click <strong>Reset</strong> — do <em>NOT</em> select Reset to Factory. This clears the echo map while keeping your parameters." },
+        autoAction: { type: 'none' },
+        inst: "Click <strong>Reset</strong> — do <em>NOT</em> select Reset to Factory." },
+
       { target: "#tbLoad",
-        inst: "Wait for the temperature alert, then click <strong>Load from Vessel</strong> to confirm sensor is back online at ~20 mA output." }
+        autoAction: { type: 'closeModal', modalId: 'mActivations' },
+        inst: "Wait for the temperature alert, then click <strong>Load from Vessel</strong> to confirm ~20 mA output." }
     ]
   },
 
@@ -109,13 +128,17 @@ let tsData = [
     title: "Controller Goes to Sleep",
     steps: [
       { target: ".title-bar",
-        inst: "On the Windows desktop, click the <strong>Start button</strong> (bottom-left corner of the screen)." },
+        autoAction: { type: 'none' },
+        inst: "On the Windows desktop, click the <strong>Start button</strong> (bottom-left corner)." },
       { target: ".title-bar",
+        autoAction: { type: 'none' },
         inst: "Type <strong>sleep</strong> in the search box. Open <strong>Power, Sleep &amp; Battery Settings</strong>." },
       { target: ".title-bar",
+        autoAction: { type: 'none' },
         inst: "Expand <strong>Screen, sleep, and hibernation timeouts</strong>." },
       { target: ".title-bar",
-        inst: "Set <strong>'Make my device sleep after'</strong> to <strong>Never</strong>. The screen turning off is fine — only the sleep setting causes disconnects." }
+        autoAction: { type: 'none' },
+        inst: "Set <strong>'Make my device sleep after'</strong> to <strong>Never</strong>." }
     ]
   },
 
@@ -125,32 +148,116 @@ let tsData = [
     title: "Auto Beam Selection Issues",
     steps: [
       { target: "#mDevice",
+        autoAction: { type: 'openMenu', menuId: 'mDevice' },
         inst: "Click the <strong>Device</strong> menu." },
+
       { target: "#ddAdvParams",
+        autoAction: { type: 'openModal', fn: 'openAdvParams' },
         inst: "Open <strong>Advanced Parameters…</strong>" },
+
       { target: "#mAdvanced .mtab:nth-child(3)",
+        autoAction: { type: 'switchTab', tabName: 'Beams' },
         inst: "Click the <strong>Beams</strong> tab inside Advanced Parameters." },
+
       { target: "#apAutoBeam",
-        inst: "Verify all beam checkboxes at the top are checked. Then <strong>uncheck Auto Beam Selection</strong> at the bottom." },
+        autoAction: { type: 'none' },
+        inst: "Verify all beam checkboxes at top are checked. <strong>Uncheck Auto Beam Selection</strong> at the bottom." },
+
       { target: "#mAdvanced .mbtn-p",
+        autoAction: { type: 'none' },
         inst: "Click <strong>Upload All</strong> to apply the change." },
+
       { target: "#tbLoad",
+        autoAction: { type: 'closeModal', modalId: 'mAdvanced' },
         inst: "Click <strong>Load from Vessel</strong> to confirm correct readings." }
     ]
   }
 
-  // ── ADD MORE PROBLEMS HERE ─────────────────────────────────
-  // Copy the block below, increment id, fill in title and steps:
-  //
-  // ,{
-  //   id: 6,
-  //   title: "Your Problem Title Here",
-  //   steps: [
-  //     { target: "#mDevice", inst: "Step 1 instruction." },
-  //     { target: "#tbLoad",  inst: "Step 2 instruction." }
-  //   ]
-  // }
 ];
+
+
+// ─────────────────────────────────────────────────────────────
+// AUTO ACTION ENGINE
+// Drives the UI to match each step before highlighting
+// ─────────────────────────────────────────────────────────────
+function runAutoAction(action) {
+  if (!action || action.type === 'none') return;
+
+  switch (action.type) {
+
+    case 'openMenu':
+      // Close any open menus first, then open the target menu
+      cm();
+      setTimeout(() => {
+        const item = document.getElementById(action.menuId);
+        const pairs = {
+          mFile:'ddFile', mComm:'ddComm', mEdit:'ddEdit',
+          mDevice:'ddDevice', mTools:'ddTools', mHelp:'ddHelp'
+        };
+        const dropId = pairs[action.menuId];
+        if (!item || !dropId) return;
+        const drop = document.getElementById(dropId);
+        const r = item.getBoundingClientRect();
+        drop.style.left = r.left + 'px';
+        drop.style.top  = r.bottom + 'px';
+        drop.classList.add('show');
+        item.classList.add('open');
+        openDrop = dropId;
+      }, 80);
+      break;
+
+    case 'openModal':
+      // Close menus then open the modal
+      cm();
+      setTimeout(() => {
+        if (typeof window[action.fn] === 'function') {
+          window[action.fn]();
+        }
+      }, 150);
+      break;
+
+    case 'closeModal':
+      setTimeout(() => {
+        closeM(action.modalId);
+      }, 100);
+      break;
+
+    case 'click':
+      cm();
+      setTimeout(() => {
+        const el = document.querySelector(action.sel);
+        if (el) el.click();
+      }, 150);
+      break;
+
+    case 'switchTab':
+      // Switch tab inside Advanced Parameters modal
+      setTimeout(() => {
+        const tabs = document.querySelectorAll('#mAdvanced .mtab');
+        const names = ['Basic', 'Advanced', 'Beams'];
+        tabs.forEach((btn, i) => {
+          if (names[i] === action.tabName) {
+            advTab(action.tabName, btn);
+          }
+        });
+      }, 200);
+      break;
+
+    case 'wizardGoToStep':
+      // Navigate wizard to a specific step
+      setTimeout(() => {
+        if (typeof wizStep !== 'undefined') {
+          wizStep = action.step;
+          renderWiz();
+        }
+      }, 200);
+      break;
+
+    case 'closeMenu':
+      cm();
+      break;
+  }
+}
 
 
 // ─────────────────────────────────────────────────────────────
@@ -244,12 +351,15 @@ function renderGuide() {
   const s   = activeGuide.steps;
   const st  = s[guideIdx];
   const tot = s.length;
+
   document.getElementById('gTitle').textContent = 'Step ' + (guideIdx + 1) + ' of ' + tot;
   document.getElementById('gCtr').textContent   = (guideIdx + 1) + ' / ' + tot;
   document.getElementById('gInst').innerHTML    = st.inst;
+
   const prev = document.getElementById('gPrev');
-  prev.disabled    = guideIdx === 0;
+  prev.disabled      = guideIdx === 0;
   prev.style.opacity = guideIdx === 0 ? '0.4' : '1';
+
   const next = document.getElementById('gNext');
   if (guideIdx === tot - 1) {
     next.textContent = 'Done ✓';
@@ -258,7 +368,10 @@ function renderGuide() {
     next.textContent = 'Next ▶';
     next.onclick = () => guideNav(1);
   }
-  posCircle(st.target);
+
+  // Run the auto action for this step, then position circle after UI settles
+  runAutoAction(st.autoAction);
+  setTimeout(() => posCircle(st.target), 250);
 }
 
 function guideNav(d) {
@@ -269,6 +382,9 @@ function guideNav(d) {
 
 function endGuide() {
   activeGuide = null;
+  cm();
+  // Close any modals that may have been opened during walkthrough
+  ['mAdvanced','mActivations','mFalseEcho','mEcho','mWizard','mVDC'].forEach(id => closeM(id));
   document.getElementById('gPanel').classList.add('hidden');
   document.getElementById('hlCircle').classList.add('hidden');
   toast('Walkthrough complete ✓');
@@ -291,6 +407,7 @@ function posCircle(sel) {
   }
   if (!el) el = document.getElementById('menuBar');
   if (!el) { circle.classList.add('hidden'); return; }
+
   const r    = el.getBoundingClientRect();
   const pad  = 10;
   const size = Math.max(r.width + pad * 2, r.height + pad * 2, 40);
@@ -339,7 +456,7 @@ function renderAdmin() {
   </div>
   <p style="font-size:12px;color:#555;margin-bottom:12px">
     Or edit paths manually below. Each step needs a <strong>CSS selector</strong>
-    (see comments at top of guide.js) and an <strong>instruction</strong>.
+    and an <strong>instruction</strong>.
   </p>`;
 
   tsData.forEach((p, pi) => {
@@ -368,11 +485,11 @@ function renderAdminSteps(pi) {
     r.innerHTML = `
       <div class="adm-snum">${si + 1}</div>
       <div class="adm-sfields">
-        <span class="adm-hint">CSS Selector — which element to highlight (e.g. #mDevice, #tbLoad):</span>
+        <span class="adm-hint">CSS Selector (e.g. #mDevice, #tbLoad):</span>
         <input class="adm-starget" type="text" value="${esc(s.target)}"
           oninput="tsData[${pi}].steps[${si}].target=this.value"
           placeholder="#id or .class">
-        <span class="adm-hint">Instruction shown to technician (HTML allowed):</span>
+        <span class="adm-hint">Instruction (HTML allowed):</span>
         <textarea class="adm-sinst"
           oninput="tsData[${pi}].steps[${si}].inst=this.value">${esc(s.inst)}</textarea>
       </div>
@@ -385,14 +502,14 @@ function addProblem() {
   tsData.push({
     id: Date.now(),
     title: 'New Problem ' + (tsData.length + 1),
-    steps: [{ target: '#mDevice', inst: 'Enter instruction here.' }]
+    steps: [{ target: '#mDevice', autoAction: { type:'openMenu', menuId:'mDevice' }, inst: 'Enter instruction here.' }]
   });
   renderAdmin();
   renderTS();
 }
 
 function addStep(pi) {
-  tsData[pi].steps.push({ target: '', inst: 'Enter instruction here.' });
+  tsData[pi].steps.push({ target: '', autoAction: { type:'none' }, inst: 'Enter instruction here.' });
   renderAdminSteps(pi);
 }
 
@@ -430,48 +547,51 @@ function esc(s) {
 const selectorRef = `
 AVAILABLE CSS SELECTORS FOR THIS SOFTWARE:
 Menus: #mFile, #mComm, #mEdit, #mDevice, #mTools, #mHelp
-Device menu items: #ddAdvParams (Advanced Parameters), #ddFalseEcho (False Echo Mapping), #ddActivations (Devices Activations)
-Toolbar: #tbLevel, #tbLoad (Load from Vessel), #tbEcho (Echo Curve), #tbWizard (Wizard), #tbVDC (VDC)
-Advanced Parameters Basic tab: #apDamp (Output Dampening Power), #apMPN (MPN Rate), #apMFill (Max Fill), #apMEmpty (Max Empty)
-Advanced Parameters Advanced tab: #apAutoFE (Auto False Echoes)
-Advanced Parameters Beams tab: #apAutoBeam (Auto Beam Selection checkbox)
-Advanced Parameters tabs: #mAdvanced .mtab:nth-child(1) Basic, #mAdvanced .mtab:nth-child(2) Advanced, #mAdvanced .mtab:nth-child(3) Beams
-Advanced Parameters Upload All button: #mAdvanced .mbtn-p
-Device Activations modal: #btnReset (Reset button)
-False Echo Mapping modal: #feAction (action dropdown)
-Wizard: #wizBody, #wizFD (Full calibration distance), #wizNext (Next/Finish button)
-General fallbacks: .title-bar (Windows OS steps), .toolbar (toolbar area), #menuBar (menu bar)
+Device menu items: #ddAdvParams, #ddFalseEcho, #ddActivations
+Toolbar: #tbLevel, #tbLoad, #tbEcho, #tbWizard, #tbVDC
+Adv Params inputs: #apDamp, #apMPN, #apMFill, #apMEmpty, #apAutoFE, #apAutoBeam
+Adv Params tabs: #mAdvanced .mtab:nth-child(1) Basic, :nth-child(2) Advanced, :nth-child(3) Beams
+Adv Params Upload All: #mAdvanced .mbtn-p
+Activations: #btnReset
+False Echo: #feAction
+Wizard: #wizBody, #wizFD, #wizNext
+Fallbacks: .title-bar, .toolbar, #menuBar
+
+AUTO ACTION TYPES — include autoAction in every step:
+{ "type": "openMenu",    "menuId": "#mDevice" }   when step opens a menu
+{ "type": "openModal",   "fn": "openAdvParams" }  when step opens a dialog (fn = JS function name)
+{ "type": "closeModal",  "modalId": "mAdvanced" } when step closes a dialog
+{ "type": "switchTab",   "tabName": "Beams" }     when step switches a tab
+{ "type": "none" }                                 for all other steps
 `.trim();
 
 async function runAIGenerate() {
   const inputText = document.getElementById('aiInputText').value.trim();
   if (!inputText) { toast('Please paste some text first'); return; }
 
-  const btn       = document.getElementById('aiGenBtn');
-  const status    = document.getElementById('aiStatus');
+  const btn        = document.getElementById('aiGenBtn');
+  const status     = document.getElementById('aiStatus');
   const resultWrap = document.getElementById('aiResultWrap');
 
-  btn.disabled    = true;
-  btn.textContent = '⏳ Generating...';
+  btn.disabled     = true;
+  btn.textContent  = '⏳ Generating...';
   status.className    = 'ai-gen-status loading';
   status.textContent  = 'Sending to AI — analyzing your text and mapping to software steps...';
   resultWrap.classList.remove('show');
 
   const systemPrompt = `You are an expert field service trainer for BinMaster 3D MultiVision level measurement sensors.
-Read support text (emails, call transcripts, notes) and extract a structured troubleshooting path.
+Read support text and extract a structured troubleshooting path.
 
 ${selectorRef}
 
-OUTPUT RULES — follow exactly:
+OUTPUT RULES:
 1. Respond with ONLY valid JSON. No explanation, no markdown fences.
-2. Output exactly ONE JSON object:
-{"id":0,"title":"<problem symptom max 8 words>","steps":[{"target":"<CSS selector>","inst":"<instruction>"}]}
-3. Use only selectors from the list above. Use .title-bar for Windows OS steps.
-4. If opening a menu is required, make that its own step.
-5. Extract ALL distinct actions as separate steps.
-6. Write in second person: "Click...", "Change...", "Select..."
-7. Use <strong> tags around menu names, button names, field names, and numeric values.
-8. Title = problem symptom not solution.`;
+2. Output exactly ONE object:
+{"id":0,"title":"<symptom max 8 words>","steps":[{"target":"<selector>","autoAction":<action>,"inst":"<instruction>"}]}
+3. Every step must have an autoAction from the types listed above.
+4. Use <strong> tags around menu names, button names, field names, and values.
+5. Title = problem symptom not solution.
+6. Write instructions in second person.`;
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -479,7 +599,7 @@ OUTPUT RULES — follow exactly:
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
+        max_tokens: 1200,
         system: systemPrompt,
         messages: [{ role: 'user', content: 'Extract a troubleshooting path from this text:\n\n' + inputText }]
       })
@@ -492,9 +612,8 @@ OUTPUT RULES — follow exactly:
     raw = raw.replace(/^```[\w]*\n?/, '').replace(/\n?```$/, '').trim();
 
     let parsed;
-    try {
-      parsed = JSON.parse(raw);
-    } catch(e) {
+    try { parsed = JSON.parse(raw); }
+    catch(e) {
       const match = raw.match(/\{[\s\S]*\}/);
       if (match) parsed = JSON.parse(match[0]);
       else throw new Error('Could not parse JSON from AI response');
@@ -527,7 +646,7 @@ function importAIResult() {
   document.getElementById('aiResultWrap').classList.remove('show');
   document.getElementById('aiInputText').value = '';
   document.getElementById('aiStatus').className   = 'ai-gen-status success';
-  document.getElementById('aiStatus').textContent = '✓ Imported successfully. Scroll down to see your new path.';
+  document.getElementById('aiStatus').textContent = '✓ Imported. Scroll down to see your new path.';
   toast('✓ New troubleshooting path imported');
 }
 
