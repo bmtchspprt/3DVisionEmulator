@@ -3,12 +3,29 @@
 <head>
 <meta charset="UTF-8">
 <title>3D MultiVision - BinMaster</title>
-<link rel="stylesheet" href="index1.css">
 </head>
 <body>
-<div id="appBody"></div>
-<script src="index2.js"></script>
-<script src="index3.js"></script>
-<script src="guide.js"></script>
+<script>
+fetch('index1.html').then(r=>r.text()).then(css=>{
+  const s=document.createElement('style');
+  s.textContent=css.replace(/<\/?style>/g,'');
+  document.head.appendChild(s);
+  return fetch('index2.html');
+}).then(r=>r.text()).then(html=>{
+  document.body.insertAdjacentHTML('afterbegin',html);
+  return fetch('index3.html');
+}).then(r=>r.text()).then(js=>{
+  const s=document.createElement('script');
+  s.textContent=js.replace(/<\/?script>/g,'');
+  document.body.appendChild(s);
+  return fetch('guide.js');
+}).then(r=>r.text()).then(js=>{
+  const s=document.createElement('script');
+  s.textContent=js.replace(/<\/?script>/g,'');
+  document.body.appendChild(s);
+}).catch(e=>{
+  document.body.innerHTML='<div style="padding:40px;color:red;font-family:sans-serif"><h2>Error loading files</h2><p>'+e.message+'</p></div>';
+});
+</script>
 </body>
 </html>
