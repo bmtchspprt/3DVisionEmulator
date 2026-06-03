@@ -21,14 +21,10 @@ fetch('index1.html').then(r=>r.text()).then(css=>{
   return fetch('guide.js');
 }).then(r=>r.text()).then(js=>{
   const s=document.createElement('script');
-  s.textContent=js.replace(/<\/?script>/g,'');
+  s.textContent=js;
   document.body.appendChild(s);
-  // Fire init manually now that everything is loaded
-  if(typeof renderTS === 'function') renderTS();
-  if(typeof document.getElementById('tbLevel') !== 'undefined'){
-    const tb = document.getElementById('tbLevel');
-    if(tb) tb.classList.add('active');
-  }
+  // Init after everything is loaded
+  setTimeout(initApp, 50);
 }).catch(e=>{
   document.body.innerHTML='<div style="padding:40px;color:red;font-family:sans-serif"><h2>Error loading files</h2><p>'+e.message+'</p></div>';
 });
