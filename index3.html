@@ -1,8 +1,7 @@
 <script>
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
 // INDEX3 — CORE APPLICATION LOGIC
-// Menus · Vessel · 3D Canvas · Charts · Modals · Wizard · Sim
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
 
 let curV='Coal', curDTab='Overview', wizStep=1;
 
@@ -11,7 +10,7 @@ const sim={
   FlyAsh:{avgD:4.53,maxD:5.30,minD:3.44,vol:75.41,snr:47.08,temp:23.10,out:15.60}
 };
 
-// ── MENU ──────────────────────────────────────
+// ── MENU ──────────────────────────────────────────────────────
 let openDrop=null;
 
 function openMenu(e,itemId,dropId){
@@ -20,6 +19,7 @@ function openMenu(e,itemId,dropId){
   cm();
   const item=document.getElementById(itemId);
   const drop=document.getElementById(dropId);
+  if(!item||!drop)return;
   const r=item.getBoundingClientRect();
   drop.style.left=r.left+'px';
   drop.style.top=r.bottom+'px';
@@ -44,38 +44,44 @@ document.querySelectorAll('.menu-item').forEach(item=>{
   });
 });
 document.addEventListener('mousedown',e=>{
-  if(!e.target.closest('.menu-bar')&&!e.target.closest('.dropdown')) cm();
+  if(!e.target.closest('.menu-bar')&&!e.target.closest('.dropdown'))cm();
 });
 
-// ── VESSEL ────────────────────────────────────
+// ── VESSEL ────────────────────────────────────────────────────
 function selVessel(v){
   curV=v;
   document.querySelectorAll('.vtab').forEach(t=>t.classList.remove('active'));
-  document.getElementById('vt'+v).classList.add('active');
+  const el=document.getElementById('vt'+v);
+  if(el)el.classList.add('active');
 }
 
 function showHome(){
-  document.getElementById('viewHome').classList.remove('hidden');
-  document.getElementById('viewDetail').classList.add('hidden');
+  const vh=document.getElementById('viewHome');
+  const vd=document.getElementById('viewDetail');
+  if(vh)vh.classList.remove('hidden');
+  if(vd)vd.classList.add('hidden');
 }
 
 function openDetail(v){
   selVessel(v); curV=v;
-  document.getElementById('viewHome').classList.add('hidden');
-  document.getElementById('viewDetail').classList.remove('hidden');
-  const isFA=v==='FlyAsh',lbl=isFA?'Fly Ash':v,d=sim[v];
-  document.getElementById('scanSel').value=lbl+' (MV)';
-  document.getElementById('ovName').textContent=lbl+' (MV)';
-  document.getElementById('ovMat').textContent=lbl;
-  document.getElementById('ovAD').textContent=d.avgD.toFixed(2);
-  document.getElementById('ovMiD').textContent=d.minD.toFixed(2);
-  document.getElementById('ovMaD').textContent=d.maxD.toFixed(2);
-  document.getElementById('ovVolP').textContent=d.vol.toFixed(2);
-  document.getElementById('ovTemp').textContent=d.temp.toFixed(2);
-  document.getElementById('ovSNR').textContent=d.snr.toFixed(2);
-  document.getElementById('ovOut').textContent=d.out.toFixed(2);
+  const vh=document.getElementById('viewHome');
+  const vd=document.getElementById('viewDetail');
+  if(vh)vh.classList.add('hidden');
+  if(vd)vd.classList.remove('hidden');
+  const isFA=v==='FlyAsh', lbl=isFA?'Fly Ash':v, d=sim[v];
+  const s=id=>document.getElementById(id);
+  if(s('scanSel'))  s('scanSel').value=lbl+' (MV)';
+  if(s('ovName'))   s('ovName').textContent=lbl+' (MV)';
+  if(s('ovMat'))    s('ovMat').textContent=lbl;
+  if(s('ovAD'))     s('ovAD').textContent=d.avgD.toFixed(2);
+  if(s('ovMiD'))    s('ovMiD').textContent=d.minD.toFixed(2);
+  if(s('ovMaD'))    s('ovMaD').textContent=d.maxD.toFixed(2);
+  if(s('ovVolP'))   s('ovVolP').textContent=d.vol.toFixed(2);
+  if(s('ovTemp'))   s('ovTemp').textContent=d.temp.toFixed(2);
+  if(s('ovSNR'))    s('ovSNR').textContent=d.snr.toFixed(2);
+  if(s('ovOut'))    s('ovOut').textContent=d.out.toFixed(2);
   const f=document.getElementById('ovFill');
-  f.style.height=d.vol+'%'; f.className='sfill '+(isFA?'flyash':'coal');
+  if(f){f.style.height=d.vol+'%'; f.className='sfill '+(isFA?'flyash':'coal');}
   showDTab('Overview');
   draw3D(d.vol/100,isFA);
   drawMinimap();
@@ -85,16 +91,17 @@ function showDTab(t){
   curDTab=t;
   const tabs={Overview:'tabOv',Logs:'tabLg',Parameters:'tabPr',Devices:'tabDv'};
   Object.entries(tabs).forEach(([name,id])=>{
-    document.getElementById(id).classList.toggle('hidden',name!==t);
+    const el=document.getElementById(id);
+    if(el)el.classList.toggle('hidden',name!==t);
   });
   document.querySelectorAll('.dtab').forEach((el,i)=>{
     el.classList.toggle('active',['Overview','Logs','Parameters','Devices'][i]===t);
   });
-  if(t==='Logs') setTimeout(drawCharts,60);
-  if(t==='Overview') setTimeout(()=>draw3D(sim[curV].vol/100,curV==='FlyAsh'),60);
+  if(t==='Logs')setTimeout(drawCharts,60);
+  if(t==='Overview')setTimeout(()=>draw3D(sim[curV].vol/100,curV==='FlyAsh'),60);
 }
 
-// ── 3D CANVAS ─────────────────────────────────
+// ── 3D CANVAS ─────────────────────────────────────────────────
 function draw3D(fill,isFA){
   const cv=document.getElementById('c3d'); if(!cv)return;
   const ctx=cv.getContext('2d'),W=cv.width,H=cv.height;
@@ -108,10 +115,17 @@ function draw3D(fill,isFA){
   ctx.fillStyle='#80a8c8'; ctx.fillRect(cx-hw,bT,bW,bH);
   const fH=bH*fill,fT=bB-fH;
   const g=ctx.createLinearGradient(cx-hw,fT,cx+hw,bB);
-  if(isFA){g.addColorStop(0,'rgba(30,80,200,0.85)');g.addColorStop(0.5,'rgba(70,130,255,0.9)');g.addColorStop(1,'rgba(20,60,180,0.95)')}
-  else{g.addColorStop(0,'rgba(0,170,220,0.8)');g.addColorStop(0.4,'rgba(80,220,255,0.85)');g.addColorStop(1,'rgba(0,150,210,0.9)')}
+  if(isFA){
+    g.addColorStop(0,'rgba(30,80,200,0.85)');
+    g.addColorStop(0.5,'rgba(70,130,255,0.9)');
+    g.addColorStop(1,'rgba(20,60,180,0.95)');
+  } else {
+    g.addColorStop(0,'rgba(0,170,220,0.8)');
+    g.addColorStop(0.4,'rgba(80,220,255,0.85)');
+    g.addColorStop(1,'rgba(0,150,210,0.9)');
+  }
   ctx.beginPath(); ctx.moveTo(cx-hw,fT);
-  for(let x=cx-hw;x<=cx+hw;x+=6) ctx.lineTo(x,fT+Math.sin((x-cx)*0.1)*4);
+  for(let x=cx-hw;x<=cx+hw;x+=6)ctx.lineTo(x,fT+Math.sin((x-cx)*0.1)*4);
   ctx.lineTo(cx+hw,bB); ctx.lineTo(cx-hw,bB); ctx.closePath();
   ctx.fillStyle=g; ctx.fill();
   ctx.strokeStyle='#5888a8'; ctx.lineWidth=2; ctx.strokeRect(cx-hw,bT,bW,bH);
@@ -121,8 +135,10 @@ function draw3D(fill,isFA){
   ctx.fillStyle='#cc8800'; ctx.fillText('E',cx+hw+7,bB-4);
   if(fH>20){
     const hg=ctx.createLinearGradient(cx-hw,fT,cx+hw,fT+Math.min(fH*0.5,60));
-    hg.addColorStop(0,'rgba(255,80,0,0)');hg.addColorStop(0.4,'rgba(255,200,0,0.2)');
-    hg.addColorStop(0.75,'rgba(0,220,80,0.16)');hg.addColorStop(1,'rgba(0,80,255,0)');
+    hg.addColorStop(0,'rgba(255,80,0,0)');
+    hg.addColorStop(0.4,'rgba(255,200,0,0.2)');
+    hg.addColorStop(0.75,'rgba(0,220,80,0.16)');
+    hg.addColorStop(1,'rgba(0,80,255,0)');
     ctx.fillStyle=hg; ctx.fillRect(cx-hw,fT,bW,Math.min(fH*0.5,60));
   }
 }
@@ -139,7 +155,7 @@ function drawMinimap(){
   ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.strokeRect(1,1,W-2,H-2);
 }
 
-// ── CHARTS ────────────────────────────────────
+// ── CHARTS ────────────────────────────────────────────────────
 function drawCharts(){
   const t=['10:35','10:40','10:45','10:50','10:55'];
   drawLC('chAD',t,[4.1,4.0,4.15,4.08,4.02],'#2244cc',0,18,'[m]');
@@ -147,6 +163,7 @@ function drawCharts(){
   drawLC('chSNR',t,[40,40,40,65,50],'#cc2222',0,100,'[dB]');
   drawLC('chTemp',t,[25,25,25,25,25],'#44aa44',-50,200,'[C]');
 }
+
 function drawLC(id,lbls,data,color,yMin,yMax,unit){
   const cv=document.getElementById(id); if(!cv)return;
   const ctx=cv.getContext('2d'),W=cv.width,H=cv.height;
@@ -178,68 +195,111 @@ function drawLC(id,lbls,data,color,yMin,yMax,unit){
   ctx.fillStyle=ag; ctx.fill();
 }
 
-// ── TOOLBAR ACTIONS ───────────────────────────
-function simulateConnect(){toast('Connecting to '+curV+'...'); setTimeout(()=>toast('✓ Connected to '+curV),1100)}
+// ── TOOLBAR ───────────────────────────────────────────────────
+function simulateConnect(){
+  toast('Connecting to '+curV+'...');
+  setTimeout(()=>toast('✓ Connected to '+curV),1100);
+}
+
 function simulateLoad(){
   toast('Loading measurement...');
   const v=sim[curV];
   v.avgD=+(v.avgD+(Math.random()-.5)*0.3).toFixed(2);
   v.snr=+(Math.max(0,v.snr+(Math.random()-.5)*2)).toFixed(2);
-  updateCards(); setTimeout(()=>toast('✓ Measurement updated'),700);
-}
-function updateCards(){
-  const c=sim.Coal,f=sim.FlyAsh;
-  document.getElementById('cAvgD').textContent=c.avgD+' m';
-  document.getElementById('cMaxD').textContent=c.maxD+' m';
-  document.getElementById('cMinD').textContent=c.minD+' m';
-  document.getElementById('cVol').textContent=c.vol+' %';
-  document.getElementById('cFill').style.height=c.vol+'%';
-  document.getElementById('fAvgD').textContent=f.avgD+' m';
-  document.getElementById('fMaxD').textContent=f.maxD+' m';
-  document.getElementById('fMinD').textContent=f.minD+' m';
-  document.getElementById('fVol').textContent=f.vol+' %';
-  document.getElementById('fFill').style.height=f.vol+'%';
+  updateCards();
+  setTimeout(()=>toast('✓ Measurement updated'),700);
 }
 
-// ── MODALS ────────────────────────────────────
-function openM(id){document.getElementById(id).classList.remove('hidden')}
-function closeM(id){document.getElementById(id).classList.add('hidden')}
-function openAdvParams(){document.getElementById('advTitle').textContent=curV; openM('mAdvanced')}
-function openActivations(){openM('mActivations')}
-function openFalseEcho(){openM('mFalseEcho')}
-function openEcho(){openM('mEcho')}
-function openVDC(){openM('mVDC')}
+function updateCards(){
+  const c=sim.Coal, f=sim.FlyAsh;
+  const s=id=>document.getElementById(id);
+  if(s('cAvgD'))s('cAvgD').textContent=c.avgD+' m';
+  if(s('cMaxD'))s('cMaxD').textContent=c.maxD+' m';
+  if(s('cMinD'))s('cMinD').textContent=c.minD+' m';
+  if(s('cVol')) s('cVol').textContent=c.vol+' %';
+  if(s('cFill'))s('cFill').style.height=c.vol+'%';
+  if(s('fAvgD'))s('fAvgD').textContent=f.avgD+' m';
+  if(s('fMaxD'))s('fMaxD').textContent=f.maxD+' m';
+  if(s('fMinD'))s('fMinD').textContent=f.minD+' m';
+  if(s('fVol')) s('fVol').textContent=f.vol+' %';
+  if(s('fFill'))s('fFill').style.height=f.vol+'%';
+}
+
+// ── MODALS ────────────────────────────────────────────────────
+function openM(id){
+  const el=document.getElementById(id);
+  if(el)el.classList.remove('hidden');
+}
+function closeM(id){
+  const el=document.getElementById(id);
+  if(el)el.classList.add('hidden');
+}
+function openAdvParams(){
+  const el=document.getElementById('advTitle');
+  if(el)el.textContent=curV;
+  openM('mAdvanced');
+}
+function openActivations(){ openM('mActivations'); }
+function openFalseEcho(){   openM('mFalseEcho'); }
+function openEcho(){        openM('mEcho'); }
+function openVDC(){         openM('mVDC'); }
 
 function advTab(name,btn){
   ['Basic','Advanced','Beams'].forEach(t=>{
-    const e=document.getElementById('adv'+t); if(e) e.classList.toggle('hidden',t!==name);
+    const e=document.getElementById('adv'+t);
+    if(e)e.classList.toggle('hidden',t!==name);
   });
   document.querySelectorAll('#mAdvanced .mtab').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
+  if(btn)btn.classList.add('active');
 }
-function uploadAll(){toast('Uploading parameters...'); closeM('mAdvanced'); setTimeout(()=>toast('✓ Parameters uploaded'),900)}
-function doReset(){closeM('mActivations'); toast('Sensor resetting...'); setTimeout(()=>toast('✓ Sensor online — 20 mA output'),3000)}
-function doFactoryReset(){if(confirm('WARNING: Reset to Factory erases all parameters. Continue?')){closeM('mActivations');toast('⚠ Factory reset complete')}}
-function execFE(){
-  const a=document.getElementById('feAction').value;
-  document.getElementById('feStatus').textContent='Executing: '+a+'... Calculating...';
-  setTimeout(()=>document.getElementById('feStatus').textContent='✓ '+a+' completed.',2000);
-}
-function startEcho(){document.getElementById('echoStat').textContent='Server Echo Curve analysis status: Active ✓'; toast('Echo Analysis started')}
-function stopEcho(){document.getElementById('echoStat').textContent='Server Echo Curve analysis status: Not active.'; toast('Echo Analysis stopped')}
 
-// ── WIZARD ────────────────────────────────────
-function openWizard(){wizStep=1; renderWiz(); openM('mWizard')}
-function wizNav(d){wizStep=Math.max(1,Math.min(4,wizStep+d)); renderWiz()}
-function renderWiz(){
-  document.getElementById('wizTitle').textContent=curV+' - Configuration Wizard';
-  const back=document.getElementById('wizBack'),next=document.getElementById('wizNext');
-  back.disabled=wizStep===1; back.style.opacity=wizStep===1?'0.5':'1';
-  if(wizStep===4){next.textContent='Finish'; next.onclick=()=>{closeM('mWizard');toast('✓ Configuration saved')}}
-  else{next.textContent='Next ▶'; next.onclick=()=>wizNav(1)}
-  const s=[null,wiz1,wiz2,wiz3,wiz4];
-  document.getElementById('wizBody').innerHTML='<div class="wiz-lay"><div class="wiz-left">'+s[wizStep]()+'</div><div class="wiz-right">'+wizPrev()+'</div></div>';
+function uploadAll(){
+  toast('Uploading parameters...');
+  closeM('mAdvanced');
+  setTimeout(()=>toast('✓ Parameters uploaded'),900);
 }
+
+function doReset(){
+  closeM('mActivations');
+  toast('Sensor resetting...');
+  setTimeout(()=>toast('✓ Sensor online — 20 mA output'),3000);
+}
+
+function doFactoryReset(){
+  if(confirm('WARNING: Reset to Factory erases all parameters. Continue?')){
+    closeM('mActivations');
+    toast('⚠ Factory reset complete');
+  }
+}
+
+function execFE(){
+  const a=document.getElementById('feAction');
+  const st=document.getElementById('feStatus');
+  if(a&&st){
+    st.textContent='Executing: '+a.value+'... Calculating...';
+    setTimeout(()=>{ if(st)st.textContent='✓ '+a.value+' completed.'; },2000);
+  }
+}
+
+// ── WIZARD ────────────────────────────────────────────────────
+function openWizard(){ wizStep=1; renderWiz(); openM('mWizard'); }
+function wizNav(d){ wizStep=Math.max(1,Math.min(4,wizStep+d)); renderWiz(); }
+
+function renderWiz(){
+  const titleEl=document.getElementById('wizTitle');
+  if(titleEl)titleEl.textContent=curV+' - Configuration Wizard';
+  const back=document.getElementById('wizBack');
+  const next=document.getElementById('wizNext');
+  if(back){ back.disabled=wizStep===1; back.style.opacity=wizStep===1?'0.5':'1'; }
+  if(next){
+    if(wizStep===4){ next.textContent='Finish'; next.onclick=()=>{closeM('mWizard');toast('✓ Configuration saved');} }
+    else{ next.textContent='Next ▶'; next.onclick=()=>wizNav(1); }
+  }
+  const s=[null,wiz1,wiz2,wiz3,wiz4];
+  const wb=document.getElementById('wizBody');
+  if(wb)wb.innerHTML='<div class="wiz-lay"><div class="wiz-left">'+s[wizStep]()+'</div><div class="wiz-right">'+wizPrev()+'</div></div>';
+}
+
 function wiz1(){return`<div class="wiz-stitle">Step 1/4</div>
 <div class="wiz-sec">General</div>
 <div class="wiz-frow"><label class="wiz-flbl">Distance:</label><select class="wiz-fsel"><option>m</option><option>ft</option></select></div>
@@ -256,6 +316,7 @@ function wiz1(){return`<div class="wiz-stitle">Step 1/4</div>
 <div class="wiz-frow"><label class="wiz-flbl">Shape:</label><select class="wiz-fsel"><option>Cone</option><option>Flat</option></select></div>
 <div class="wiz-frow"><label class="wiz-flbl">Height:</label><input type="number" class="wiz-fin" value="1.000"></div>
 <div class="wiz-frow"><label class="wiz-flbl">Diameter:</label><input type="number" class="wiz-fin" value="0"></div>`}
+
 function wiz2(){return`<div class="wiz-stitle">Step 2/4</div>
 <div class="wiz-sec">Device Position</div>
 <label style="font-size:12px;display:flex;align-items:center;gap:5px;margin-bottom:9px"><input type="checkbox"> Set device angle manually</label>
@@ -268,6 +329,7 @@ function wiz2(){return`<div class="wiz-stitle">Step 2/4</div>
 <td><input type="number" style="width:38px;border:1px solid #bbb;padding:2px;font-size:11px" value="0"></td>
 <td><input type="number" style="width:42px;border:1px solid #bbb;padding:2px;font-size:11px" value="180"></td>
 <td><input type="number" style="width:38px;border:1px solid #bbb;padding:2px;font-size:11px" value="0"></td></tr></table>`}
+
 function wiz3(){return`<div class="wiz-stitle">Step 3/4</div>
 <div class="wiz-sec">Device Position</div>
 <table style="font-size:12px;border-collapse:collapse;width:100%;margin-bottom:12px">
@@ -277,6 +339,7 @@ function wiz3(){return`<div class="wiz-stitle">Step 3/4</div>
 <table style="font-size:12px;border-collapse:collapse;width:100%;margin-bottom:8px">
 <tr style="background:#2a6db5;color:white"><th style="padding:5px 50px">X</th><th style="padding:5px 50px">Y</th></tr></table>
 <div style="display:flex;gap:7px"><button class="mbtn" style="font-size:11px">Add</button><button class="mbtn" style="font-size:11px">Delete</button><button class="mbtn" style="font-size:11px">Clear</button></div>`}
+
 function wiz4(){return`<div class="wiz-stitle">Step 4/4</div>
 <div class="wiz-sec">Filling Points</div>
 <table style="font-size:12px;border-collapse:collapse;width:100%;margin-bottom:8px">
@@ -298,6 +361,7 @@ function wiz4(){return`<div class="wiz-stitle">Step 4/4</div>
 <td style="padding:0 7px">=</td>
 <td><input type="number" style="width:70px;border:1px solid #bbb;padding:4px 6px;font-size:12px;border-radius:3px;background:#eee" value="18" readonly></td></tr></table>
 <div style="display:flex;gap:7px"><button class="mbtn" style="font-size:11px">Default</button><button class="mbtn" style="font-size:11px">View Table</button></div>`}
+
 function wizPrev(){return`<svg width="240" height="300" viewBox="0 0 240 300" xmlns="http://www.w3.org/2000/svg">
 <defs><linearGradient id="yg" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#c0b850"/><stop offset="50%" stop-color="#e0d860"/><stop offset="100%" stop-color="#b0a840"/></linearGradient></defs>
 <polygon points="120,28 185,65 185,260 55,260 55,65" fill="url(#yg)" stroke="#9a9030" stroke-width="2"/>
@@ -308,15 +372,279 @@ function wizPrev(){return`<svg width="240" height="300" viewBox="0 0 240 300" xm
 <text x="192" y="264" fill="#cc8800" font-size="12" font-weight="bold" font-family="sans-serif">E</text>
 <circle cx="120" cy="30" r="5" fill="#2244bb" stroke="#88aaff" stroke-width="1.5"/></svg>`}
 
-// ── TOAST ─────────────────────────────────────
+// ── TOAST ─────────────────────────────────────────────────────
 let toastT=null;
 function toast(msg){
   const el=document.getElementById('toastEl');
-  el.textContent=msg; el.classList.remove('hidden');
-  clearTimeout(toastT); toastT=setTimeout(()=>el.classList.add('hidden'),2800);
+  if(!el)return;
+  el.textContent=msg;
+  el.classList.remove('hidden');
+  clearTimeout(toastT);
+  toastT=setTimeout(()=>{ if(el)el.classList.add('hidden'); },2800);
 }
 
-// ── LIVE SIM ──────────────────────────────────
+// ── ECHO CURVE SYSTEM ─────────────────────────────────────────
+let echoAnalysisRunning = false;
+let echoAnalysisTimer   = null;
+let echoViewerState     = 'normal';
+let echoActiveTab       = 'All Beams';
+
+const echoBeams = [
+  { name:'High',    color:'#cc0000', fuzzyColor:'#ff6666' },
+  { name:'Medium',  color:'#00aa00', fuzzyColor:'#66cc66' },
+  { name:'Low',     color:'#cccc00', fuzzyColor:'#ffff00' },
+  { name:'Dir 30',  color:'#0000cc', fuzzyColor:'#6666ff' },
+  { name:'Dir 90',  color:'#111111', fuzzyColor:'#888888' },
+  { name:'Dir 150', color:'#888888', fuzzyColor:'#aaaaaa' },
+  { name:'Dir 210', color:'#cc00cc', fuzzyColor:'#ff66ff' },
+  { name:'Dir 270', color:'#00aaaa', fuzzyColor:'#66ffff' },
+  { name:'Dir 330', color:'#aa6600', fuzzyColor:'#ffaa44' },
+];
+
+let echoBeamVisible = {};
+echoBeams.forEach(b => echoBeamVisible[b.name] = true);
+
+function startEchoAnalysis(){
+  if(echoAnalysisRunning)return;
+  echoAnalysisRunning=true;
+  const now=new Date();
+  const ts=now.toLocaleDateString('en-US')+' '+now.toLocaleTimeString('en-US');
+  const st=document.getElementById('echoStatusText');
+  const pw=document.getElementById('echoProgressWrap');
+  if(st)st.innerHTML=`<strong>Server is performing Echo Curve analysis.</strong><br>Start time: ${ts}<br>Server Echo Curve - Single activation.`;
+  if(pw)pw.style.display='block';
+  let pct=0;
+  echoAnalysisTimer=setInterval(()=>{
+    pct+=Math.random()*8+4;
+    if(pct>=100){
+      pct=100;
+      clearInterval(echoAnalysisTimer);
+      echoAnalysisRunning=false;
+    }
+    const pb=document.getElementById('echoProgressBar');
+    const pl=document.getElementById('echoProgressLabel');
+    if(pb)pb.style.width=pct+'%';
+    if(pl)pl.textContent='Site1:Vessel1_0 ('+Math.round(pct)+'%)';
+  },300);
+}
+
+function stopEchoAnalysis(){
+  if(echoAnalysisTimer)clearInterval(echoAnalysisTimer);
+  echoAnalysisRunning=false;
+  const st=document.getElementById('echoStatusText');
+  const pw=document.getElementById('echoProgressWrap');
+  if(st)st.textContent='Server Echo Curve analysis status: Stopped.';
+  if(pw)pw.style.display='none';
+}
+
+function openEchoViewer(){
+  closeM('mEcho');
+  openM('mEchoViewer');
+  echoActiveTab='All Beams';
+  echoViewerState='normal';
+  setTimeout(()=>{
+    buildEchoLegend();
+    redrawEchoChart();
+  },80);
+}
+
+function setEchoTab(name,btn){
+  echoActiveTab=name;
+  document.querySelectorAll('.echo-tab').forEach(b=>b.classList.remove('active-tab'));
+  if(btn)btn.classList.add('active-tab');
+  redrawEchoChart();
+}
+
+function selectAllBeams(val){
+  echoBeams.forEach(b=>echoBeamVisible[b.name]=val);
+  buildEchoLegend();
+  redrawEchoChart();
+}
+
+function toggleBeam(name,val){
+  echoBeamVisible[name]=val;
+  redrawEchoChart();
+}
+
+function buildEchoLegend(){
+  const el=document.getElementById('echoLegend');
+  if(!el)return;
+  const showFuzzy=document.getElementById('showFuzzy')&&document.getElementById('showFuzzy').checked;
+  let html='';
+  echoBeams.forEach(b=>{
+    const chk=echoBeamVisible[b.name]?'checked':'';
+    html+=`<label style="display:flex;align-items:center;gap:4px;margin-bottom:3px;cursor:pointer;font-size:11px">
+      <input type="checkbox" ${chk} onchange="toggleBeam('${b.name}',this.checked)">
+      <span style="display:inline-block;width:18px;height:3px;background:${b.color};border-radius:2px"></span>
+      ${b.name}
+    </label>`;
+  });
+  if(showFuzzy){
+    echoBeams.forEach(b=>{
+      html+=`<label style="display:flex;align-items:center;gap:4px;margin-bottom:3px;cursor:pointer;font-size:11px">
+        <input type="checkbox" checked>
+        <span style="display:inline-block;width:18px;height:3px;background:${b.fuzzyColor};border-radius:2px"></span>
+        Fuzzy:${b.name}
+      </label>`;
+    });
+  }
+  el.innerHTML=html;
+}
+
+function redrawEchoChart(){
+  buildEchoLegend();
+  const cv=document.getElementById('echoViewerChart');
+  if(!cv)return;
+  const ctx=cv.getContext('2d');
+  const W=cv.width, H=cv.height;
+  const pad={t:10,r:10,b:35,l:65};
+  const cW=W-pad.l-pad.r, cH=H-pad.t-pad.b;
+  const afterScan=(echoViewerState==='after_scan');
+  const xMax=180, yMax=170000;
+
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='white'; ctx.fillRect(0,0,W,H);
+
+  // Grid
+  ctx.strokeStyle='#e0e0e0'; ctx.lineWidth=1;
+  for(let y=0;y<=yMax;y+=20000){
+    const py=pad.t+cH-(y/yMax)*cH;
+    ctx.beginPath(); ctx.moveTo(pad.l,py); ctx.lineTo(pad.l+cW,py); ctx.stroke();
+    ctx.fillStyle='#777'; ctx.font='9px sans-serif'; ctx.textAlign='right';
+    const lbl=y===0?'0':(y/1000).toFixed(0)+',000';
+    ctx.fillText(lbl,pad.l-4,py+3);
+  }
+  for(let x=0;x<=xMax;x+=20){
+    const px=pad.l+(x/xMax)*cW;
+    ctx.beginPath(); ctx.moveTo(px,pad.t); ctx.lineTo(px,pad.t+cH); ctx.stroke();
+    ctx.fillStyle='#777'; ctx.font='9px sans-serif'; ctx.textAlign='center';
+    ctx.fillText(x,px,pad.t+cH+14);
+  }
+  ctx.fillStyle='#555'; ctx.font='11px sans-serif'; ctx.textAlign='center';
+  ctx.fillText('[ft]',pad.l+cW/2,H-4);
+  ctx.strokeStyle='#999'; ctx.lineWidth=1.5;
+  ctx.strokeRect(pad.l,pad.t,cW,cH);
+
+  // Draw beams
+  const visBeams=echoActiveTab==='All Beams'
+    ? echoBeams.filter(b=>echoBeamVisible[b.name])
+    : echoBeams.filter(b=>b.name===echoActiveTab);
+
+  visBeams.forEach(beam=>drawBeamLine(ctx,beam,pad,cW,cH,xMax,yMax,afterScan));
+
+  // Caption
+  showEchoCaption();
+}
+
+function drawBeamLine(ctx,beam,pad,cW,cH,xMax,yMax,afterScan){
+  const seed=beam.name.split('').reduce((a,c)=>a+c.charCodeAt(0),0);
+  const rng=s=>{ const x=Math.sin(s)*10000; return x-Math.floor(x); };
+  const mainPeak=117;
+  const falsePeak=65;
+  const beamOffset=(seed%8)-4;
+
+  ctx.beginPath();
+  ctx.strokeStyle=beam.color;
+  ctx.lineWidth=1.5;
+  ctx.setLineDash([]);
+
+  let first=true;
+  for(let ft=0;ft<=xMax;ft+=0.5){
+    const px=pad.l+(ft/xMax)*cW;
+    let amp=rng(seed+ft*7)*800;
+
+    // Main echo cluster
+    const d1=ft-(mainPeak+beamOffset*0.5);
+    if(Math.abs(d1)<12)amp+=Math.max(0,150000-d1*d1*1100)*(0.6+rng(seed+ft)*0.4);
+
+    // False echo — removed after scan
+    if(!afterScan){
+      if(beam.name==='High'){
+        const d2=ft-falsePeak;
+        if(Math.abs(d2)<5)amp+=Math.max(0,85000-d2*d2*3800);
+      } else {
+        const d2=ft-(falsePeak+beamOffset);
+        if(Math.abs(d2)<4)amp+=Math.max(0,12000-d2*d2*800);
+      }
+    }
+
+    // Scatter peaks
+    for(let p=0;p<5;p++){
+      const px2=mainPeak+8+p*6+beamOffset;
+      const d3=ft-px2;
+      if(Math.abs(d3)<6)amp+=Math.max(0,40000-d3*d3*1200)*rng(seed+p*31);
+    }
+
+    amp=Math.min(amp,yMax);
+    const py=pad.t+cH-(amp/yMax)*cH;
+    if(first){ctx.moveTo(px,py);first=false;}else{ctx.lineTo(px,py);}
+  }
+  ctx.stroke();
+}
+
+function showEchoCaption(){
+  const box=document.getElementById('echoCaptionBox');
+  if(!box)return;
+  const afterScan=(echoViewerState==='after_scan');
+  box.style.display='block';
+  if(afterScan){
+    box.style.borderColor='#27ae60';
+    box.innerHTML=`<strong style="color:#27ae60">✓ False Echo Removed</strong><br>
+      The false echo at ~65 ft has been mapped out. The cluster at <strong>~117 ft</strong> is the true material surface.
+      Click <strong>Load from Vessel</strong> in the toolbar to update sensor readings.`;
+  } else {
+    box.style.borderColor='#2a6db5';
+    box.innerHTML=`<strong>📊 Reading this chart:</strong> Think of this as a silo on its side — sensor is at 0 ft.
+      The spike cluster near <strong>117 ft</strong> is the true material surface.
+      The <strong style="color:#cc0000">red spike near 65 ft</strong> is a <strong>false echo</strong> — use <em>Map out False Echoes</em> above to remove it.`;
+  }
+}
+
+function openFalseEchoMapper(){
+  const cb=document.getElementById('mapOutFE');
+  if(cb&&cb.checked)openM('mFalseEchoMapper');
+}
+
+function closeFalseEchoMapper(){
+  closeM('mFalseEchoMapper');
+  const cb=document.getElementById('mapOutFE');
+  if(cb)cb.checked=false;
+}
+
+function femToggleAll(allCb){
+  document.querySelectorAll('.fem-cb').forEach(cb=>cb.checked=allCb.checked);
+}
+
+function startFalseEchoScan(){
+  const pw=document.getElementById('femProgressWrap');
+  const btn=document.getElementById('femStartBtn');
+  const pb=document.getElementById('femProgressBar');
+  const st=document.getElementById('femStatusText');
+  if(pw)pw.style.display='block';
+  if(btn)btn.disabled=true;
+  let pct=0;
+  const t=setInterval(()=>{
+    pct+=Math.random()*12+5;
+    if(pct>=100){
+      pct=100;
+      clearInterval(t);
+      if(pb)pb.style.width='100%';
+      if(st)st.textContent='✓ Scan complete. False echo mapped out.';
+      if(btn)btn.disabled=false;
+      echoViewerState='after_scan';
+      setTimeout(()=>{
+        closeFalseEchoMapper();
+        redrawEchoChart();
+        toast('✓ False echo mapped out. Click Load from Vessel to update readings.');
+      },1500);
+      return;
+    }
+    if(pb)pb.style.width=pct+'%';
+    if(st)st.textContent='Scanning... '+Math.round(pct)+'%';
+  },250);
+}
+
+// ── LIVE SIM ──────────────────────────────────────────────────
 setInterval(()=>{
   ['Coal','FlyAsh'].forEach(v=>{
     const d=sim[v];
@@ -324,301 +652,14 @@ setInterval(()=>{
     d.snr=+(Math.max(0,d.snr+(Math.random()-.5)*0.9)).toFixed(2);
     d.out=+(d.out+(Math.random()-.5)*0.03).toFixed(2);
   });
-  if(!document.getElementById('viewDetail').classList.contains('hidden')&&curDTab==='Overview'){
+  const vd=document.getElementById('viewDetail');
+  if(vd&&!vd.classList.contains('hidden')&&curDTab==='Overview'){
     const d=sim[curV];
     const s=id=>document.getElementById(id);
-    if(s('ovSNR')) s('ovSNR').textContent=d.snr.toFixed(2);
+    if(s('ovSNR'))  s('ovSNR').textContent=d.snr.toFixed(2);
     if(s('ovTemp')) s('ovTemp').textContent=d.temp.toFixed(2);
-    if(s('ovOut')) s('ovOut').textContent=d.out.toFixed(2);
+    if(s('ovOut'))  s('ovOut').textContent=d.out.toFixed(2);
     draw3D(d.vol/100,curV==='FlyAsh');
   }
 },2000);
-  // ═══════════════════════════════════════════════════
-// ECHO CURVE SYSTEM
-// ═══════════════════════════════════════════════════
-
-let echoAnalysisRunning = false;
-let echoAnalysisTimer   = null;
-let echoViewerState     = 'normal'; // 'normal' | 'false_echo' | 'after_scan'
-let echoActiveTab       = 'All Beams';
-let echoScrollOffset    = 0;
-
-// Beam definitions — color, name, fuzzy color
-const echoBeams = [
-  { name:'High',       color:'#cc0000', fuzzyColor:'#ff6666' },
-  { name:'Medium',     color:'#00aa00', fuzzyColor:'#66cc66' },
-  { name:'Low',        color:'#cccc00', fuzzyColor:'#ffff66' },
-  { name:'Dir 30',     color:'#0000cc', fuzzyColor:'#6666ff' },
-  { name:'Dir 90',     color:'#111111', fuzzyColor:'#888888' },
-  { name:'Dir 150',    color:'#888888', fuzzyColor:'#aaaaaa' },
-  { name:'Dir 210',    color:'#cc00cc', fuzzyColor:'#ff66ff' },
-  { name:'Dir 270',    color:'#00aaaa', fuzzyColor:'#66ffff' },
-  { name:'Dir 330',    color:'#aa6600', fuzzyColor:'#ffaa44' },
-];
-
-let echoBeamVisible = {};
-echoBeams.forEach(b => echoBeamVisible[b.name] = true);
-
-// ── Echo popup functions ──────────────────────────
-function openEcho() { openM('mEcho'); }
-
-function startEchoAnalysis() {
-  if (echoAnalysisRunning) return;
-  echoAnalysisRunning = true;
-  const now = new Date();
-  const timeStr = now.toLocaleDateString('en-US') + ' ' + now.toLocaleTimeString('en-US');
-  document.getElementById('echoStatusText').innerHTML =
-    `<strong>Server is performing Echo Curve analysis.</strong><br>
-     Start time: ${timeStr}<br>
-     Server Echo Curve - Single activation.`;
-  document.getElementById('echoProgressWrap').style.display = 'block';
-  let pct = 0;
-  echoAnalysisTimer = setInterval(() => {
-    pct += Math.random() * 8 + 4;
-    if (pct >= 100) { pct = 100; clearInterval(echoAnalysisTimer); echoAnalysisRunning = false; }
-    document.getElementById('echoProgressBar').style.width = pct + '%';
-    const vessel = 'Site1:Vessel1_0';
-    document.getElementById('echoProgressLabel').textContent = `${vessel} (${Math.round(pct)}%)`;
-  }, 300);
-}
-
-function stopEchoAnalysis() {
-  if (echoAnalysisTimer) clearInterval(echoAnalysisTimer);
-  echoAnalysisRunning = false;
-  document.getElementById('echoStatusText').textContent = 'Server Echo Curve analysis status: Stopped.';
-  document.getElementById('echoProgressWrap').style.display = 'none';
-}
-
-function openEchoViewer() {
-  closeM('mEcho');
-  openM('mEchoViewer');
-  echoActiveTab = 'All Beams';
-  echoScrollOffset = 0;
-  setTimeout(() => {
-    buildEchoLegend();
-    redrawEchoChart();
-    showEchoCaption();
-  }, 80);
-}
-
-// ── Echo Viewer ───────────────────────────────────
-function setEchoTab(name, btn) {
-  echoActiveTab = name;
-  document.querySelectorAll('.echo-tab').forEach(b => b.classList.remove('active-tab'));
-  btn.classList.add('active-tab');
-  redrawEchoChart();
-}
-
-function selectAllBeams(val) {
-  echoBeams.forEach(b => echoBeamVisible[b.name] = val);
-  buildEchoLegend();
-  redrawEchoChart();
-}
-
-function buildEchoLegend() {
-  const el = document.getElementById('echoLegend');
-  if (!el) return;
-  const showFuzzy = document.getElementById('showFuzzy') && document.getElementById('showFuzzy').checked;
-  let html = '';
-  echoBeams.forEach(b => {
-    const chk = echoBeamVisible[b.name] ? 'checked' : '';
-    html += `<label style="display:flex;align-items:center;gap:4px;margin-bottom:3px;cursor:pointer;font-size:11px">
-      <input type="checkbox" ${chk} onchange="toggleBeam('${b.name}',this.checked)">
-      <span style="display:inline-block;width:18px;height:3px;background:${b.color};border-radius:2px"></span>
-      ${b.name}
-    </label>`;
-  });
-  if (showFuzzy) {
-    echoBeams.forEach(b => {
-      html += `<label style="display:flex;align-items:center;gap:4px;margin-bottom:3px;cursor:pointer;font-size:11px">
-        <input type="checkbox" checked>
-        <span style="display:inline-block;width:18px;height:3px;background:${b.fuzzyColor};border-radius:2px"></span>
-        Fuzzy:${b.name}
-      </label>`;
-    });
-  }
-  el.innerHTML = html;
-}
-
-function toggleBeam(name, val) {
-  echoBeamVisible[name] = val;
-  redrawEchoChart();
-}
-
-function redrawEchoChart() {
-  buildEchoLegend();
-  const cv = document.getElementById('echoViewerChart');
-  if (!cv) return;
-  const ctx  = cv.getContext('2d');
-  const W    = cv.width, H = cv.height;
-  const pad  = { t:10, r:10, b:35, l:65 };
-  const cW   = W - pad.l - pad.r;
-  const cH   = H - pad.t - pad.b;
-  const afterScan = echoViewerState === 'after_scan';
-
-  ctx.clearRect(0, 0, W, H);
-  ctx.fillStyle = 'white'; ctx.fillRect(0, 0, W, H);
-
-  // Axes
-  const xMax  = 180;
-  const yMax  = 170000;
-  const xTick = 20;
-  const yTick = 20000;
-
-  // Grid + labels
-  ctx.strokeStyle = '#e0e0e0'; ctx.lineWidth = 1;
-  for (let y = 0; y <= yMax; y += yTick) {
-    const py = pad.t + cH - (y / yMax) * cH;
-    ctx.beginPath(); ctx.moveTo(pad.l, py); ctx.lineTo(pad.l + cW, py); ctx.stroke();
-    ctx.fillStyle = '#777'; ctx.font = '9px sans-serif'; ctx.textAlign = 'right';
-    ctx.fillText((y / 1000).toFixed(0) + (y > 0 ? ',000' : ''), pad.l - 4, py + 3);
-  }
-  for (let x = 0; x <= xMax; x += xTick) {
-    const px = pad.l + (x / xMax) * cW;
-    ctx.beginPath(); ctx.moveTo(px, pad.t); ctx.lineTo(px, pad.t + cH); ctx.stroke();
-    ctx.fillStyle = '#777'; ctx.font = '9px sans-serif'; ctx.textAlign = 'center';
-    ctx.fillText(x, px, pad.t + cH + 14);
-  }
-  // X axis label
-  ctx.fillStyle = '#555'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
-  ctx.fillText('[ft]', pad.l + cW / 2, H - 4);
-  // Axis border
-  ctx.strokeStyle = '#999'; ctx.lineWidth = 1.5;
-  ctx.strokeRect(pad.l, pad.t, cW, cH);
-
-  // Determine which beams to draw
-  const visBeams = echoActiveTab === 'All Beams'
-    ? echoBeams.filter(b => echoBeamVisible[b.name])
-    : echoBeams.filter(b => b.name === echoActiveTab);
-
-  // Generate echo data for each beam
-  visBeams.forEach(beam => {
-    drawBeamLine(ctx, beam, pad, cW, cH, xMax, yMax, afterScan);
-  });
-
-  showEchoCaption();
-}
-
-function drawBeamLine(ctx, beam, pad, cW, cH, xMax, yMax, afterScan) {
-  // Seed random per beam name for consistency
-  const seed = beam.name.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
-  const rng = (s) => { const x = Math.sin(s) * 10000; return x - Math.floor(x); };
-
-  ctx.beginPath();
-  ctx.strokeStyle = beam.color;
-  ctx.lineWidth   = 1.5;
-  ctx.setLineDash([]);
-
-  const mainPeak    = 117; // real echo at 117ft
-  const falsePeak   = 65;  // false echo at 65ft
-  const beamOffset  = (seed % 8) - 4; // slight per-beam offset
-
-  let first = true;
-  for (let ft = 0; ft <= xMax; ft += 0.5) {
-    const px = pad.l + (ft / xMax) * cW;
-    let amp  = 0;
-
-    // Noise floor
-    amp += rng(seed + ft * 7) * 800;
-
-    // Main echo cluster (all beams, slight variation)
-    const d1 = ft - (mainPeak + beamOffset * 0.5);
-    if (Math.abs(d1) < 12) {
-      amp += Math.max(0, 150000 - d1 * d1 * 1100) * (0.6 + rng(seed + ft) * 0.4);
-    }
-
-    // False echo — only present before scan, only on High beam prominently
-    if (!afterScan) {
-      if (beam.name === 'High') {
-        const d2 = ft - falsePeak;
-        if (Math.abs(d2) < 5) amp += Math.max(0, 85000 - d2 * d2 * 3800);
-      } else {
-        // Minor false echo on other beams
-        const d2 = ft - (falsePeak + beamOffset);
-        if (Math.abs(d2) < 4) amp += Math.max(0, 12000 - d2 * d2 * 800);
-      }
-    }
-
-    // Scatter peaks around main echo
-    for (let p = 0; p < 5; p++) {
-      const px2 = mainPeak + 8 + p * 6 + beamOffset;
-      const d3  = ft - px2;
-      if (Math.abs(d3) < 6) amp += Math.max(0, 40000 - d3 * d3 * 1200) * rng(seed + p * 31);
-    }
-
-    amp = Math.min(amp, yMax);
-    const py = pad.t + cH - (amp / yMax) * cH;
-    if (first) { ctx.moveTo(px, py); first = false; } else { ctx.lineTo(px, py); }
-  }
-  ctx.stroke();
-}
-
-function showEchoCaption() {
-  const box = document.getElementById('echoCaptionBox');
-  if (!box) return;
-  const afterScan = echoViewerState === 'after_scan';
-
-  if (afterScan) {
-    box.style.display = 'block';
-    box.style.borderColor = '#27ae60';
-    box.innerHTML = `<strong style="color:#27ae60">✓ False Echo Removed</strong><br>
-      The false echo at ~65 ft has been mapped out. The remaining cluster at <strong>~117 ft</strong> represents the true material surface.
-      Click <strong>Load from Vessel</strong> in the toolbar to update the sensor readings.`;
-  } else {
-    box.style.display = 'block';
-    box.style.borderColor = '#2a6db5';
-    box.innerHTML = `<strong>📊 Reading this chart:</strong> Think of this as a silo on its side — the sensor is at 0 ft.
-      The spike cluster near <strong>117 ft</strong> is the true material surface.
-      The isolated <strong style="color:#cc0000">red spike near 65 ft</strong> is a <strong>false echo</strong> — it can be mapped out using <em>Map out False Echoes</em> above.`;
-  }
-}
-
-function echoChartClick(event) {
-  // clicking chart could highlight nearest beam peak — placeholder
-}
-
-// ── False Echo Mapper ─────────────────────────────
-function openFalseEchoMapper() {
-  const cb = document.getElementById('mapOutFE');
-  if (cb && cb.checked) {
-    openM('mFalseEchoMapper');
-  }
-}
-
-function closeFalseEchoMapper() {
-  closeM('mFalseEchoMapper');
-  const cb = document.getElementById('mapOutFE');
-  if (cb) cb.checked = false;
-}
-
-function femToggleAll(allCb) {
-  document.querySelectorAll('.fem-cb').forEach(cb => cb.checked = allCb.checked);
-}
-
-function startFalseEchoScan() {
-  document.getElementById('femProgressWrap').style.display = 'block';
-  document.getElementById('femStartBtn').disabled = true;
-  let pct = 0;
-  const t = setInterval(() => {
-    pct += Math.random() * 12 + 5;
-    if (pct >= 100) {
-      pct = 100;
-      clearInterval(t);
-      document.getElementById('femProgressBar').style.width = '100%';
-      document.getElementById('femStatusText').textContent = '✓ Scan complete. False echo mapped out.';
-      document.getElementById('femStartBtn').disabled = false;
-      // Mark that false echo has been removed
-      echoViewerState = 'after_scan';
-      setTimeout(() => {
-        closeFalseEchoMapper();
-        // Reopen viewer with updated chart
-        redrawEchoChart();
-        toast('✓ False echo mapped out. Click Load from Vessel to update readings.');
-      }, 1500);
-      return;
-    }
-    document.getElementById('femProgressBar').style.width = pct + '%';
-    document.getElementById('femStatusText').textContent = `Scanning... ${Math.round(pct)}%`;
-  }, 250);
-}
 </script>
