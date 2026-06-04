@@ -847,13 +847,13 @@ function delProb(pi) {
 }
 
 function saveAdmin() {
-  // Explicitly read all field values from DOM before saving
   const blocks = document.querySelectorAll('#adminBody .adm-block');
-  blocks.forEach((block, pi) => {
-    if (!tsData[pi]) return;
-    const titleEl  = block.querySelector('.adm-tin');
-    const destEl   = block.querySelector('select');
-    const explEl   = block.querySelector('textarea');
+  blocks.forEach((block) => {
+    const pi = parseInt(block.getAttribute('data-pi'));
+    if (isNaN(pi) || !tsData[pi]) return;
+    const titleEl = block.querySelector('.adm-tin');
+    const destEl  = block.querySelector('select');
+    const explEl  = block.querySelector('textarea');
     if (titleEl)  tsData[pi].title       = titleEl.value.trim();
     if (destEl)   tsData[pi].destLabel   = destEl.value;
     if (explEl)   tsData[pi].explanation = explEl.value.trim();
