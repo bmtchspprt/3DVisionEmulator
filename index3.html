@@ -383,7 +383,10 @@ function toast(msg){
   toastT=setTimeout(()=>{ if(el)el.classList.add('hidden'); },2800);
 }
 
-// ── ECHO CURVE SYSTEM ─────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
+// ECHO CURVE SYSTEM
+// ═══════════════════════════════════════════════════════════════
+
 let echoAnalysisRunning = false;
 let echoAnalysisTimer   = null;
 let echoViewerState     = 'normal';
@@ -392,18 +395,19 @@ let echoActiveTab       = 'All Beams';
 const echoBeams = [
   { name:'High',    color:'#cc0000', fuzzyColor:'#ff6666' },
   { name:'Medium',  color:'#00aa00', fuzzyColor:'#66cc66' },
-  { name:'Low',     color:'#cccc00', fuzzyColor:'#ffff00' },
+  { name:'Low',     color:'#aaaa00', fuzzyColor:'#dddd00' },
   { name:'Dir 30',  color:'#0000cc', fuzzyColor:'#6666ff' },
-  { name:'Dir 90',  color:'#111111', fuzzyColor:'#888888' },
-  { name:'Dir 150', color:'#888888', fuzzyColor:'#aaaaaa' },
-  { name:'Dir 210', color:'#cc00cc', fuzzyColor:'#ff66ff' },
-  { name:'Dir 270', color:'#00aaaa', fuzzyColor:'#66ffff' },
+  { name:'Dir 90',  color:'#222222', fuzzyColor:'#888888' },
+  { name:'Dir 150', color:'#777777', fuzzyColor:'#aaaaaa' },
+  { name:'Dir 210', color:'#aa00aa', fuzzyColor:'#ff66ff' },
+  { name:'Dir 270', color:'#008888', fuzzyColor:'#00cccc' },
   { name:'Dir 330', color:'#aa6600', fuzzyColor:'#ffaa44' },
 ];
 
 let echoBeamVisible = {};
 echoBeams.forEach(b => echoBeamVisible[b.name] = true);
 
+// ── Echo popup ────────────────────────────────────────────────
 function startEchoAnalysis(){
   if(echoAnalysisRunning)return;
   echoAnalysisRunning=true;
@@ -442,12 +446,17 @@ function openEchoViewer(){
   openM('mEchoViewer');
   echoActiveTab='All Beams';
   echoViewerState='normal';
+  echoBeams.forEach(b=>echoBeamVisible[b.name]=true);
+  // Reset rescan button
+  const btn=document.getElementById('echoRescanBtn');
+  if(btn)btn.style.display='none';
   setTimeout(()=>{
     buildEchoLegend();
     redrawEchoChart();
   },80);
 }
 
+// ── Echo viewer ───────────────────────────────────────────────
 function setEchoTab(name,btn){
   echoActiveTab=name;
   document.querySelectorAll('.echo-tab').forEach(b=>b.classList.remove('active-tab'));
@@ -505,7 +514,7 @@ function redrawEchoChart(){
   ctx.clearRect(0,0,W,H);
   ctx.fillStyle='white'; ctx.fillRect(0,0,W,H);
 
-  // Grid
+  // Y grid and labels
   ctx.strokeStyle='#e0e0e0'; ctx.lineWidth=1;
   for(let y=0;y<=yMax;y+=20000){
     const py=pad.t+cH-(y/yMax)*cH;
@@ -514,16 +523,27 @@ function redrawEchoChart(){
     const lbl=y===0?'0':(y/1000).toFixed(0)+',000';
     ctx.fillText(lbl,pad.l-4,py+3);
   }
+
+  // X grid and labels
   for(let x=0;x<=xMax;x+=20){
     const px=pad.l+(x/xMax)*cW;
+    ctx.strokeStyle='#e0e0e0'; ctx.lineWidth=1;
     ctx.beginPath(); ctx.moveTo(px,pad.t); ctx.lineTo(px,pad.t+cH); ctx.stroke();
     ctx.fillStyle='#777'; ctx.font='9px sans-serif'; ctx.textAlign='center';
     ctx.fillText(x,px,pad.t+cH+14);
   }
+
+  // Axis label and border
   ctx.fillStyle='#555'; ctx.font='11px sans-serif'; ctx.textAlign='center';
   ctx.fillText('[ft]',pad.l+cW/2,H-4);
   ctx.strokeStyle='#999'; ctx.lineWidth=1.5;
   ctx.strokeRect(pad.l,pad.t,cW,cH);
+
+  // Clip to chart area
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(pad.l,pad.t,cW,cH);
+  ctx.clip();
 
   // Draw beams
   const visBeams=echoActiveTab==='All Beams'
@@ -532,54 +552,70 @@ function redrawEchoChart(){
 
   visBeams.forEach(beam=>drawBeamLine(ctx,beam,pad,cW,cH,xMax,yMax,afterScan));
 
-  // Caption
+  ctx.restore();
+
+  // Caption below chart
   showEchoCaption();
 }
 
 function drawBeamLine(ctx,beam,pad,cW,cH,xMax,yMax,afterScan){
   const seed=beam.name.split('').reduce((a,c)=>a+c.charCodeAt(0),0);
-  const rng=s=>{ const x=Math.sin(s)*10000; return x-Math.floor(x); };
+  const rng=s=>{const x=Math.sin(s*9301+49297)*233280; return x-Math.floor(x);};
   const mainPeak=117;
   const falsePeak=65;
-  const beamOffset=(seed%8)-4;
+  const beamOffset=(seed%10)-5;
 
-  ctx.beginPath();
-  ctx.strokeStyle=beam.color;
-  ctx.lineWidth=1.5;
-  ctx.setLineDash([]);
-
-  let first=true;
-  for(let ft=0;ft<=xMax;ft+=0.5){
+  for(let ft=0;ft<=xMax;ft+=0.3){
     const px=pad.l+(ft/xMax)*cW;
-    let amp=rng(seed+ft*7)*800;
+    let amp=rng(seed+ft*13)*1200; // noise floor
 
-    // Main echo cluster
-    const d1=ft-(mainPeak+beamOffset*0.5);
-    if(Math.abs(d1)<12)amp+=Math.max(0,150000-d1*d1*1100)*(0.6+rng(seed+ft)*0.4);
+    // Main echo cluster — tall dense spikes like real software
+    const d1=ft-(mainPeak+beamOffset*0.4);
+    if(Math.abs(d1)<14){
+      const spike=Math.max(0,160000-d1*d1*900);
+      amp+=spike*(0.5+rng(seed+ft*3)*0.5);
+      amp+=rng(seed+ft*7)*spike*0.4;
+    }
 
-    // False echo — removed after scan
-    if(!afterScan){
-      if(beam.name==='High'){
-        const d2=ft-falsePeak;
-        if(Math.abs(d2)<5)amp+=Math.max(0,85000-d2*d2*3800);
-      } else {
-        const d2=ft-(falsePeak+beamOffset);
-        if(Math.abs(d2)<4)amp+=Math.max(0,12000-d2*d2*800);
+    // Scatter spikes around main echo
+    for(let p=0;p<8;p++){
+      const sp=mainPeak+10+p*4+beamOffset*0.5;
+      const d2=ft-sp;
+      if(Math.abs(d2)<3){
+        amp+=Math.max(0,60000-d2*d2*7000)*rng(seed+p*17+ft);
       }
     }
 
-    // Scatter peaks
-    for(let p=0;p<5;p++){
-      const px2=mainPeak+8+p*6+beamOffset;
-      const d3=ft-px2;
-      if(Math.abs(d3)<6)amp+=Math.max(0,40000-d3*d3*1200)*rng(seed+p*31);
+    // False echo — only before scan
+    if(!afterScan){
+      if(beam.name==='High'){
+        const d3=ft-falsePeak;
+        if(Math.abs(d3)<4){
+          amp+=Math.max(0,90000-d3*d3*6000);
+          amp+=rng(seed+ft*11)*30000;
+        }
+      } else {
+        const d3=ft-(falsePeak+beamOffset*0.3);
+        if(Math.abs(d3)<3){
+          amp+=Math.max(0,15000-d3*d3*2000)*rng(seed+ft*5);
+        }
+      }
     }
 
     amp=Math.min(amp,yMax);
+    if(amp<400)continue;
+
     const py=pad.t+cH-(amp/yMax)*cH;
-    if(first){ctx.moveTo(px,py);first=false;}else{ctx.lineTo(px,py);}
+    // Draw as vertical line from baseline — gives spiky dense look
+    ctx.strokeStyle=beam.color;
+    ctx.lineWidth=0.8;
+    ctx.globalAlpha=0.75;
+    ctx.beginPath();
+    ctx.moveTo(px,pad.t+cH);
+    ctx.lineTo(px,py);
+    ctx.stroke();
   }
-  ctx.stroke();
+  ctx.globalAlpha=1.0;
 }
 
 function showEchoCaption(){
@@ -589,17 +625,20 @@ function showEchoCaption(){
   box.style.display='block';
   if(afterScan){
     box.style.borderColor='#27ae60';
+    box.style.background='rgba(240,255,240,0.97)';
     box.innerHTML=`<strong style="color:#27ae60">✓ False Echo Removed</strong><br>
       The false echo at ~65 ft has been mapped out. The cluster at <strong>~117 ft</strong> is the true material surface.
       Click <strong>Load from Vessel</strong> in the toolbar to update sensor readings.`;
   } else {
     box.style.borderColor='#2a6db5';
+    box.style.background='rgba(255,255,255,0.97)';
     box.innerHTML=`<strong>📊 Reading this chart:</strong> Think of this as a silo on its side — sensor is at 0 ft.
       The spike cluster near <strong>117 ft</strong> is the true material surface.
       The <strong style="color:#cc0000">red spike near 65 ft</strong> is a <strong>false echo</strong> — use <em>Map out False Echoes</em> above to remove it.`;
   }
 }
 
+// ── False Echo Mapper ─────────────────────────────────────────
 function openFalseEchoMapper(){
   const cb=document.getElementById('mapOutFE');
   if(cb&&cb.checked)openM('mFalseEchoMapper');
@@ -609,6 +648,13 @@ function closeFalseEchoMapper(){
   closeM('mFalseEchoMapper');
   const cb=document.getElementById('mapOutFE');
   if(cb)cb.checked=false;
+  // Reset progress
+  const pw=document.getElementById('femProgressWrap');
+  const pb=document.getElementById('femProgressBar');
+  const st=document.getElementById('femStatusText');
+  if(pw)pw.style.display='none';
+  if(pb)pb.style.width='0%';
+  if(st)st.textContent='Scanning...';
 }
 
 function femToggleAll(allCb){
@@ -631,17 +677,26 @@ function startFalseEchoScan(){
       if(pb)pb.style.width='100%';
       if(st)st.textContent='✓ Scan complete. False echo mapped out.';
       if(btn)btn.disabled=false;
-      echoViewerState='after_scan';
       setTimeout(()=>{
         closeFalseEchoMapper();
-        redrawEchoChart();
-        toast('✓ False echo mapped out. Click Load from Vessel to update readings.');
+        // Show rescan button in viewer
+        const rescanBtn=document.getElementById('echoRescanBtn');
+        if(rescanBtn)rescanBtn.style.display='inline-block';
+        toast('✓ Mapped out. Click "Run New Analysis" to see the updated chart.');
       },1500);
       return;
     }
     if(pb)pb.style.width=pct+'%';
     if(st)st.textContent='Scanning... '+Math.round(pct)+'%';
   },250);
+}
+
+function runRescan(){
+  echoViewerState='after_scan';
+  redrawEchoChart();
+  const btn=document.getElementById('echoRescanBtn');
+  if(btn)btn.style.display='none';
+  toast('✓ Analysis complete — false echo removed');
 }
 
 // ── LIVE SIM ──────────────────────────────────────────────────
