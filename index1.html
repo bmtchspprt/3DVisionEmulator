@@ -267,4 +267,12 @@ html,body{height:100%;overflow:hidden;font-family:'Roboto',sans-serif;font-size:
 ::-webkit-scrollbar{width:6px;height:6px}
 ::-webkit-scrollbar-track{background:#d0d8e0}
 ::-webkit-scrollbar-thumb{background:#8090a0;border-radius:3px}
+/* ── PAGE LAYOUT — main content + fixed right panel ── */
+.page-wrap{display:flex;height:calc(100vh - 220px)}
+.page-main{flex:1;overflow-y:auto;background:#d0dce8;min-width:0}
+.side-panel{width:258px;flex-shrink:0;background:#1a2030;border-left:2px solid #ff9800;display:flex;flex-direction:column;gap:0;overflow-y:auto}
+.side-panel .ts-panel{position:static;width:100%;border:none;border-radius:0;border-bottom:1px solid rgba(255,152,0,0.3);box-shadow:none}
+.side-panel .ts-hdr{border-radius:0}
+.side-panel .guide-panel{position:static;width:100%;border:none;border-radius:0;box-shadow:none;flex:1}
+.side-panel .gp-hdr{border-radius:0}
 </style>
