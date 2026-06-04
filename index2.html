@@ -507,6 +507,7 @@
       <button class="modal-x" onclick="closeM('mEchoViewer')">✕</button>
     </div>
     <div class="modal-body" style="padding:0;display:flex;flex-direction:column">
+      <!-- toolbar -->
       <div style="display:flex;align-items:center;gap:12px;padding:6px 10px;border-bottom:1px solid #ccc;background:#f5f5f5;flex-wrap:wrap">
         <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer">
           <input type="checkbox" id="showFuzzy" onchange="redrawEchoChart()"> Show Fuzzy
@@ -519,6 +520,7 @@
           <input type="checkbox" id="mapOutFE" onchange="openFalseEchoMapper()"> Map out False Echoes
         </label>
       </div>
+      <!-- beam tabs -->
       <div style="display:flex;gap:2px;padding:4px 8px;background:#e8e8e8;border-bottom:1px solid #ccc;flex-wrap:wrap">
         <button class="echo-tab" onclick="setEchoTab('High',this)">High</button>
         <button class="echo-tab" onclick="setEchoTab('Medium',this)">Medium</button>
@@ -531,12 +533,14 @@
         <button class="echo-tab" onclick="setEchoTab('Dir 330',this)">Dir 330</button>
         <button class="echo-tab active-tab" onclick="setEchoTab('All Beams',this)">All Beams</button>
       </div>
+      <!-- chart + legend -->
       <div style="display:flex;flex:1;overflow:hidden">
-        <div style="flex:1;padding:8px;overflow:hidden;position:relative">
+        <div style="flex:1;padding:8px;overflow:hidden;display:flex;flex-direction:column">
           <div style="font-size:12px;font-weight:700;text-align:center;margin-bottom:4px;color:#333">Analyze</div>
-          <canvas id="echoViewerChart" width="640" height="340" style="cursor:crosshair"></canvas>
-          <div id="echoCaptionBox" style="display:none;position:absolute;bottom:30px;left:20px;background:rgba(255,255,255,0.95);border:2px solid #2a6db5;border-radius:6px;padding:8px 12px;font-size:11.5px;color:#1a2a4a;max-width:320px;line-height:1.5;box-shadow:0 2px 8px rgba(0,0,0,0.2)"></div>
+          <canvas id="echoViewerChart" width="640" height="290" style="cursor:crosshair;flex-shrink:0"></canvas>
+          <div id="echoCaptionBox" style="display:none;margin-top:8px;background:rgba(255,255,255,0.97);border:2px solid #2a6db5;border-radius:6px;padding:8px 12px;font-size:11.5px;color:#1a2a4a;line-height:1.5;box-shadow:0 2px 8px rgba(0,0,0,0.1)"></div>
         </div>
+        <!-- legend -->
         <div style="width:145px;flex-shrink:0;padding:8px;overflow-y:auto;border-left:1px solid #ddd;background:#fafafa;font-size:11px">
           <div id="echoLegend"></div>
           <div style="margin-top:8px;display:flex;flex-direction:column;gap:4px">
@@ -545,8 +549,13 @@
           </div>
         </div>
       </div>
-      <div style="padding:4px 12px;background:#f0f0f0;border-top:1px solid #ddd;font-size:11px;color:#888;text-align:center">
-        Use tabs to filter by beam · Select All / Unselect All to toggle beams
+      <!-- bottom bar -->
+      <div style="padding:6px 12px;background:#f0f0f0;border-top:1px solid #ddd;font-size:11px;color:#555;display:flex;align-items:center;justify-content:space-between">
+        <span>Use tabs to filter by beam · Select All / Unselect All to toggle beams</span>
+        <div style="display:flex;gap:8px">
+          <button id="echoRescanBtn" onclick="runRescan()" style="display:none;background:#27ae60;color:white;border:none;padding:4px 12px;border-radius:4px;cursor:pointer;font-size:11px;font-weight:700">▶ Run New Analysis After Mapping</button>
+          <button onclick="closeM('mEchoViewer');simulateLoad()" style="background:#2a6db5;color:white;border:none;padding:4px 12px;border-radius:4px;cursor:pointer;font-size:11px">Load from Vessel ↺</button>
+        </div>
       </div>
     </div>
   </div>
