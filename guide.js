@@ -777,6 +777,7 @@ function renderAdmin() {
   tsData.forEach((p, pi) => {
     const d = document.createElement('div');
     d.className = 'adm-block';
+    d.setAttribute('data-pi', pi);
 
     // Build grouped destination dropdown
     let destOptions = '<option value="">— Select a destination —</option>';
@@ -854,21 +855,13 @@ function saveAdmin() {
     const titleEl = block.querySelector('.adm-tin');
     const destEl  = block.querySelector('select');
     const explEl  = block.querySelector('textarea');
-    if (titleEl)  tsData[pi].title       = titleEl.value.trim();
-    if (destEl)   tsData[pi].destLabel   = destEl.value;
-    if (explEl)   tsData[pi].explanation = explEl.value.trim();
+    if (titleEl) tsData[pi].title       = titleEl.value.trim();
+    if (destEl)  tsData[pi].destLabel   = destEl.value;
+    if (explEl)  tsData[pi].explanation = explEl.value.trim();
   });
   renderTS();
   closeM('mAdmin');
   toast('✓ Saved');
-}
-
-function esc(s) {
-  return String(s)
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;');
 }
 
 
