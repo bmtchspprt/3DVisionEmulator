@@ -704,10 +704,9 @@ function renderTS() {
     return;
   }
   tsData.forEach(p => {
-    if (!p.title || !p.title.trim()) return;
     const b = document.createElement('button');
     b.className = 'prob-btn';
-    b.innerHTML = '⚡ ' + p.title;
+    b.innerHTML = '⚡ ' + (p.title && p.title.trim() ? p.title : '(untitled)');
     b.onclick   = () => startGuide(p);
     el.appendChild(b);
   });
@@ -779,7 +778,6 @@ function renderAdmin() {
     d.className = 'adm-block';
     d.setAttribute('data-pi', pi);
 
-    // Build grouped destination dropdown
     let destOptions = '<option value="">— Select a destination —</option>';
     let currentGroup = '';
     destinations.forEach(dest => {
@@ -851,7 +849,8 @@ function saveAdmin() {
   const blocks = document.querySelectorAll('#adminBody .adm-block');
   blocks.forEach((block) => {
     const pi = parseInt(block.getAttribute('data-pi'));
-    if (isNaN(pi) || !tsData[pi]) return;
+    if (isNaN(pi)) return;
+    if (!tsData[pi]) tsData[pi] = { id: Date.now(), title: '', destLabel: '', explanation: '' };
     const titleEl = block.querySelector('.adm-tin');
     const destEl  = block.querySelector('select');
     const explEl  = block.querySelector('textarea');
@@ -862,6 +861,14 @@ function saveAdmin() {
   renderTS();
   closeM('mAdmin');
   toast('✓ Saved');
+}
+
+function esc(s) {
+  return String(s)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
 }
 
 
