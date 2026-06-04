@@ -1,543 +1,174 @@
-<div class="title-bar">
-  <span class="title-text">3D MultiVision (demoUser - localhost:127.0.0.1) - Power</span>
-  <div class="title-controls">
-    <button class="title-btn">─</button>
-    <button class="title-btn">□</button>
-    <button class="title-btn close-btn">✕</button>
-  </div>
-</div>
-
-<div class="menu-bar" id="menuBar">
-  <div class="menu-item" id="mFile"   onmousedown="openMenu(event,'mFile','ddFile')">File</div>
-  <div class="menu-item" id="mComm"   onmousedown="openMenu(event,'mComm','ddComm')">Communication</div>
-  <div class="menu-item" id="mEdit"   onmousedown="openMenu(event,'mEdit','ddEdit')">Edit</div>
-  <div class="menu-item" id="mDevice" onmousedown="openMenu(event,'mDevice','ddDevice')">Device</div>
-  <div class="menu-item" id="mTools"  onmousedown="openMenu(event,'mTools','ddTools')">Tools</div>
-  <div class="menu-item" id="mHelp"   onmousedown="openMenu(event,'mHelp','ddHelp')">Help</div>
-</div>
-
-<div class="dropdown" id="ddFile">
-  <div class="dd-item" onmousedown="cm()">New Project...</div>
-  <div class="dd-item" onmousedown="cm()">Open Project...</div>
-  <div class="dd-sep"></div>
-  <div class="dd-item" onmousedown="cm()">Save Project <span class="shortcut">Ctrl+S</span></div>
-  <div class="dd-item" onmousedown="cm()">Save Project As...</div>
-  <div class="dd-sep"></div>
-  <div class="dd-item" onmousedown="cm()">Export Project from Server...</div>
-  <div class="dd-item" onmousedown="cm()">Import Project to Server...</div>
-  <div class="dd-item" onmousedown="cm()">Delete Project</div>
-  <div class="dd-sep"></div>
-  <div class="dd-item" onmousedown="cm()">Browse to Local Folder... <span class="shortcut">Ctrl+B</span></div>
-  <div class="dd-sep"></div>
-  <div class="dd-item" onmousedown="cm()">Exit</div>
-</div>
-
-<div class="dropdown" id="ddComm">
-  <div class="dd-item" onmousedown="cm();toast('Connecting all vessels...')">Connect All</div>
-  <div class="dd-item dd-hi" onmousedown="cm();toast('All vessels disconnected')">Disconnect All</div>
-  <div class="dd-item" onmousedown="cm();toast('Loading from all vessels...')">Load from Vessels</div>
-  <div class="dd-sep"></div>
-  <div class="dd-item" onmousedown="cm();simulateConnect()">Connect Vessel</div>
-  <div class="dd-item" onmousedown="cm();toast('Vessel disconnected')">Disconnect Vessel</div>
-  <div class="dd-item" onmousedown="cm();simulateLoad()">Load from Vessel</div>
-</div>
-
-<div class="dropdown" id="ddEdit">
-  <div class="dd-item" onmousedown="cm()">Add ▶</div>
-  <div class="dd-item" onmousedown="cm()">Delete ▶</div>
-  <div class="dd-item" onmousedown="cm()">Properties</div>
-  <div class="dd-item" onmousedown="cm()">Edit Project...</div>
-  <div class="dd-sep"></div>
-  <div class="dd-item" onmousedown="cm()">Save Selected Vessel Configuration As...</div>
-  <div class="dd-item" onmousedown="cm()">Load Vessel Configuration Online...</div>
-  <div class="dd-item" onmousedown="cm()">Offline Configuration ▶</div>
-</div>
-
-<div class="dropdown" id="ddDevice">
-  <div class="dd-item" onmousedown="cm();openWizard()">Device Configuration Wizard... <span class="shortcut">F4</span></div>
-  <div class="dd-item" id="ddAdvParams" onmousedown="cm();openAdvParams()">Advanced Parameters... <span class="shortcut">F3</span></div>
-  <div class="dd-sep"></div>
-  <div class="dd-item" onmousedown="cm()">Device Current Simulation Settings... <span class="shortcut">F6</span></div>
-  <div class="dd-item" onmousedown="cm()">Device Output Current... <span class="shortcut">F8</span></div>
-  <div class="dd-item" onmousedown="cm()">Device Output Settings... <span class="shortcut">F7</span></div>
-  <div class="dd-sep"></div>
-  <div class="dd-item" onmousedown="cm();openEcho()">Echo Curve Analysis... <span class="shortcut">Ctrl+Z</span></div>
-  <div class="dd-item" onmousedown="cm();toast('Opening Echo Curve Viewer...')">Echo Curve Analyze Viewer... <span class="shortcut">Ctrl+V</span></div>
-  <div class="dd-sep"></div>
-  <div class="dd-item" id="ddFalseEcho" onmousedown="cm();openFalseEcho()">Device False Echo Mapping...</div>
-  <div class="dd-item" id="ddActivations" onmousedown="cm();openActivations()">Devices Activations...</div>
-  <div class="dd-item" onmousedown="cm()">Update Model...</div>
-</div>
-
-<div class="dropdown" id="ddTools">
-  <div class="dd-item" onmousedown="cm()">Reports ▶</div>
-  <div class="dd-item" onmousedown="cm()">Material Configuration...</div>
-  <div class="dd-item" onmousedown="cm()">Server Options...</div>
-  <div class="dd-item" onmousedown="cm()">Connect to Server...</div>
-  <div class="dd-sep"></div>
-  <div class="dd-item" onmousedown="cm()">Sign Out</div>
-  <div class="dd-item" onmousedown="cm()">Switch User...</div>
-  <div class="dd-item dd-disabled">Users Management...</div>
-  <div class="dd-sep"></div>
-  <div class="dd-item" onmousedown="cm()">Client Options...</div>
-  <div class="dd-item" onmousedown="cm();toast('Display refreshed')">Refresh Display <span class="shortcut">F5</span></div>
-  <div class="dd-item" onmousedown="cm()">Demo ▶</div>
-</div>
-
-<div class="dropdown" id="ddHelp">
-  <div class="dd-item" onmousedown="cm()">Help Contents</div>
-  <div class="dd-item" onmousedown="cm()">About 3D MultiVision...</div>
-</div>
-
-<div class="header-bar">
-  <div class="logo-area">
-    <div class="bm-logo"><span class="bm-red">BIN</span><span class="bm-white">MASTER</span></div>
-    <div class="bm-div"></div>
-    <span class="app-title">3D MultiVision</span>
-  </div>
-  <div class="nav-arrows">
-    <button class="nav-arrow">◀</button>
-    <div class="pwr-btn">
-      <svg width="52" height="52" viewBox="0 0 52 52">
-        <defs><radialGradient id="pg" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#88ccff"/><stop offset="100%" stop-color="#1a5fa8"/></radialGradient></defs>
-        <circle cx="26" cy="26" r="25" fill="url(#pg)" stroke="#2a8fdf" stroke-width="1.5"/>
-        <path d="M26 13 L26 26" stroke="white" stroke-width="3" stroke-linecap="round"/>
-        <path d="M18 17 Q8 23 8 32 Q8 44 26 44 Q44 44 44 32 Q44 23 34 17" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
-      </svg>
-      <div class="pwr-lbl">Power</div>
-    </div>
-    <button class="nav-arrow">▶</button>
-  </div>
-</div>
-
-<div class="toolbar">
-  <button class="tb-btn active" id="tbLevel" onclick="toast('Level mode active')">
-    <svg width="14" height="14" viewBox="0 0 14 14"><rect x="1" y="5" width="12" height="3" fill="white" rx="1"/><rect x="3" y="2" width="2" height="10" fill="white" rx="1"/></svg>Level
-  </button>
-  <div class="tb-sep"></div>
-  <button class="tb-btn" onclick="simulateConnect()">
-    <svg width="14" height="14" viewBox="0 0 14 14"><circle cx="4" cy="7" r="3" fill="none" stroke="white" stroke-width="1.5"/><line x1="7" y1="7" x2="11" y2="7" stroke="white" stroke-width="1.5"/><circle cx="12" cy="7" r="1.5" fill="#4f4"/></svg>Connect
-  </button>
-  <button class="tb-btn" onclick="toast('Vessel disconnected')">
-    <svg width="14" height="14" viewBox="0 0 14 14"><circle cx="4" cy="7" r="3" fill="none" stroke="white" stroke-width="1.5"/><line x1="7" y1="7" x2="11" y2="7" stroke="white" stroke-width="1.5" stroke-dasharray="2,2"/><circle cx="12" cy="7" r="1.5" fill="#f44"/></svg>Disconnect
-  </button>
-  <button class="tb-btn" id="tbLoad" onclick="simulateLoad()">
-    <svg width="14" height="14" viewBox="0 0 14 14"><polygon points="7,2 12,10 2,10" fill="none" stroke="white" stroke-width="1.5"/><line x1="7" y1="10" x2="7" y2="13" stroke="white" stroke-width="1.5"/></svg>Load from Vessel
-  </button>
-  <button class="tb-btn" id="tbEcho" onclick="openEcho()">
-    <svg width="14" height="14" viewBox="0 0 14 14"><polyline points="1,10 4,5 7,8 10,3 13,6" fill="none" stroke="white" stroke-width="1.5"/></svg>Echo Curve
-  </button>
-  <button class="tb-btn" id="tbWizard" onclick="openWizard()">
-    <svg width="14" height="14" viewBox="0 0 14 14"><path d="M7 1 L8.5 5 L13 5 L9.5 7.5 L11 12 L7 9 L3 12 L4.5 7.5 L1 5 L5.5 5 Z" fill="white"/></svg>Wizard
-  </button>
-  <button class="tb-btn" id="tbVDC" onclick="openVDC()">
-    <svg width="14" height="14" viewBox="0 0 14 14"><rect x="2" y="2" width="10" height="10" fill="none" stroke="white" stroke-width="1.5" rx="1"/><line x1="4" y1="5" x2="10" y2="5" stroke="white" stroke-width="1"/><line x1="4" y1="7" x2="10" y2="7" stroke="white" stroke-width="1"/><line x1="4" y1="9" x2="8" y2="9" stroke="white" stroke-width="1"/></svg>VDC
-  </button>
-  <div style="flex:1"></div>
-  <span style="font-size:11px;color:#ddf;margin-right:4px">Sort By:</span>
-  <select class="tb-sel"><option>All</option><option>Coal</option><option>Fly Ash</option></select>
-  <div class="conn-ind"><span class="conn-dot"></span><span>Connected</span></div>
-</div>
-
-<div class="vessel-row">
-  <button class="vs-arr">◀</button>
-  <div class="vtab active" id="vtCoal" onclick="selVessel('Coal')">
-    <svg width="30" height="38" viewBox="0 0 30 38"><polygon points="7,3 23,3 27,34 3,34" fill="#5a8a5a" stroke="#3a6a3a" stroke-width="1"/><polygon points="3,34 27,34 23,38 7,38" fill="#4a7a4a"/><circle cx="25" cy="7" r="4" fill="#44cc44" stroke="#228822" stroke-width="1"/></svg>
-    <span>Coal</span>
-  </div>
-  <div class="vtab" id="vtFlyAsh" onclick="selVessel('FlyAsh')">
-    <svg width="30" height="38" viewBox="0 0 30 38"><polygon points="7,3 23,3 27,34 3,34" fill="#5a7a8a" stroke="#3a5a6a" stroke-width="1"/><polygon points="3,34 27,34 23,38 7,38" fill="#4a6a7a"/><circle cx="25" cy="7" r="4" fill="#44cc44" stroke="#228822" stroke-width="1"/></svg>
-    <span>Fly Ash</span>
-  </div>
-  <button class="vs-arr">▶</button>
-</div>
-
-<!-- PAGE WRAPPER — main content left, side panel right -->
-<div class="page-wrap">
-
-  <!-- MAIN CONTENT AREA -->
-  <div class="page-main">
-
-    <div class="main-area" id="viewHome">
-      <div class="home-tabs">
-        <span class="htab active">Vessels</span>
-        <span class="tsep">|</span>
-        <span class="htab">Logs</span>
+<!-- ECHO CURVE ANALYSIS POPUP -->
+<div class="modal-bg hidden" id="mEcho">
+  <div class="modal-win" style="width:560px">
+    <div class="modal-tbar">Activate Echo Curve Analysis<button class="modal-x" onclick="closeM('mEcho')">✕</button></div>
+    <div class="modal-body" style="padding:14px;display:flex;gap:14px">
+      <!-- LEFT: tree -->
+      <div style="width:160px;flex-shrink:0;border:1px solid #ccc;border-radius:4px;padding:8px;background:white;font-size:12px">
+        <div style="display:flex;align-items:center;gap:4px;padding:3px 0"><input type="checkbox" checked><strong> Site1</strong></div>
+        <div style="display:flex;align-items:center;gap:4px;padding:3px 0;padding-left:14px"><input type="checkbox" checked> Vessel1</div>
+        <div style="display:flex;align-items:center;gap:4px;padding:3px 0;padding-left:28px"><input type="checkbox" checked> Vessel1_0 (0)</div>
       </div>
-      <div class="silo-cards">
-        <div class="silo-card card-hl" onclick="openDetail('Coal')">
-          <div class="silo-hdr"><span class="dot green"></span><span class="silo-nm">Coal (MV)</span><span class="silo-poll">Poll:0</span></div>
-          <div class="silo-body">
-            <div class="silo-vis">
-              <div class="silo-nm-sm">Coal</div>
-              <div class="silo2d"><span class="slbl-f">F</span><div class="sfill coal" id="cFill" style="height:41%"></div><span class="slbl-e">E</span></div>
-            </div>
-            <div class="silo-stats">
-              <div class="stat-r"><span class="stat-l">Avg. Dist</span><span class="stat-v" id="cAvgD">10.60 m</span></div>
-              <div class="stat-r"><span class="stat-l">Max Dist.</span><span class="stat-v" id="cMaxD">11.09 m</span></div>
-              <div class="stat-r"><span class="stat-l">Min Dist.</span><span class="stat-v" id="cMinD">8.93 m</span></div>
-              <div class="stat-r"><span class="stat-l">Volume (%)</span><span class="stat-v" id="cVol">41.02 %</span></div>
-            </div>
+      <!-- RIGHT: status + controls -->
+      <div style="flex:1;display:flex;flex-direction:column;gap:10px">
+        <div id="echoStatusText" style="font-size:12px;color:#333;background:#f0f0f0;padding:8px;border-radius:4px;min-height:60px;line-height:1.6">
+          Server Echo Curve analysis status: Not active.
+        </div>
+        <div id="echoProgressWrap" style="display:none">
+          <div style="background:#ddd;border-radius:4px;height:18px;overflow:hidden">
+            <div id="echoProgressBar" style="height:100%;width:0%;background:linear-gradient(90deg,#2a6db5,#44aaff);transition:width 0.3s;border-radius:4px"></div>
           </div>
+          <div id="echoProgressLabel" style="font-size:11px;color:#555;margin-top:3px;text-align:center"></div>
         </div>
-        <div class="silo-card" onclick="openDetail('FlyAsh')">
-          <div class="silo-hdr"><span class="dot green"></span><span class="silo-nm">Fly Ash (MV)</span><span class="silo-poll">Poll:1</span></div>
-          <div class="silo-body">
-            <div class="silo-vis">
-              <div class="silo-nm-sm">Fly Ash</div>
-              <div class="silo2d"><span class="slbl-f">F</span><div class="sfill flyash" id="fFill" style="height:75%"></div><span class="slbl-e">E</span></div>
-            </div>
-            <div class="silo-stats">
-              <div class="stat-r"><span class="stat-l">Avg. Dist</span><span class="stat-v" id="fAvgD">4.53 m</span></div>
-              <div class="stat-r"><span class="stat-l">Max Dist.</span><span class="stat-v" id="fMaxD">5.30 m</span></div>
-              <div class="stat-r"><span class="stat-l">Min Dist.</span><span class="stat-v" id="fMinD">3.44 m</span></div>
-              <div class="stat-r"><span class="stat-l">Volume (%)</span><span class="stat-v" id="fVol">75.41 %</span></div>
-            </div>
-          </div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px">
+          <label>Type:</label>
+          <select class="adv-sel" style="width:180px"><option>All Echoes Info</option><option>Primary Echo Only</option></select>
         </div>
-      </div>
-    </div>
-
-    <div class="main-area hidden" id="viewDetail">
-      <div class="detail-bar">
-        <span class="dtab" id="dtOv" onclick="showDTab('Overview')">Overview</span>
-        <span class="tsep">|</span>
-        <span class="dtab" id="dtLg" onclick="showDTab('Logs')">Logs</span>
-        <span class="tsep">|</span>
-        <span class="dtab" id="dtPr" onclick="showDTab('Parameters')">Parameters</span>
-        <span class="tsep">|</span>
-        <span class="dtab" id="dtDv" onclick="showDTab('Devices')">Devices</span>
-        <div style="flex:1"></div>
-        <span style="font-size:12px;color:#555;margin-right:4px">Scanners:</span>
-        <select class="scan-sel" id="scanSel"><option>Coal (MV)</option><option>Fly Ash (MV)</option></select>
-        <button class="back-btn" onclick="showHome()">← Back</button>
-      </div>
-
-      <div id="tabOv" class="tab-body">
-        <div class="ov-layout">
-          <div class="ov-left">
-            <div class="ov-vname"><span class="dot green"></span><span id="ovName">Coal (MV)</span></div>
-            <div class="ov-mat">Material Type: <strong id="ovMat">Coal</strong><button class="mat-btn">Material...</button></div>
-            <div class="ov-silo2d"><span class="slbl-f">F</span><div class="sfill coal" id="ovFill" style="height:75%"></div><span class="slbl-e">E</span></div>
-            <div class="ov-params">
-              <div class="ov-pr"><span class="ov-pl">Avg. Dist.:</span><span class="ov-pv" id="ovAD">4.53</span><span class="ov-pu">m</span></div>
-              <div class="ov-pr"><span class="ov-pl">Min. Distance:</span><span class="ov-pv" id="ovMiD">3.44</span><span class="ov-pu">m</span></div>
-              <div class="ov-pr"><span class="ov-pl">Max. Distance:</span><span class="ov-pv" id="ovMaD">5.30</span><span class="ov-pu">m</span></div>
-              <div class="ov-pr"><span class="ov-pl">Avg. Distance (%):</span><span class="ov-pv">0.00</span><span class="ov-pu">%</span></div>
-              <div class="ov-pr"><span class="ov-pl">Volume:</span><span class="ov-pv" id="ovVol">80.55</span><span class="ov-pu">m^3</span></div>
-              <div class="ov-pr"><span class="ov-pl">Volume (%):</span><span class="ov-pv" id="ovVolP">75.41</span><span class="ov-pu">%</span></div>
-              <div class="ov-pr"><span class="ov-pl">Mass:</span><span class="ov-pv">-</span><span class="ov-pu">ton</span></div>
-              <div class="ov-pr"><span class="ov-pl">Max Scale Vol.:</span><span class="ov-pv">100.00</span><span class="ov-pu">m^3</span></div>
-              <div class="ov-pr"><span class="ov-pl">Max Scale Mass:</span><span class="ov-pv">-</span><span class="ov-pu">ton</span></div>
-              <div class="ov-pr"><span class="ov-pl">Temperature:</span><span class="ov-pv" id="ovTemp">24.83</span><span class="ov-pu">C</span></div>
-              <div class="ov-pr ov-snr"><span class="ov-pl">SNR</span><span class="ov-pv" id="ovSNR">62.24</span><span class="ov-pu">dB</span></div>
-              <div class="ov-pr"><span class="ov-pl">Output Current:</span><span class="ov-pv" id="ovOut">16.89</span><span class="ov-pu">mA</span></div>
-            </div>
-          </div>
-          <div class="ov-center">
-            <canvas id="c3d" width="340" height="400"></canvas>
-            <label class="online-badge"><input type="checkbox" checked> On line</label>
-          </div>
-          <div class="ov-right">
-            <div class="ov-minimap"><canvas id="minimap" width="128" height="80"></canvas></div>
-            <div class="zoom-wrap">
-              <button class="zoom-btn">+</button>
-              <div class="zoom-track"><div class="zoom-thumb"></div></div>
-              <button class="zoom-btn">-</button>
-            </div>
-            <div class="navpad">
-              <button class="npb" style="grid-column:2">▲</button>
-              <button class="npb" style="grid-column:1;grid-row:2">◀</button>
-              <button class="npb npb-c" style="grid-column:2;grid-row:2">●</button>
-              <button class="npb" style="grid-column:3;grid-row:2">▶</button>
-              <button class="npb" style="grid-column:2;grid-row:3">▼</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div id="tabLg" class="tab-body hidden">
-        <div class="logs-bar">
-          <button class="log-ibtn" style="color:red;font-weight:bold">✕</button>
-          <button class="log-ibtn">⚙</button>
-          <label class="log-chk"><input type="checkbox" checked> On line</label>
-          <span style="font-size:12px;color:#555">Log Duration:</span>
-          <input type="text" class="log-dur">
-          <button class="log-abtn">Browse...</button>
-          <button class="log-abtn">Server Logs...</button>
-        </div>
-        <div class="charts-grid">
-          <div class="chart-cell"><div class="chart-ttl">Avg. Dist.</div><canvas id="chAD" width="540" height="190"></canvas></div>
-          <div class="chart-cell"><div class="chart-ttl">Volume/Mass (%)</div><canvas id="chVol" width="540" height="190"></canvas></div>
-          <div class="chart-cell"><div class="chart-ttl">SNR</div><canvas id="chSNR" width="540" height="190"></canvas></div>
-          <div class="chart-cell"><div class="chart-ttl">Temperature</div><canvas id="chTemp" width="540" height="190"></canvas></div>
-        </div>
-      </div>
-
-      <div id="tabPr" class="tab-body hidden">
-        <div class="params-wrap">
-          <div class="params-scada">Vessel Scada ID: <strong>1</strong></div>
-          <table class="ptbl">
-            <tr><td class="pt-l">Scanner:</td><td class="pt-v"><strong>Carmel Ulpinim</strong></td></tr>
-            <tr><td class="pt-l">Poll Addr:</td><td class="pt-v">0</td></tr>
-            <tr><td class="pt-l">S/N:</td><td class="pt-v">709001467</td></tr>
-            <tr><td class="pt-l">Hardware:</td><td class="pt-v">16</td></tr>
-            <tr><td class="pt-l">Firmware:</td><td class="pt-v">2.9.986</td></tr>
-            <tr><td class="pt-l">Device Type:</td><td class="pt-v">MV</td></tr>
-            <tr><td class="pt-l">Avg. Dist.:</td><td class="pt-v">m &nbsp; 5.49</td></tr>
-            <tr><td class="pt-l">Min. Distance:</td><td class="pt-v">m &nbsp; 4.26</td></tr>
-            <tr><td class="pt-l">Max. Distance:</td><td class="pt-v">m &nbsp; 6.45</td></tr>
-            <tr><td class="pt-l">Avg. Dist. (%):</td><td class="pt-v">% &nbsp; 0.00</td></tr>
-            <tr><td class="pt-l">Volume:</td><td class="pt-v">m^3 &nbsp; 72.53</td></tr>
-            <tr><td class="pt-l">Volume:</td><td class="pt-v">% &nbsp; 73.02</td></tr>
-            <tr><td class="pt-l">Mass:</td><td class="pt-v">ton &nbsp; -</td></tr>
-            <tr><td class="pt-l">Max Volume Capacity:</td><td class="pt-v">m^3 &nbsp; 100.00</td></tr>
-            <tr><td class="pt-l">Max Mass Capacity:</td><td class="pt-v">ton &nbsp; -</td></tr>
-            <tr><td class="pt-l">Temperature:</td><td class="pt-v">C &nbsp; 24.83</td></tr>
-            <tr><td class="pt-l">SNR:</td><td class="pt-v">dB &nbsp; 47.08</td></tr>
-            <tr><td class="pt-l">Output Current:</td><td class="pt-v">mA &nbsp; 15.60</td></tr>
-          </table>
-        </div>
-      </div>
-
-      <div id="tabDv" class="tab-body hidden">
-        <div class="devs-layout">
-          <div class="devs-l">
-            <div class="devs-sec">Connection</div>
-            <div class="devs-sub">Connection Type</div>
-            <div class="conn-grid">
-              <label class="rl"><input type="radio" name="ct"> HART</label>
-              <label class="rl"><input type="radio" name="ct"> GPRS</label>
-              <label class="rl"><input type="radio" name="ct" checked> RS-485</label>
-              <label class="rl"><input type="radio" name="ct"> GPRS + SMS</label>
-              <label class="rl"><input type="radio" name="ct"> TCP/IP</label>
-              <label class="rl"><input type="radio" name="ct"> Smart GPRS</label>
-            </div>
-            <div class="devs-sub">Configuration</div>
-            <div class="cfg-row">
-              <span class="cfg-lbl">Serial Port:</span>
-              <select class="cfg-sel"><option>COM3</option><option>COM1</option><option>COM2</option></select>
-            </div>
-          </div>
-          <div class="devs-r">
-            <div class="devs-sec">Device Polling Addresses</div>
-            <table class="poll-tbl">
-              <tr><th>Device Name</th><th>Polling Address:</th><th></th></tr>
-              <tr>
-                <td>Carmel Ulpinim</td>
-                <td><select class="poll-sel"><option>0</option><option>1</option><option>2</option><option>3</option></select></td>
-                <td><button class="disconn-btn">Disconnect</button></td>
-              </tr>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </div><!-- end .page-main -->
-
-  <!-- FIXED RIGHT SIDE PANEL -->
-  <div class="side-panel">
-
-    <!-- TROUBLESHOOT BOX -->
-    <div class="ts-panel" id="tsPanel">
-      <div class="ts-hdr" id="tsHdr">
-        <span class="ts-title">⚙ Troubleshoot</span>
-        <div class="ts-hbtns">
-          <button class="ts-hbtn" id="tsMin" onclick="toggleTS()">−</button>
-          <button class="ts-hbtn" onclick="openAdmin()" title="Edit Paths">✎</button>
-        </div>
-      </div>
-      <div class="ts-body" id="tsBody"><div id="tsList"></div></div>
-    </div>
-
-    <!-- GUIDE STEP BOX -->
-    <div class="guide-panel hidden" id="gPanel">
-      <div class="gp-hdr" id="gPanelHdr">
-        <span class="gp-title" id="gTitle">Step 1 of 5</span>
-        <button class="gp-x" onclick="endGuide()">✕</button>
-      </div>
-      <div class="gp-prob" id="gProb"></div>
-      <div class="gp-inst" id="gInst"></div>
-      <div class="gp-foot">
-        <button class="gp-prev" id="gPrev" onclick="guideNav(-1)">◀ Prev</button>
-        <span class="gp-ctr" id="gCtr">1 / 5</span>
-        <button class="gp-next" id="gNext" onclick="guideNav(1)">Next ▶</button>
-      </div>
-    </div>
-
-  </div><!-- end .side-panel -->
-
-</div><!-- end .page-wrap -->
-
-<div class="hl-circle hidden" id="hlCircle"></div>
-<div class="toast hidden" id="toastEl"></div>
-
-<!-- MODALS — all outside page-wrap so z-index works correctly -->
-<div class="modal-bg hidden" id="mAdvanced">
-  <div class="modal-win" style="width:500px">
-    <div class="modal-tbar">Advanced Parameters — <span id="advTitle">Coal</span><button class="modal-x" onclick="closeM('mAdvanced')">✕</button></div>
-    <div class="modal-tabs">
-      <button class="mtab active" onclick="advTab('Basic',this)">Basic</button>
-      <button class="mtab" onclick="advTab('Advanced',this)">Advanced</button>
-      <button class="mtab" onclick="advTab('Beams',this)">Beams</button>
-    </div>
-    <div class="modal-body">
-      <div id="advBasic">
-        <div class="adv-row"><label class="adv-lbl">Output Dampening Power (s):</label><input type="number" class="adv-inp" id="apDamp" value="420"></div>
-        <div class="adv-row"><label class="adv-lbl">Steepest Material Slope (°):</label><input type="number" class="adv-inp" value="32"></div>
-        <div class="adv-row"><label class="adv-lbl">Maximum Capacity (mass):</label><input type="number" class="adv-inp" value="100"></div>
-        <div class="adv-row"><label class="adv-lbl">MPN Rate (mass/hour):</label><input type="number" class="adv-inp" id="apMPN" value="7"></div>
-        <div class="adv-row"><label class="adv-lbl">Max Fill (mass/hour):</label><input type="number" class="adv-inp" id="apMFill" value="7"></div>
-        <div class="adv-row"><label class="adv-lbl">Max Empty (mass/hour):</label><input type="number" class="adv-inp" id="apMEmpty" value="7"></div>
-      </div>
-      <div id="advAdvanced" class="hidden">
-        <div class="adv-row"><label class="adv-lbl">Angle Adapter Side Margin:</label><input type="number" class="adv-inp" value="0"></div>
-        <div class="adv-row"><label class="adv-lbl">Restraint:</label><input type="number" class="adv-inp" value="0"></div>
-        <div class="adv-row"><label class="adv-lbl">Threshold:</label><input type="number" class="adv-inp" value="0"></div>
-        <div class="adv-row"><label class="adv-lbl">After Transmission Mask:</label><input type="number" class="adv-inp" value="0"></div>
-        <div class="adv-row"><label class="adv-lbl">User False Echoes:</label><select class="adv-sel"><option>Activated</option><option selected>Deactivated</option></select></div>
-        <div class="adv-row"><label class="adv-lbl">Auto False Echoes:</label><select class="adv-sel" id="apAutoFE"><option>Activated</option><option selected>Deactivated</option></select></div>
-      </div>
-      <div id="advBeams" class="hidden">
-        <p class="adv-note">All beam checkboxes at top should be checked:</p>
-        <div class="beam-grid">
-          <label><input type="checkbox" checked> Beam 1</label>
-          <label><input type="checkbox" checked> Beam 2</label>
-          <label><input type="checkbox" checked> Beam 3</label>
-          <label><input type="checkbox" checked> Beam 4</label>
-          <label><input type="checkbox" checked> Beam 5</label>
-          <label><input type="checkbox" checked> Beam 6</label>
-        </div>
-        <div class="beam-bot">
-          <label><input type="checkbox" id="apAutoBeam"> Auto Beam Selection</label>
-          <label><input type="checkbox"> Manual Override</label>
+        <div style="border:1px solid #ccc;border-radius:4px;padding:8px;background:#f8f8f8">
+          <div style="font-size:12px;font-weight:700;margin-bottom:6px;color:#333">Continuous Grades</div>
+          <label style="display:flex;align-items:center;gap:6px;font-size:12px;margin-bottom:5px">
+            <input type="checkbox" id="echoContinuous"> Every (mins)
+            <input type="number" style="width:48px;border:1px solid #bbb;padding:2px 4px;font-size:12px;border-radius:3px" value="5">
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:12px">
+            <input type="checkbox" disabled> Duration (hours)
+            <input type="number" style="width:48px;border:1px solid #bbb;padding:2px 4px;font-size:12px;border-radius:3px" value="0" disabled>
+          </label>
         </div>
       </div>
     </div>
     <div class="modal-foot">
-      <button class="mbtn-p" onclick="uploadAll()">Upload All</button>
-      <button class="mbtn" onclick="closeM('mAdvanced')">Cancel</button>
+      <button class="mbtn-p" onclick="openEchoViewer()">Open Viewer</button>
+      <button class="mbtn-p" id="echoStartBtn" onclick="startEchoAnalysis()">Start</button>
+      <button class="mbtn" id="echoStopBtn" onclick="stopEchoAnalysis()">Stop</button>
+      <button class="mbtn" onclick="closeM('mEcho')">Close</button>
     </div>
   </div>
 </div>
 
-<div class="modal-bg hidden" id="mActivations">
-  <div class="modal-win" style="width:380px">
-    <div class="modal-tbar">Devices Activations<button class="modal-x" onclick="closeM('mActivations')">✕</button></div>
-    <div class="modal-body">
-      <p class="adv-note">Select an action to perform on the device:</p>
-      <div class="act-btns">
-        <button class="act-btn" id="btnReset" onclick="doReset()">Reset</button>
-        <button class="act-btn danger" onclick="doFactoryReset()">Reset to Factory</button>
-        <button class="act-btn" onclick="closeM('mActivations');toast('Device restarting...')">Restart Device</button>
+<!-- ECHO CURVE VIEWER -->
+<div class="modal-bg hidden" id="mEchoViewer">
+  <div class="modal-win" style="width:900px;max-height:95vh">
+    <div class="modal-tbar">
+      Echo Curve EGT Silos\403\
+      <button class="modal-x" onclick="closeM('mEchoViewer')">✕</button>
+    </div>
+    <div class="modal-body" style="padding:0;display:flex;flex-direction:column">
+      <!-- toolbar -->
+      <div style="display:flex;align-items:center;gap:12px;padding:6px 10px;border-bottom:1px solid #ccc;background:#f5f5f5;flex-wrap:wrap">
+        <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer">
+          <input type="checkbox" id="showFuzzy" onchange="redrawEchoChart()"> Show Fuzzy
+        </label>
+        <button style="background:#cc2222;color:white;border:none;padding:2px 8px;font-size:11px;border-radius:2px;cursor:pointer">✕</button>
+        <select style="border:1px solid #bbb;padding:2px 6px;font-size:12px;border-radius:3px" onchange="redrawEchoChart()">
+          <option>ft</option><option>m</option>
+        </select>
+        <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer">
+          <input type="checkbox" id="mapOutFE" onchange="openFalseEchoMapper()"> Map out False Echoes
+        </label>
+        <div id="echoViewerCaption" style="margin-left:auto;font-size:11px;color:#1a5a9a;font-style:italic;max-width:320px;text-align:right"></div>
+      </div>
+      <!-- beam tabs -->
+      <div style="display:flex;gap:2px;padding:4px 8px;background:#e8e8e8;border-bottom:1px solid #ccc;flex-wrap:wrap">
+        <button class="echo-tab active-tab" onclick="setEchoTab('High',this)">High</button>
+        <button class="echo-tab" onclick="setEchoTab('Medium',this)">Medium</button>
+        <button class="echo-tab" onclick="setEchoTab('Low',this)">Low</button>
+        <button class="echo-tab" onclick="setEchoTab('Dir 30',this)">Dir 30</button>
+        <button class="echo-tab" onclick="setEchoTab('Dir 90',this)">Dir 90</button>
+        <button class="echo-tab" onclick="setEchoTab('Dir 150',this)">Dir 150</button>
+        <button class="echo-tab" onclick="setEchoTab('Dir 210',this)">Dir 210</button>
+        <button class="echo-tab" onclick="setEchoTab('Dir 270',this)">Dir 270</button>
+        <button class="echo-tab" onclick="setEchoTab('Dir 330',this)">Dir 330</button>
+        <button class="echo-tab active-tab" onclick="setEchoTab('All Beams',this)">All Beams</button>
+      </div>
+      <!-- chart + legend -->
+      <div style="display:flex;flex:1;overflow:hidden">
+        <div style="flex:1;padding:8px;overflow:hidden;position:relative">
+          <div style="font-size:12px;font-weight:700;text-align:center;margin-bottom:4px;color:#333">Analyze</div>
+          <div style="overflow-x:auto">
+            <canvas id="echoViewerChart" width="640" height="340" style="cursor:crosshair" onclick="echoChartClick(event)"></canvas>
+          </div>
+          <!-- info caption overlay -->
+          <div id="echoCaptionBox" style="display:none;position:absolute;bottom:30px;left:20px;background:rgba(255,255,255,0.95);border:2px solid #2a6db5;border-radius:6px;padding:8px 12px;font-size:11.5px;color:#1a2a4a;max-width:320px;line-height:1.5;box-shadow:0 2px 8px rgba(0,0,0,0.2)"></div>
+        </div>
+        <!-- legend -->
+        <div style="width:145px;flex-shrink:0;padding:8px;overflow-y:auto;border-left:1px solid #ddd;background:#fafafa;font-size:11px">
+          <div id="echoLegend"></div>
+          <div style="margin-top:8px;display:flex;flex-direction:column;gap:4px">
+            <button onclick="selectAllBeams(true)" style="background:#2a6db5;color:white;border:none;padding:4px 8px;border-radius:3px;cursor:pointer;font-size:11px">Select All</button>
+            <button onclick="selectAllBeams(false)" style="background:#888;color:white;border:none;padding:4px 8px;border-radius:3px;cursor:pointer;font-size:11px">Unselect All</button>
+          </div>
+        </div>
+      </div>
+      <!-- scroll hint -->
+      <div style="padding:4px 12px;background:#f0f0f0;border-top:1px solid #ddd;font-size:11px;color:#888;text-align:center">
+        Scroll chart to zoom · Click to inspect · Use tabs to filter by beam
       </div>
     </div>
-    <div class="modal-foot"><button class="mbtn" onclick="closeM('mActivations')">Close</button></div>
   </div>
 </div>
 
-<div class="modal-bg hidden" id="mFalseEcho">
+<!-- FALSE ECHO MAPPER DIALOG -->
+<div class="modal-bg hidden" id="mFalseEchoMapper">
   <div class="modal-win" style="width:420px">
-    <div class="modal-tbar">Device False Echo Mapping<button class="modal-x" onclick="closeM('mFalseEcho')">✕</button></div>
-    <div class="modal-body">
-      <div class="adv-row">
-        <label class="adv-lbl">Action:</label>
-        <select class="adv-sel" id="feAction">
-          <option>Reset Mapping</option>
-          <option>Reset User and Auto False Echoes</option>
-          <option>Learn New Map</option>
+    <div class="modal-tbar">False Echoes Mapping Vessel:Vessel1<button class="modal-x" onclick="closeFalseEchoMapper()">✕</button></div>
+    <div class="modal-body" style="padding:16px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <label style="font-size:12px;color:#555;width:60px">Device:</label>
+        <select style="flex:1;border:1px solid #bbb;padding:5px 8px;font-size:12px;border-radius:4px">
+          <option>Vessel1_0 (0)</option>
         </select>
       </div>
-      <p class="adv-note" id="feStatus">Select an action and click Execute.</p>
-    </div>
-    <div class="modal-foot">
-      <button class="mbtn-p" onclick="execFE()">Execute</button>
-      <button class="mbtn" onclick="closeM('mFalseEcho')">Cancel</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-bg hidden" id="mEcho">
-  <div class="modal-win" style="width:540px">
-    <div class="modal-tbar">Activate Echo Curve Analysis<button class="modal-x" onclick="closeM('mEcho')">✕</button></div>
-    <div class="modal-body">
-      <div class="echo-body">
-        <div class="echo-tree">
-          <div class="tree-row"><input type="checkbox" checked><strong> Power</strong></div>
-          <div class="tree-row tree-c1"><input type="checkbox" checked> Coal</div>
-          <div class="tree-row tree-c2"><input type="checkbox" checked> Carmel Ulpinim (0)</div>
-          <div class="tree-row tree-c1"><input type="checkbox"> Fly Ash</div>
-        </div>
-        <div class="echo-r">
-          <p class="echo-stat" id="echoStat">Server Echo Curve analysis status: Not active.</p>
-          <div class="echo-type-row">
-            <label style="font-size:12px">Type:</label>
-            <select class="adv-sel" style="width:185px"><option>All Echoes Info</option><option>Primary Echo Only</option></select>
+      <div style="border:1px solid #ccc;border-radius:5px;padding:12px;background:#f9f9f9;display:flex;gap:16px">
+        <!-- left fields -->
+        <div style="flex:1">
+          <div style="font-size:12px;font-weight:700;color:#333;margin-bottom:10px">False Echoes Mapping</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <label style="font-size:12px;color:#555;width:80px">Action Type:</label>
+            <select style="flex:1;border:1px solid #bbb;padding:4px 6px;font-size:12px;border-radius:3px">
+              <option>Scan</option><option>Map</option><option>Clear</option>
+            </select>
           </div>
-          <div class="echo-grades">
-            <div class="echo-gtitle">Continuous Grades</div>
-            <label class="echo-gl"><input type="checkbox"> Every (mins) <input type="number" class="echo-num" value="5"></label>
-            <label class="echo-gl"><input type="checkbox" disabled> Duration (hours) <input type="number" class="echo-num" value="1" disabled></label>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <label style="font-size:12px;color:#555;width:80px">From:</label>
+            <input type="number" value="0" style="width:70px;border:1px solid #bbb;padding:4px 6px;font-size:12px;border-radius:3px">
+            <span style="font-size:12px;color:#555">ft</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <label style="font-size:12px;color:#555;width:80px">To:</label>
+            <input type="number" value="100" style="width:70px;border:1px solid #bbb;padding:4px 6px;font-size:12px;border-radius:3px">
+            <span style="font-size:12px;color:#555">ft</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <label style="font-size:12px;color:#555;width:80px">Threshold:</label>
+            <input type="text" value="-" style="width:70px;border:1px solid #bbb;padding:4px 6px;font-size:12px;border-radius:3px;background:#f0f0f0" readonly>
           </div>
         </div>
+        <!-- right checkboxes -->
+        <div style="display:flex;flex-direction:column;gap:5px;font-size:12px">
+          <label style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="femAll" checked onchange="femToggleAll(this)"> All</label>
+          <label style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" class="fem-cb" checked> High</label>
+          <label style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" class="fem-cb" checked> Medium</label>
+          <label style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" class="fem-cb" checked> Low</label>
+          <label style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" class="fem-cb" checked> Dir 30</label>
+          <label style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" class="fem-cb" checked> Dir 90</label>
+          <label style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" class="fem-cb" checked> Dir 150</label>
+          <label style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" class="fem-cb" checked> Dir 210</label>
+          <label style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" class="fem-cb" checked> Dir 270</label>
+          <label style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" class="fem-cb" checked> Dir 330</label>
+        </div>
+      </div>
+      <!-- scanning progress -->
+      <div id="femProgressWrap" style="display:none;margin-top:12px">
+        <div style="background:#ddd;border-radius:4px;height:16px;overflow:hidden">
+          <div id="femProgressBar" style="height:100%;width:0%;background:linear-gradient(90deg,#2a6db5,#44aaff);transition:width 0.4s;border-radius:4px"></div>
+        </div>
+        <div id="femStatusText" style="font-size:11px;color:#555;margin-top:4px;text-align:center">Scanning...</div>
       </div>
     </div>
     <div class="modal-foot">
-      <button class="mbtn-p" onclick="closeM('mEcho');toast('Opening Echo Curve Viewer...')">Open Viewer</button>
-      <button class="mbtn-p" onclick="startEcho()">Start</button>
-      <button class="mbtn" onclick="stopEcho()">Stop</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-bg hidden" id="mWizard">
-  <div class="modal-win" style="width:720px;max-height:92vh">
-    <div class="modal-tbar"><span id="wizTitle">Coal - Configuration Wizard</span><button class="modal-x" onclick="closeM('mWizard')">✕</button></div>
-    <div class="modal-body" id="wizBody"></div>
-    <div class="modal-foot">
-      <button class="mbtn" id="wizBack" onclick="wizNav(-1)">◀ Back</button>
-      <button class="mbtn-p" id="wizNext" onclick="wizNav(1)">Next ▶</button>
-      <button class="mbtn" onclick="closeM('mWizard')">Cancel</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-bg hidden" id="mVDC">
-  <div class="modal-win" style="width:500px">
-    <div class="modal-tbar">Vessel Data Collection<button class="modal-x" onclick="closeM('mVDC')">✕</button></div>
-    <div class="modal-body">
-      <div class="vdc-row"><label>Client:</label><input class="vdc-in vdc-ro" value="demoUser   GARNERIND\David.Zelnio,fe80::1f82:d2c5:4bb4:e6" readonly></div>
-      <div class="vdc-row"><label>Vessel:</label><input class="vdc-in vdc-ro" value="Site:Power [ Vessel:Coal]" readonly></div>
-      <div class="vdc-row"><label>Name:</label><input class="vdc-in vdc-req" type="text"></div>
-      <div class="vdc-row"><label>Phone:</label><input class="vdc-in vdc-req" type="text"></div>
-      <div class="vdc-row"><label>E-Mail:</label><input class="vdc-in vdc-req" type="text"></div>
-      <div class="vdc-row"><label>Company:</label><input class="vdc-in vdc-req" type="text"></div>
-      <div class="vdc-row"><label>Country:</label><input class="vdc-in vdc-req" type="text"></div>
-      <div class="vdc-row"><label>Problem:</label><input class="vdc-in vdc-req" type="text"></div>
-      <label class="vdc-chk"><input type="checkbox" checked> Send file automatically to tech. support data storage</label>
-    </div>
-    <div class="modal-foot">
-      <button class="mbtn-p">Setup</button>
-      <button class="mbtn">Clear</button>
-      <button class="mbtn-p">Run</button>
-      <button class="mbtn mbtn-off" disabled>Cancel Run</button>
-      <div style="width:100%;height:1px;background:#ddd"></div>
-      <button class="mbtn">Download Test File</button>
-      <button class="mbtn">Upload Test File</button>
-      <button class="mbtn" onclick="closeM('mVDC')">Close</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-bg hidden" id="mAdmin">
-  <div class="modal-win" style="width:760px;max-height:90vh;overflow-y:auto">
-    <div class="modal-tbar">🛠 Troubleshooting Path Editor<button class="modal-x" onclick="closeM('mAdmin')">✕</button></div>
-    <div class="modal-body" id="adminBody"></div>
-    <div class="modal-foot">
-      <button class="mbtn-p" onclick="addProblem()">+ Add Problem</button>
-      <button class="mbtn-p" onclick="saveAdmin()">Save & Close</button>
-      <button class="mbtn" onclick="closeM('mAdmin')">Cancel</button>
+      <button class="mbtn-p" id="femStartBtn" onclick="startFalseEchoScan()">Start Scanning</button>
+      <button class="mbtn" onclick="closeFalseEchoMapper()">Close</button>
     </div>
   </div>
 </div>
