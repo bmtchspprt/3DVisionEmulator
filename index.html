@@ -23,8 +23,7 @@ fetch('index1.html').then(r=>r.text()).then(css=>{
   const s=document.createElement('script');
   s.textContent=js;
   document.body.appendChild(s);
-  // Init after everything is loaded
-  setTimeout(initApp, 50);
+  setTimeout(initApp,50);
 }).catch(e=>{
   document.body.innerHTML='<div style="padding:40px;color:red;font-family:sans-serif"><h2>Error loading files</h2><p>'+e.message+'</p></div>';
 });
