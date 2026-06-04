@@ -333,4 +333,292 @@ setInterval(()=>{
     draw3D(d.vol/100,curV==='FlyAsh');
   }
 },2000);
+  // ═══════════════════════════════════════════════════
+// ECHO CURVE SYSTEM
+// ═══════════════════════════════════════════════════
+
+let echoAnalysisRunning = false;
+let echoAnalysisTimer   = null;
+let echoViewerState     = 'normal'; // 'normal' | 'false_echo' | 'after_scan'
+let echoActiveTab       = 'All Beams';
+let echoScrollOffset    = 0;
+
+// Beam definitions — color, name, fuzzy color
+const echoBeams = [
+  { name:'High',       color:'#cc0000', fuzzyColor:'#ff6666' },
+  { name:'Medium',     color:'#00aa00', fuzzyColor:'#66cc66' },
+  { name:'Low',        color:'#cccc00', fuzzyColor:'#ffff66' },
+  { name:'Dir 30',     color:'#0000cc', fuzzyColor:'#6666ff' },
+  { name:'Dir 90',     color:'#111111', fuzzyColor:'#888888' },
+  { name:'Dir 150',    color:'#888888', fuzzyColor:'#aaaaaa' },
+  { name:'Dir 210',    color:'#cc00cc', fuzzyColor:'#ff66ff' },
+  { name:'Dir 270',    color:'#00aaaa', fuzzyColor:'#66ffff' },
+  { name:'Dir 330',    color:'#aa6600', fuzzyColor:'#ffaa44' },
+];
+
+let echoBeamVisible = {};
+echoBeams.forEach(b => echoBeamVisible[b.name] = true);
+
+// ── Echo popup functions ──────────────────────────
+function openEcho() { openM('mEcho'); }
+
+function startEchoAnalysis() {
+  if (echoAnalysisRunning) return;
+  echoAnalysisRunning = true;
+  const now = new Date();
+  const timeStr = now.toLocaleDateString('en-US') + ' ' + now.toLocaleTimeString('en-US');
+  document.getElementById('echoStatusText').innerHTML =
+    `<strong>Server is performing Echo Curve analysis.</strong><br>
+     Start time: ${timeStr}<br>
+     Server Echo Curve - Single activation.`;
+  document.getElementById('echoProgressWrap').style.display = 'block';
+  let pct = 0;
+  echoAnalysisTimer = setInterval(() => {
+    pct += Math.random() * 8 + 4;
+    if (pct >= 100) { pct = 100; clearInterval(echoAnalysisTimer); echoAnalysisRunning = false; }
+    document.getElementById('echoProgressBar').style.width = pct + '%';
+    const vessel = 'Site1:Vessel1_0';
+    document.getElementById('echoProgressLabel').textContent = `${vessel} (${Math.round(pct)}%)`;
+  }, 300);
+}
+
+function stopEchoAnalysis() {
+  if (echoAnalysisTimer) clearInterval(echoAnalysisTimer);
+  echoAnalysisRunning = false;
+  document.getElementById('echoStatusText').textContent = 'Server Echo Curve analysis status: Stopped.';
+  document.getElementById('echoProgressWrap').style.display = 'none';
+}
+
+function openEchoViewer() {
+  closeM('mEcho');
+  openM('mEchoViewer');
+  echoActiveTab = 'All Beams';
+  echoScrollOffset = 0;
+  setTimeout(() => {
+    buildEchoLegend();
+    redrawEchoChart();
+    showEchoCaption();
+  }, 80);
+}
+
+// ── Echo Viewer ───────────────────────────────────
+function setEchoTab(name, btn) {
+  echoActiveTab = name;
+  document.querySelectorAll('.echo-tab').forEach(b => b.classList.remove('active-tab'));
+  btn.classList.add('active-tab');
+  redrawEchoChart();
+}
+
+function selectAllBeams(val) {
+  echoBeams.forEach(b => echoBeamVisible[b.name] = val);
+  buildEchoLegend();
+  redrawEchoChart();
+}
+
+function buildEchoLegend() {
+  const el = document.getElementById('echoLegend');
+  if (!el) return;
+  const showFuzzy = document.getElementById('showFuzzy') && document.getElementById('showFuzzy').checked;
+  let html = '';
+  echoBeams.forEach(b => {
+    const chk = echoBeamVisible[b.name] ? 'checked' : '';
+    html += `<label style="display:flex;align-items:center;gap:4px;margin-bottom:3px;cursor:pointer;font-size:11px">
+      <input type="checkbox" ${chk} onchange="toggleBeam('${b.name}',this.checked)">
+      <span style="display:inline-block;width:18px;height:3px;background:${b.color};border-radius:2px"></span>
+      ${b.name}
+    </label>`;
+  });
+  if (showFuzzy) {
+    echoBeams.forEach(b => {
+      html += `<label style="display:flex;align-items:center;gap:4px;margin-bottom:3px;cursor:pointer;font-size:11px">
+        <input type="checkbox" checked>
+        <span style="display:inline-block;width:18px;height:3px;background:${b.fuzzyColor};border-radius:2px"></span>
+        Fuzzy:${b.name}
+      </label>`;
+    });
+  }
+  el.innerHTML = html;
+}
+
+function toggleBeam(name, val) {
+  echoBeamVisible[name] = val;
+  redrawEchoChart();
+}
+
+function redrawEchoChart() {
+  buildEchoLegend();
+  const cv = document.getElementById('echoViewerChart');
+  if (!cv) return;
+  const ctx  = cv.getContext('2d');
+  const W    = cv.width, H = cv.height;
+  const pad  = { t:10, r:10, b:35, l:65 };
+  const cW   = W - pad.l - pad.r;
+  const cH   = H - pad.t - pad.b;
+  const afterScan = echoViewerState === 'after_scan';
+
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = 'white'; ctx.fillRect(0, 0, W, H);
+
+  // Axes
+  const xMax  = 180;
+  const yMax  = 170000;
+  const xTick = 20;
+  const yTick = 20000;
+
+  // Grid + labels
+  ctx.strokeStyle = '#e0e0e0'; ctx.lineWidth = 1;
+  for (let y = 0; y <= yMax; y += yTick) {
+    const py = pad.t + cH - (y / yMax) * cH;
+    ctx.beginPath(); ctx.moveTo(pad.l, py); ctx.lineTo(pad.l + cW, py); ctx.stroke();
+    ctx.fillStyle = '#777'; ctx.font = '9px sans-serif'; ctx.textAlign = 'right';
+    ctx.fillText((y / 1000).toFixed(0) + (y > 0 ? ',000' : ''), pad.l - 4, py + 3);
+  }
+  for (let x = 0; x <= xMax; x += xTick) {
+    const px = pad.l + (x / xMax) * cW;
+    ctx.beginPath(); ctx.moveTo(px, pad.t); ctx.lineTo(px, pad.t + cH); ctx.stroke();
+    ctx.fillStyle = '#777'; ctx.font = '9px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(x, px, pad.t + cH + 14);
+  }
+  // X axis label
+  ctx.fillStyle = '#555'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('[ft]', pad.l + cW / 2, H - 4);
+  // Axis border
+  ctx.strokeStyle = '#999'; ctx.lineWidth = 1.5;
+  ctx.strokeRect(pad.l, pad.t, cW, cH);
+
+  // Determine which beams to draw
+  const visBeams = echoActiveTab === 'All Beams'
+    ? echoBeams.filter(b => echoBeamVisible[b.name])
+    : echoBeams.filter(b => b.name === echoActiveTab);
+
+  // Generate echo data for each beam
+  visBeams.forEach(beam => {
+    drawBeamLine(ctx, beam, pad, cW, cH, xMax, yMax, afterScan);
+  });
+
+  showEchoCaption();
+}
+
+function drawBeamLine(ctx, beam, pad, cW, cH, xMax, yMax, afterScan) {
+  // Seed random per beam name for consistency
+  const seed = beam.name.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
+  const rng = (s) => { const x = Math.sin(s) * 10000; return x - Math.floor(x); };
+
+  ctx.beginPath();
+  ctx.strokeStyle = beam.color;
+  ctx.lineWidth   = 1.5;
+  ctx.setLineDash([]);
+
+  const mainPeak    = 117; // real echo at 117ft
+  const falsePeak   = 65;  // false echo at 65ft
+  const beamOffset  = (seed % 8) - 4; // slight per-beam offset
+
+  let first = true;
+  for (let ft = 0; ft <= xMax; ft += 0.5) {
+    const px = pad.l + (ft / xMax) * cW;
+    let amp  = 0;
+
+    // Noise floor
+    amp += rng(seed + ft * 7) * 800;
+
+    // Main echo cluster (all beams, slight variation)
+    const d1 = ft - (mainPeak + beamOffset * 0.5);
+    if (Math.abs(d1) < 12) {
+      amp += Math.max(0, 150000 - d1 * d1 * 1100) * (0.6 + rng(seed + ft) * 0.4);
+    }
+
+    // False echo — only present before scan, only on High beam prominently
+    if (!afterScan) {
+      if (beam.name === 'High') {
+        const d2 = ft - falsePeak;
+        if (Math.abs(d2) < 5) amp += Math.max(0, 85000 - d2 * d2 * 3800);
+      } else {
+        // Minor false echo on other beams
+        const d2 = ft - (falsePeak + beamOffset);
+        if (Math.abs(d2) < 4) amp += Math.max(0, 12000 - d2 * d2 * 800);
+      }
+    }
+
+    // Scatter peaks around main echo
+    for (let p = 0; p < 5; p++) {
+      const px2 = mainPeak + 8 + p * 6 + beamOffset;
+      const d3  = ft - px2;
+      if (Math.abs(d3) < 6) amp += Math.max(0, 40000 - d3 * d3 * 1200) * rng(seed + p * 31);
+    }
+
+    amp = Math.min(amp, yMax);
+    const py = pad.t + cH - (amp / yMax) * cH;
+    if (first) { ctx.moveTo(px, py); first = false; } else { ctx.lineTo(px, py); }
+  }
+  ctx.stroke();
+}
+
+function showEchoCaption() {
+  const box = document.getElementById('echoCaptionBox');
+  if (!box) return;
+  const afterScan = echoViewerState === 'after_scan';
+
+  if (afterScan) {
+    box.style.display = 'block';
+    box.style.borderColor = '#27ae60';
+    box.innerHTML = `<strong style="color:#27ae60">✓ False Echo Removed</strong><br>
+      The false echo at ~65 ft has been mapped out. The remaining cluster at <strong>~117 ft</strong> represents the true material surface.
+      Click <strong>Load from Vessel</strong> in the toolbar to update the sensor readings.`;
+  } else {
+    box.style.display = 'block';
+    box.style.borderColor = '#2a6db5';
+    box.innerHTML = `<strong>📊 Reading this chart:</strong> Think of this as a silo on its side — the sensor is at 0 ft.
+      The spike cluster near <strong>117 ft</strong> is the true material surface.
+      The isolated <strong style="color:#cc0000">red spike near 65 ft</strong> is a <strong>false echo</strong> — it can be mapped out using <em>Map out False Echoes</em> above.`;
+  }
+}
+
+function echoChartClick(event) {
+  // clicking chart could highlight nearest beam peak — placeholder
+}
+
+// ── False Echo Mapper ─────────────────────────────
+function openFalseEchoMapper() {
+  const cb = document.getElementById('mapOutFE');
+  if (cb && cb.checked) {
+    openM('mFalseEchoMapper');
+  }
+}
+
+function closeFalseEchoMapper() {
+  closeM('mFalseEchoMapper');
+  const cb = document.getElementById('mapOutFE');
+  if (cb) cb.checked = false;
+}
+
+function femToggleAll(allCb) {
+  document.querySelectorAll('.fem-cb').forEach(cb => cb.checked = allCb.checked);
+}
+
+function startFalseEchoScan() {
+  document.getElementById('femProgressWrap').style.display = 'block';
+  document.getElementById('femStartBtn').disabled = true;
+  let pct = 0;
+  const t = setInterval(() => {
+    pct += Math.random() * 12 + 5;
+    if (pct >= 100) {
+      pct = 100;
+      clearInterval(t);
+      document.getElementById('femProgressBar').style.width = '100%';
+      document.getElementById('femStatusText').textContent = '✓ Scan complete. False echo mapped out.';
+      document.getElementById('femStartBtn').disabled = false;
+      // Mark that false echo has been removed
+      echoViewerState = 'after_scan';
+      setTimeout(() => {
+        closeFalseEchoMapper();
+        // Reopen viewer with updated chart
+        redrawEchoChart();
+        toast('✓ False echo mapped out. Click Load from Vessel to update readings.');
+      }, 1500);
+      return;
+    }
+    document.getElementById('femProgressBar').style.width = pct + '%';
+    document.getElementById('femStatusText').textContent = `Scanning... ${Math.round(pct)}%`;
+  }, 250);
+}
 </script>
