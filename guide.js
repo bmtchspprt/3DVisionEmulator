@@ -8,102 +8,384 @@ let tsMini       = false;
 let aiResultData = null;
 
 // ─────────────────────────────────────────────────────────────
-// ELEMENT LIBRARY — every clickable destination in the software
-// This powers the visual step builder in the admin panel
+// ELEMENT LIBRARY
 // ─────────────────────────────────────────────────────────────
 const elementLibrary = [
+
+  // ════════════════════════════════════════════════════════
+  // BLACK MENU BAR
+  // ════════════════════════════════════════════════════════
+
   {
-    group: 'Top Menu Bar',
+    group: '📁 File',
     items: [
-      { label: 'File Menu',          sel: '#mFile',   action: { do:'openMenu', menuId:'mFile',   sel:'#mFile' } },
-      { label: 'Communication Menu', sel: '#mComm',   action: { do:'openMenu', menuId:'mComm',   sel:'#mComm' } },
-      { label: 'Edit Menu',          sel: '#mEdit',   action: { do:'openMenu', menuId:'mEdit',   sel:'#mEdit' } },
-      { label: 'Device Menu',        sel: '#mDevice', action: { do:'openMenu', menuId:'mDevice', sel:'#mDevice' } },
-      { label: 'Tools Menu',         sel: '#mTools',  action: { do:'openMenu', menuId:'mTools',  sel:'#mTools' } },
-      { label: 'Help Menu',          sel: '#mHelp',   action: { do:'openMenu', menuId:'mHelp',   sel:'#mHelp' } },
+      { label: 'File › New Project',
+        action: { do:'openMenu', menuId:'mFile', sel:'#mFile' } },
+      { label: 'File › Open Project',
+        action: { do:'highlightMenuItem', menuId:'mFile', sel:'#ddFile .dd-item:nth-child(2)' } },
+      { label: 'File › Save Project',
+        action: { do:'highlightMenuItem', menuId:'mFile', sel:'#ddFile .dd-item:nth-child(4)' } },
+      { label: 'File › Save Project As',
+        action: { do:'highlightMenuItem', menuId:'mFile', sel:'#ddFile .dd-item:nth-child(5)' } },
+      { label: 'File › Export Project from Server',
+        action: { do:'highlightMenuItem', menuId:'mFile', sel:'#ddFile .dd-item:nth-child(7)' } },
+      { label: 'File › Import Project to Server',
+        action: { do:'highlightMenuItem', menuId:'mFile', sel:'#ddFile .dd-item:nth-child(8)' } },
+      { label: 'File › Delete Project',
+        action: { do:'highlightMenuItem', menuId:'mFile', sel:'#ddFile .dd-item:nth-child(9)' } },
+      { label: 'File › Browse to Local Folder',
+        action: { do:'highlightMenuItem', menuId:'mFile', sel:'#ddFile .dd-item:nth-child(11)' } },
+      { label: 'File › Exit',
+        action: { do:'highlightMenuItem', menuId:'mFile', sel:'#ddFile .dd-item:nth-child(13)' } },
     ]
   },
+
   {
-    group: 'Device Menu Items',
+    group: '📡 Communication',
     items: [
-      { label: 'Device › Configuration Wizard',  sel: '#ddDevice .dd-item:nth-child(1)',  action: { do:'openModal', menuId:'mDevice', fn:'openWizard',      sel:'#wizBody' } },
-      { label: 'Device › Advanced Parameters',   sel: '#ddAdvParams',                     action: { do:'openModal', menuId:'mDevice', fn:'openAdvParams',   sel:'#apDamp' } },
-      { label: 'Device › Echo Curve Analysis',   sel: '#ddDevice .dd-item:nth-child(7)',  action: { do:'openModal', menuId:'mDevice', fn:'openEcho',        sel:'#echoStat' } },
-      { label: 'Device › False Echo Mapping',    sel: '#ddFalseEcho',                     action: { do:'openModal', menuId:'mDevice', fn:'openFalseEcho',   sel:'#feAction' } },
-      { label: 'Device › Devices Activations',   sel: '#ddActivations',                   action: { do:'openModal', menuId:'mDevice', fn:'openActivations', sel:'#btnReset' } },
+      { label: 'Communication › Connect All',
+        action: { do:'openMenu', menuId:'mComm', sel:'#mComm' } },
+      { label: 'Communication › Disconnect All',
+        action: { do:'highlightMenuItem', menuId:'mComm', sel:'#ddComm .dd-item:nth-child(2)' } },
+      { label: 'Communication › Load from Vessels',
+        action: { do:'highlightMenuItem', menuId:'mComm', sel:'#ddComm .dd-item:nth-child(3)' } },
+      { label: 'Communication › Connect Vessel',
+        action: { do:'highlightMenuItem', menuId:'mComm', sel:'#ddComm .dd-item:nth-child(5)' } },
+      { label: 'Communication › Disconnect Vessel',
+        action: { do:'highlightMenuItem', menuId:'mComm', sel:'#ddComm .dd-item:nth-child(6)' } },
+      { label: 'Communication › Load from Vessel',
+        action: { do:'highlightMenuItem', menuId:'mComm', sel:'#ddComm .dd-item:nth-child(7)' } },
     ]
   },
+
   {
-    group: 'Communication Menu Items',
+    group: '✏️ Edit',
     items: [
-      { label: 'Communication › Connect All',     sel: '#ddComm .dd-item:nth-child(1)', action: { do:'highlightMenuItem', menuId:'mComm', sel:'#ddComm .dd-item:nth-child(1)' } },
-      { label: 'Communication › Disconnect All',  sel: '#ddComm .dd-item:nth-child(2)', action: { do:'highlightMenuItem', menuId:'mComm', sel:'#ddComm .dd-item:nth-child(2)' } },
-      { label: 'Communication › Load from Vessels', sel: '#ddComm .dd-item:nth-child(3)', action: { do:'highlightMenuItem', menuId:'mComm', sel:'#ddComm .dd-item:nth-child(3)' } },
+      { label: 'Edit › Add',
+        action: { do:'openMenu', menuId:'mEdit', sel:'#mEdit' } },
+      { label: 'Edit › Delete',
+        action: { do:'highlightMenuItem', menuId:'mEdit', sel:'#ddEdit .dd-item:nth-child(2)' } },
+      { label: 'Edit › Properties',
+        action: { do:'highlightMenuItem', menuId:'mEdit', sel:'#ddEdit .dd-item:nth-child(3)' } },
+      { label: 'Edit › Edit Project',
+        action: { do:'highlightMenuItem', menuId:'mEdit', sel:'#ddEdit .dd-item:nth-child(4)' } },
+      { label: 'Edit › Save Selected Vessel Configuration As',
+        action: { do:'highlightMenuItem', menuId:'mEdit', sel:'#ddEdit .dd-item:nth-child(6)' } },
+      { label: 'Edit › Load Vessel Configuration Online',
+        action: { do:'highlightMenuItem', menuId:'mEdit', sel:'#ddEdit .dd-item:nth-child(7)' } },
+      { label: 'Edit › Offline Configuration',
+        action: { do:'highlightMenuItem', menuId:'mEdit', sel:'#ddEdit .dd-item:nth-child(8)' } },
     ]
   },
+
   {
-    group: 'Toolbar Buttons',
+    group: '⚙️ Device',
     items: [
-      { label: 'Toolbar › Connect',         sel: '#tbLoad',   action: { do:'closeAndHighlight', modalId:'_none', sel:'#tbLoad' } },
-      { label: 'Toolbar › Load from Vessel', sel: '#tbLoad',  action: { do:'closeAndHighlight', modalId:'_none', sel:'#tbLoad' } },
-      { label: 'Toolbar › Echo Curve',      sel: '#tbEcho',   action: { do:'closeAndHighlight', modalId:'_none', sel:'#tbEcho' } },
-      { label: 'Toolbar › Wizard',          sel: '#tbWizard', action: { do:'closeAndHighlight', modalId:'_none', sel:'#tbWizard' } },
-      { label: 'Toolbar › VDC',             sel: '#tbVDC',    action: { do:'closeAndHighlight', modalId:'_none', sel:'#tbVDC' } },
+      { label: 'Device › Device Configuration Wizard',
+        action: { do:'openModal', menuId:'mDevice', fn:'openWizard', sel:'#wizBody' } },
+      { label: 'Device › Advanced Parameters',
+        action: { do:'openModal', menuId:'mDevice', fn:'openAdvParams', sel:'#apDamp' } },
+      { label: 'Device › Device Current Simulation Settings',
+        action: { do:'highlightMenuItem', menuId:'mDevice', sel:'#ddDevice .dd-item:nth-child(4)' } },
+      { label: 'Device › Device Output Current',
+        action: { do:'highlightMenuItem', menuId:'mDevice', sel:'#ddDevice .dd-item:nth-child(5)' } },
+      { label: 'Device › Device Output Settings',
+        action: { do:'highlightMenuItem', menuId:'mDevice', sel:'#ddDevice .dd-item:nth-child(6)' } },
+      { label: 'Device › Echo Curve Analysis',
+        action: { do:'openModal', menuId:'mDevice', fn:'openEcho', sel:'#echoStat' } },
+      { label: 'Device › Echo Curve Analyze Viewer',
+        action: { do:'highlightMenuItem', menuId:'mDevice', sel:'#ddDevice .dd-item:nth-child(9)' } },
+      { label: 'Device › Device False Echo Mapping',
+        action: { do:'openModal', menuId:'mDevice', fn:'openFalseEcho', sel:'#feAction' } },
+      { label: 'Device › Devices Activations',
+        action: { do:'openModal', menuId:'mDevice', fn:'openActivations', sel:'#btnReset' } },
+      { label: 'Device › Update Model',
+        action: { do:'highlightMenuItem', menuId:'mDevice', sel:'#ddDevice .dd-item:nth-child(13)' } },
     ]
   },
+
   {
-    group: 'Advanced Parameters — Basic Tab',
+    group: '🔧 Tools',
     items: [
-      { label: 'Adv Params › Output Dampening Power', sel: '#apDamp',   action: { do:'highlightInModal', sel:'#apDamp' } },
-      { label: 'Adv Params › MPN Rate',               sel: '#apMPN',    action: { do:'highlightInModal', sel:'#apMPN' } },
-      { label: 'Adv Params › Max Fill',               sel: '#apMFill',  action: { do:'highlightInModal', sel:'#apMFill' } },
-      { label: 'Adv Params › Max Empty',              sel: '#apMEmpty', action: { do:'highlightInModal', sel:'#apMEmpty' } },
-      { label: 'Adv Params › Upload All button',      sel: '#mAdvanced .mbtn-p', action: { do:'highlightInModal', sel:'#mAdvanced .mbtn-p' } },
+      { label: 'Tools › Reports',
+        action: { do:'openMenu', menuId:'mTools', sel:'#mTools' } },
+      { label: 'Tools › Material Configuration',
+        action: { do:'highlightMenuItem', menuId:'mTools', sel:'#ddTools .dd-item:nth-child(2)' } },
+      { label: 'Tools › Server Options',
+        action: { do:'highlightMenuItem', menuId:'mTools', sel:'#ddTools .dd-item:nth-child(3)' } },
+      { label: 'Tools › Connect to Server',
+        action: { do:'highlightMenuItem', menuId:'mTools', sel:'#ddTools .dd-item:nth-child(4)' } },
+      { label: 'Tools › Sign Out',
+        action: { do:'highlightMenuItem', menuId:'mTools', sel:'#ddTools .dd-item:nth-child(6)' } },
+      { label: 'Tools › Switch User',
+        action: { do:'highlightMenuItem', menuId:'mTools', sel:'#ddTools .dd-item:nth-child(7)' } },
+      { label: 'Tools › Client Options',
+        action: { do:'highlightMenuItem', menuId:'mTools', sel:'#ddTools .dd-item:nth-child(10)' } },
+      { label: 'Tools › Refresh Display',
+        action: { do:'highlightMenuItem', menuId:'mTools', sel:'#ddTools .dd-item:nth-child(11)' } },
+      { label: 'Tools › Demo',
+        action: { do:'highlightMenuItem', menuId:'mTools', sel:'#ddTools .dd-item:nth-child(12)' } },
     ]
   },
+
+  // ════════════════════════════════════════════════════════
+  // BLUE TOOLBAR
+  // ════════════════════════════════════════════════════════
+
   {
-    group: 'Advanced Parameters — Advanced Tab',
+    group: '🔵 Toolbar — Echo Curve',
     items: [
-      { label: 'Adv Params › Auto False Echoes',   sel: '#apAutoFE',  action: { do:'switchTab', tabName:'Advanced', sel:'#apAutoFE' } },
+      { label: 'Echo Curve › Open Echo Curve dialog',
+        action: { do:'openModal', fn:'openEcho', sel:'#echoStat' } },
+      { label: 'Echo Curve › Server status display',
+        action: { do:'highlightInModal', sel:'#echoStat' } },
+      { label: 'Echo Curve › Type dropdown',
+        action: { do:'highlightInModal', sel:'#mEcho .adv-sel' } },
+      { label: 'Echo Curve › Every (mins) setting',
+        action: { do:'highlightInModal', sel:'#mEcho .echo-num' } },
+      { label: 'Echo Curve › Open Viewer button',
+        action: { do:'highlightInModal', sel:'#mEcho .mbtn-p:nth-child(1)' } },
+      { label: 'Echo Curve › Start button',
+        action: { do:'highlightInModal', sel:'#mEcho .mbtn-p:nth-child(2)' } },
+      { label: 'Echo Curve › Stop button',
+        action: { do:'highlightInModal', sel:'#mEcho .mbtn' } },
     ]
   },
+
   {
-    group: 'Advanced Parameters — Beams Tab',
+    group: '🔵 Toolbar — Wizard Step 1 (Vessel Dimensions)',
     items: [
-      { label: 'Adv Params › Auto Beam Selection', sel: '#apAutoBeam', action: { do:'switchTab', tabName:'Beams', sel:'#apAutoBeam' } },
-      { label: 'Adv Params › Beams Tab',           sel: '#mAdvanced .mtab:nth-child(3)', action: { do:'switchTab', tabName:'Beams', sel:'#mAdvanced .mtab:nth-child(3)' } },
+      { label: 'Wizard Step 1 › Open Wizard',
+        action: { do:'openModal', fn:'openWizard', sel:'#wizBody' } },
+      { label: 'Wizard Step 1 › Distance unit (m / ft)',
+        action: { do:'highlightInModal', sel:'#wizBody' } },
+      { label: 'Wizard Step 1 › Temperature unit',
+        action: { do:'highlightInModal', sel:'#wizBody' } },
+      { label: 'Wizard Step 1 › Top Shape',
+        action: { do:'highlightInModal', sel:'#wizBody' } },
+      { label: 'Wizard Step 1 › Center Shape Height',
+        action: { do:'highlightInModal', sel:'#wizBody' } },
+      { label: 'Wizard Step 1 › Center Shape Diameter',
+        action: { do:'highlightInModal', sel:'#wizBody' } },
+      { label: 'Wizard Step 1 › Bottom Shape',
+        action: { do:'highlightInModal', sel:'#wizBody' } },
+      { label: 'Wizard Step 1 › Next button',
+        action: { do:'highlightInModal', sel:'#wizNext' } },
     ]
   },
+
   {
-    group: 'Devices Activations Dialog',
+    group: '🔵 Toolbar — Wizard Step 2 (Device Position)',
     items: [
-      { label: 'Activations › Reset button',          sel: '#btnReset', action: { do:'highlightInModal', sel:'#btnReset' } },
-      { label: 'Activations › Reset to Factory',      sel: '#mActivations .danger', action: { do:'highlightInModal', sel:'#mActivations .danger' } },
+      { label: 'Wizard Step 2 › Device Position table',
+        action: { do:'wizardStep', step:2, sel:'#wizBody' } },
+      { label: 'Wizard Step 2 › Set device angle manually',
+        action: { do:'wizardStep', step:2, sel:'#wizBody' } },
+      { label: 'Wizard Step 2 › Next button',
+        action: { do:'wizardStep', step:2, sel:'#wizNext' } },
     ]
   },
+
   {
-    group: 'False Echo Mapping Dialog',
+    group: '🔵 Toolbar — Wizard Step 3 (Filling Points)',
     items: [
-      { label: 'False Echo › Action dropdown',  sel: '#feAction',           action: { do:'highlightInModal', sel:'#feAction' } },
-      { label: 'False Echo › Execute button',   sel: '#mFalseEcho .mbtn-p', action: { do:'highlightInModal', sel:'#mFalseEcho .mbtn-p' } },
+      { label: 'Wizard Step 3 › Filling Points table',
+        action: { do:'wizardStep', step:3, sel:'#wizBody' } },
+      { label: 'Wizard Step 3 › Add filling point',
+        action: { do:'wizardStep', step:3, sel:'#wizBody' } },
+      { label: 'Wizard Step 3 › Next button',
+        action: { do:'wizardStep', step:3, sel:'#wizNext' } },
     ]
   },
+
   {
-    group: 'Configuration Wizard',
+    group: '🔵 Toolbar — Wizard Step 4 (Full/Empty Calibration)',
     items: [
-      { label: 'Wizard › Step 1 (Vessel Dimensions)', sel: '#wizBody', action: { do:'highlightInModal', sel:'#wizNext' } },
-      { label: 'Wizard › Step 4 Full Calibration Distance', sel: '#wizFD', action: { do:'wizardStep', step:4, sel:'#wizFD' } },
-      { label: 'Wizard › Next / Finish button',       sel: '#wizNext', action: { do:'highlightInModal', sel:'#wizNext' } },
+      { label: 'Wizard Step 4 › Full Calibration Distance (Top)',
+        action: { do:'wizardStep', step:4, sel:'#wizFD' } },
+      { label: 'Wizard Step 4 › Full Calibration Level (Bottom)',
+        action: { do:'wizardStep', step:4, sel:'#wizBody' } },
+      { label: 'Wizard Step 4 › Empty Calibration fields',
+        action: { do:'wizardStep', step:4, sel:'#wizBody' } },
+      { label: 'Wizard Step 4 › Finish button',
+        action: { do:'wizardStep', step:4, sel:'#wizNext' } },
     ]
   },
+
+  // ════════════════════════════════════════════════════════
+  // VESSEL DETAIL TABS
+  // ════════════════════════════════════════════════════════
+
   {
-    group: 'Windows OS Steps',
+    group: '🚢 Vessel — Overview Tab',
     items: [
-      { label: 'Windows › Start Menu / Search',       sel: '.title-bar', action: { do:'highlightOnly', sel:'.title-bar' } },
-      { label: 'Windows › Power & Sleep Settings',    sel: '.title-bar', action: { do:'highlightOnly', sel:'.title-bar' } },
-      { label: 'Windows › Any OS-level instruction',  sel: '.title-bar', action: { do:'highlightOnly', sel:'.title-bar' } },
+      { label: 'Vessel › Overview tab',
+        action: { do:'highlightOnly', sel:'#dtOv' } },
+      { label: 'Vessel › Overview › Avg Distance reading',
+        action: { do:'highlightOnly', sel:'#ovAD' } },
+      { label: 'Vessel › Overview › SNR reading',
+        action: { do:'highlightOnly', sel:'#ovSNR' } },
+      { label: 'Vessel › Overview › Output Current reading',
+        action: { do:'highlightOnly', sel:'#ovOut' } },
+      { label: 'Vessel › Overview › Temperature reading',
+        action: { do:'highlightOnly', sel:'#ovTemp' } },
+      { label: 'Vessel › Overview › Volume % reading',
+        action: { do:'highlightOnly', sel:'#ovVolP' } },
+      { label: 'Vessel › Overview › Material button',
+        action: { do:'highlightOnly', sel:'.mat-btn' } },
+    ]
+  },
+
+  {
+    group: '🚢 Vessel — Logs Tab',
+    items: [
+      { label: 'Vessel › Logs tab',
+        action: { do:'highlightOnly', sel:'#dtLg' } },
+      { label: 'Vessel › Logs › Avg Distance chart',
+        action: { do:'highlightOnly', sel:'#chAD' } },
+      { label: 'Vessel › Logs › SNR chart',
+        action: { do:'highlightOnly', sel:'#chSNR' } },
+      { label: 'Vessel › Logs › Temperature chart',
+        action: { do:'highlightOnly', sel:'#chTemp' } },
+      { label: 'Vessel › Logs › Volume chart',
+        action: { do:'highlightOnly', sel:'#chVol' } },
+      { label: 'Vessel › Logs › Browse button',
+        action: { do:'highlightOnly', sel:'.log-abtn' } },
+    ]
+  },
+
+  {
+    group: '🚢 Vessel — Parameters Tab',
+    items: [
+      { label: 'Vessel › Parameters tab',
+        action: { do:'highlightOnly', sel:'#dtPr' } },
+      { label: 'Vessel › Parameters › Parameters table',
+        action: { do:'highlightOnly', sel:'.params-wrap' } },
+    ]
+  },
+
+  {
+    group: '🚢 Vessel — Devices Tab',
+    items: [
+      { label: 'Vessel › Devices tab',
+        action: { do:'highlightOnly', sel:'#dtDv' } },
+      { label: 'Vessel › Devices › Connection Type',
+        action: { do:'highlightOnly', sel:'.conn-grid' } },
+      { label: 'Vessel › Devices › Serial Port selector',
+        action: { do:'highlightOnly', sel:'.cfg-sel' } },
+      { label: 'Vessel › Devices › Polling Address',
+        action: { do:'highlightOnly', sel:'.poll-sel' } },
+      { label: 'Vessel › Devices › Disconnect button',
+        action: { do:'highlightOnly', sel:'.disconn-btn' } },
+    ]
+  },
+
+  // ════════════════════════════════════════════════════════
+  // ADVANCED PARAMETERS DIALOG
+  // ════════════════════════════════════════════════════════
+
+  {
+    group: '⚙️ Advanced Parameters — Basic Tab',
+    items: [
+      { label: 'Adv Params › Output Dampening Power',
+        action: { do:'highlightInModal', sel:'#apDamp' } },
+      { label: 'Adv Params › MPN Rate',
+        action: { do:'highlightInModal', sel:'#apMPN' } },
+      { label: 'Adv Params › Max Fill',
+        action: { do:'highlightInModal', sel:'#apMFill' } },
+      { label: 'Adv Params › Max Empty',
+        action: { do:'highlightInModal', sel:'#apMEmpty' } },
+      { label: 'Adv Params › Upload All button',
+        action: { do:'highlightInModal', sel:'#mAdvanced .mbtn-p' } },
+    ]
+  },
+
+  {
+    group: '⚙️ Advanced Parameters — Advanced Tab',
+    items: [
+      { label: 'Adv Params › Advanced tab',
+        action: { do:'switchTab', tabName:'Advanced', sel:'#mAdvanced .mtab:nth-child(2)' } },
+      { label: 'Adv Params › User False Echoes',
+        action: { do:'switchTab', tabName:'Advanced', sel:'#apAutoFE' } },
+      { label: 'Adv Params › Auto False Echoes',
+        action: { do:'switchTab', tabName:'Advanced', sel:'#apAutoFE' } },
+    ]
+  },
+
+  {
+    group: '⚙️ Advanced Parameters — Beams Tab',
+    items: [
+      { label: 'Adv Params › Beams tab',
+        action: { do:'switchTab', tabName:'Beams', sel:'#mAdvanced .mtab:nth-child(3)' } },
+      { label: 'Adv Params › Auto Beam Selection checkbox',
+        action: { do:'switchTab', tabName:'Beams', sel:'#apAutoBeam' } },
+      { label: 'Adv Params › Individual Beam checkboxes',
+        action: { do:'switchTab', tabName:'Beams', sel:'.beam-grid' } },
+    ]
+  },
+
+  // ════════════════════════════════════════════════════════
+  // DEVICES ACTIVATIONS DIALOG
+  // ════════════════════════════════════════════════════════
+
+  {
+    group: '🔴 Devices Activations Dialog',
+    items: [
+      { label: 'Activations › Reset button',
+        action: { do:'highlightInModal', sel:'#btnReset' } },
+      { label: 'Activations › Reset to Factory button',
+        action: { do:'highlightInModal', sel:'#mActivations .danger' } },
+      { label: 'Activations › Restart Device button',
+        action: { do:'highlightInModal', sel:'#mActivations .act-btn:nth-child(3)' } },
+    ]
+  },
+
+  // ════════════════════════════════════════════════════════
+  // FALSE ECHO MAPPING DIALOG
+  // ════════════════════════════════════════════════════════
+
+  {
+    group: '📡 False Echo Mapping Dialog',
+    items: [
+      { label: 'False Echo › Action dropdown',
+        action: { do:'highlightInModal', sel:'#feAction' } },
+      { label: 'False Echo › Execute button',
+        action: { do:'highlightInModal', sel:'#mFalseEcho .mbtn-p' } },
+    ]
+  },
+
+  // ════════════════════════════════════════════════════════
+  // TOOLBAR OTHER
+  // ════════════════════════════════════════════════════════
+
+  {
+    group: '🔵 Toolbar — Other Buttons',
+    items: [
+      { label: 'Toolbar › Load from Vessel',
+        action: { do:'closeAndHighlight', modalId:'_none', sel:'#tbLoad' } },
+      { label: 'Toolbar › VDC (Vessel Data Collection)',
+        action: { do:'closeAndHighlight', modalId:'_none', sel:'#tbVDC' } },
+      { label: 'Toolbar › Level mode',
+        action: { do:'closeAndHighlight', modalId:'_none', sel:'#tbLevel' } },
+    ]
+  },
+
+  // ════════════════════════════════════════════════════════
+  // WINDOWS OS
+  // ════════════════════════════════════════════════════════
+
+  {
+    group: '🪟 Windows OS Steps',
+    items: [
+      { label: 'Windows › Start Menu / Search box',
+        action: { do:'highlightOnly', sel:'.title-bar' } },
+      { label: 'Windows › Power & Sleep Settings',
+        action: { do:'highlightOnly', sel:'.title-bar' } },
+      { label: 'Windows › Any other OS-level step',
+        action: { do:'highlightOnly', sel:'.title-bar' } },
     ]
   }
+
 ];
 
 
@@ -155,7 +437,7 @@ let tsData = [
         action: { do:'wizardStep', step:2, sel:'#wizNext' } },
       { inst: "You are on <strong>Step 3/4</strong>. Click <strong>Next ▶</strong> to continue.",
         action: { do:'wizardStep', step:3, sel:'#wizNext' } },
-      { inst: "You are on <strong>Step 4/4 — Full/Empty Calibration</strong>. Find the <strong>Distance (Top)</strong> field next to Full Calib.",
+      { inst: "You are on <strong>Step 4/4 — Full/Empty Calibration</strong>. Find the <strong>Distance (Top)</strong> field.",
         action: { do:'wizardStep', step:4, sel:'#wizFD' } },
       { inst: "Change <strong>Distance (Top)</strong> to <strong>1.64</strong>. The sensor auto-calculates the rest.",
         action: { do:'highlightInModal', sel:'#wizFD' } },
@@ -287,7 +569,10 @@ function executeAction(action, callback) {
 
     case 'wizardStep':
       setTimeout(() => {
-        if (typeof wizStep !== 'undefined') { wizStep = action.step; if (typeof renderWiz === 'function') renderWiz(); }
+        if (typeof wizStep !== 'undefined') {
+          wizStep = action.step;
+          if (typeof renderWiz === 'function') renderWiz();
+        }
         setTimeout(callback, 200);
       }, 150);
       break;
@@ -422,7 +707,11 @@ function toggleTS() {
     p.style.left = ol + 'px'; p.style.top = ot + 'px';
     e.preventDefault();
   });
-  document.addEventListener('mousemove', e => { if (!drag) return; p.style.left = (ol + e.clientX - sx) + 'px'; p.style.top = (ot + e.clientY - sy) + 'px'; });
+  document.addEventListener('mousemove', e => {
+    if (!drag) return;
+    p.style.left = (ol + e.clientX - sx) + 'px';
+    p.style.top  = (ot + e.clientY - sy) + 'px';
+  });
   document.addEventListener('mouseup', () => drag = false);
 })();
 
@@ -471,7 +760,7 @@ function renderAdmin() {
       <button class="ai-import-btn" onclick="importAIResult()">✓ Import into Troubleshoot Panel</button>
     </div>
   </div>
-  <p style="font-size:12px;color:#555;margin-bottom:14px">Or build a path manually below — click <strong>+ Add Problem</strong> then use the step builder.</p>`;
+  <p style="font-size:12px;color:#555;margin-bottom:14px">Or build a path manually — click <strong>+ Add Problem</strong> then use the step builder.</p>`;
 
   tsData.forEach((p, pi) => {
     const d = document.createElement('div');
@@ -495,14 +784,13 @@ function renderAdminSteps(pi) {
   if (!c) return;
   c.innerHTML = '';
   tsData[pi].steps.forEach((s, si) => {
-    // Find the matching library item label
-    const libItem = findLibraryItem(s.action);
+    const libItem  = findLibraryItem(s.action);
     const locLabel = libItem ? libItem.label : (s.action.sel || 'Custom');
     const r = document.createElement('div');
     r.className = 'adm-srow';
     r.style.cssText = 'display:flex;align-items:flex-start;gap:8px;padding:10px;background:white;border:1px solid #ddd;border-radius:5px;margin-bottom:6px';
     r.innerHTML = `
-      <div class="adm-snum" style="background:#2a6db5;color:white;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;margin-top:2px">${si + 1}</div>
+      <div style="background:#2a6db5;color:white;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;margin-top:2px">${si + 1}</div>
       <div style="flex:1;display:flex;flex-direction:column;gap:5px">
         <div style="font-size:11px;font-weight:700;color:#2a6db5;background:#e8f0fa;padding:3px 8px;border-radius:4px;display:inline-block">
           📍 ${esc(locLabel)}
@@ -519,7 +807,6 @@ function renderAdminSteps(pi) {
   });
 }
 
-// Find a library item matching an action
 function findLibraryItem(action) {
   if (!action) return null;
   for (const group of elementLibrary) {
@@ -530,8 +817,7 @@ function findLibraryItem(action) {
   return null;
 }
 
-// Step builder modal — shown when clicking "+ Add Step"
-let builderPi = null;
+let builderPi  = null;
 let builderSel = null;
 
 function showStepBuilder(pi) {
@@ -545,67 +831,73 @@ function renderStepBuilder() {
   const wrap = document.getElementById('stepBuilderBody');
   if (!wrap) return;
 
-  let html = `
-  <div style="display:flex;gap:14px;height:440px">
-
-    <!-- LEFT: element picker -->
-    <div style="width:300px;flex-shrink:0;overflow-y:auto;border:1px solid #ccc;border-radius:5px;background:#f9f9f9">
-      <div style="padding:8px 12px;background:#2a6db5;color:white;font-size:12px;font-weight:700;border-radius:4px 4px 0 0">
-        📍 Select where this step points
-      </div>`;
-
+  let leftHtml = '';
   elementLibrary.forEach(group => {
-    html += `<div style="padding:6px 10px 2px;font-size:10px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.5px;border-top:1px solid #e0e0e0;margin-top:4px">${group.group}</div>`;
+    leftHtml += `<div style="padding:6px 10px 2px;font-size:10px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.5px;border-top:1px solid #e0e0e0;margin-top:4px">${group.group}</div>`;
     group.items.forEach(item => {
       const selected = builderSel && builderSel.label === item.label;
-      html += `<div class="sb-item${selected ? ' sb-selected' : ''}"
-        onclick="selectBuilderItem(${JSON.stringify(item).replace(/"/g,'&quot;')})"
-        style="padding:7px 14px;cursor:pointer;font-size:12px;color:#222;border-left:3px solid transparent;transition:all 0.15s;
-               ${selected ? 'background:#e8f0fa;border-left-color:#2a6db5;font-weight:600;color:#1a5a9a' : ''}">
+      const itemJson = JSON.stringify(item).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+      leftHtml += `<div
+        onclick="selectBuilderItem('${itemJson}')"
+        style="padding:7px 14px;cursor:pointer;font-size:12px;color:${selected?'#1a5a9a':'#222'};
+               border-left:3px solid ${selected?'#2a6db5':'transparent'};
+               background:${selected?'#e8f0fa':'transparent'};
+               font-weight:${selected?'600':'400'};
+               transition:all 0.1s">
         ${item.label}
       </div>`;
     });
   });
 
-  html += `</div>
-
-    <!-- RIGHT: instruction box -->
+  wrap.innerHTML = `
+  <div style="display:flex;gap:14px;height:460px">
+    <div style="width:310px;flex-shrink:0;overflow-y:auto;border:1px solid #ccc;border-radius:5px;background:#f9f9f9">
+      <div style="padding:8px 12px;background:#2a6db5;color:white;font-size:12px;font-weight:700;border-radius:4px 4px 0 0;position:sticky;top:0">
+        📍 Select where this step points to
+      </div>
+      ${leftHtml}
+    </div>
     <div style="flex:1;display:flex;flex-direction:column;gap:10px">
-      <div style="font-size:12px;font-weight:700;color:#333">Step destination selected:</div>
-      <div id="sbSelectedLabel" style="background:#e8f0fa;border:1px solid #2a6db5;border-radius:5px;padding:8px 12px;font-size:12px;color:#1a5a9a;min-height:36px">
-        ${builderSel ? '📍 ' + builderSel.label : '<span style="color:#aaa">← Click an item on the left</span>'}
+      <div style="font-size:12px;font-weight:700;color:#333">Selected destination:</div>
+      <div id="sbSelectedLabel" style="background:#e8f0fa;border:1px solid #2a6db5;border-radius:5px;padding:10px 14px;font-size:13px;color:#1a5a9a;min-height:40px;font-weight:600">
+        ${builderSel ? '📍 ' + builderSel.label : '<span style="color:#aaa;font-weight:400">← Click an item on the left to select it</span>'}
       </div>
       <div style="font-size:12px;font-weight:700;color:#333">Instruction for the technician:</div>
-      <textarea id="sbInstText" style="flex:1;border:1px solid #bbb;padding:8px 10px;font-size:13px;border-radius:5px;resize:none;font-family:inherit;line-height:1.5"
-        placeholder="Describe what the technician should do at this location.&#10;&#10;Examples:&#10;• Change Output Dampening Power to 420 seconds&#10;• Select Reset Mapping from the dropdown&#10;• Click Upload All to apply changes&#10;&#10;HTML is supported: use &lt;strong&gt; for bold">${builderSel && builderSel._inst ? builderSel._inst : ''}</textarea>
-      <div style="font-size:11px;color:#888">Tip: Use &lt;strong&gt;text&lt;/strong&gt; to bold menu names and values.</div>
+      <textarea id="sbInstText"
+        style="flex:1;border:1px solid #bbb;padding:10px;font-size:13px;border-radius:5px;resize:none;font-family:inherit;line-height:1.6"
+        placeholder="Describe what the technician should do at this location.
+
+Examples:
+- Change Output Dampening Power to 420 seconds
+- Select Reset Mapping from the dropdown and click Execute
+- Click Upload All to apply the changes
+- Do NOT select Reset to Factory
+
+Use <strong>text</strong> to bold menu names and values."></textarea>
+      <div style="font-size:11px;color:#888">HTML is supported in instructions. Use &lt;strong&gt;value&lt;/strong&gt; for bold.</div>
     </div>
   </div>`;
-
-  wrap.innerHTML = html;
 }
 
-function selectBuilderItem(item) {
-  builderSel = item;
-  // Update selected label display
-  document.getElementById('sbSelectedLabel').innerHTML = '📍 ' + item.label;
-  // Refresh left panel to show selection highlight
+function selectBuilderItem(itemJson) {
+  try {
+    builderSel = JSON.parse(itemJson.replace(/\\'/g,"'"));
+  } catch(e) {
+    // fallback parse
+    builderSel = JSON.parse(decodeURIComponent(itemJson));
+  }
+  const instText = document.getElementById('sbInstText');
+  const savedInst = instText ? instText.value : '';
   renderStepBuilder();
-  // Restore any typed instruction
   const ta = document.getElementById('sbInstText');
-  if (ta && item._inst) ta.value = item._inst;
+  if (ta && savedInst) ta.value = savedInst;
 }
 
 function saveBuilderStep() {
   if (!builderSel) { toast('Please select a destination first'); return; }
-  const inst = document.getElementById('sbInstText').value.trim();
+  const inst = (document.getElementById('sbInstText').value || '').trim();
   if (!inst)  { toast('Please enter an instruction'); return; }
-
-  tsData[builderPi].steps.push({
-    inst:   inst,
-    action: builderSel.action
-  });
-
+  tsData[builderPi].steps.push({ inst, action: builderSel.action });
   closeM('mStepBuilder');
   renderAdmin();
   renderTS();
@@ -614,11 +906,9 @@ function saveBuilderStep() {
 
 function moveStep(pi, si, dir) {
   const steps = tsData[pi].steps;
-  const newIdx = si + dir;
-  if (newIdx < 0 || newIdx >= steps.length) return;
-  const tmp = steps[si];
-  steps[si] = steps[newIdx];
-  steps[newIdx] = tmp;
+  const ni = si + dir;
+  if (ni < 0 || ni >= steps.length) return;
+  [steps[si], steps[ni]] = [steps[ni], steps[si]];
   renderAdminSteps(pi);
 }
 
@@ -648,7 +938,11 @@ function saveAdmin() {
 }
 
 function esc(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return String(s)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
 }
 
 
@@ -669,13 +963,13 @@ Wizard: #wizBody #wizFD #wizNext
 Fallbacks: .title-bar .toolbar #menuBar
 
 ACTION TYPES:
-{ "do":"openMenu",         "menuId":"mDevice",      "sel":"#mDevice" }
-{ "do":"highlightMenuItem","menuId":"mDevice",       "sel":"#ddActivations" }
-{ "do":"openModal",        "menuId":"mDevice","fn":"openActivations","sel":"#btnReset" }
-{ "do":"highlightInModal", "sel":"#btnReset" }
-{ "do":"switchTab",        "tabName":"Beams",        "sel":"#mAdvanced .mtab:nth-child(3)" }
-{ "do":"closeAndHighlight","modalId":"mAdvanced",    "sel":"#tbLoad" }
-{ "do":"highlightOnly",    "sel":".title-bar" }
+{ "do":"openMenu",          "menuId":"mDevice",       "sel":"#mDevice" }
+{ "do":"highlightMenuItem", "menuId":"mDevice",        "sel":"#ddActivations" }
+{ "do":"openModal",         "menuId":"mDevice","fn":"openActivations","sel":"#btnReset" }
+{ "do":"highlightInModal",  "sel":"#btnReset" }
+{ "do":"switchTab",         "tabName":"Beams",         "sel":"#mAdvanced .mtab:nth-child(3)" }
+{ "do":"closeAndHighlight", "modalId":"mAdvanced",     "sel":"#tbLoad" }
+{ "do":"highlightOnly",     "sel":".title-bar" }
 
 MODAL fn NAMES: openAdvParams, openActivations, openFalseEcho, openEcho, openWizard, openVDC
 `.trim();
@@ -683,8 +977,8 @@ MODAL fn NAMES: openAdvParams, openActivations, openFalseEcho, openEcho, openWiz
 async function runAIGenerate() {
   const inputText = document.getElementById('aiInputText').value.trim();
   if (!inputText) { toast('Please paste some text first'); return; }
-  const btn = document.getElementById('aiGenBtn');
-  const status = document.getElementById('aiStatus');
+  const btn        = document.getElementById('aiGenBtn');
+  const status     = document.getElementById('aiStatus');
   const resultWrap = document.getElementById('aiResultWrap');
   btn.disabled = true; btn.textContent = '⏳ Generating...';
   status.className = 'ai-gen-status loading';
@@ -697,8 +991,8 @@ ${selectorRef}
 RULES:
 1. Respond with ONLY valid JSON. No markdown.
 2. Output ONE object: {"id":0,"title":"<symptom>","steps":[{"inst":"<instruction>","action":<action>}]}
-3. Every step MUST have an action object.
-4. Menu steps: openMenu first, then highlightMenuItem for item inside.
+3. Every step MUST have an action object from the types listed.
+4. Menu steps: openMenu first, then highlightMenuItem for the item inside.
 5. Modal steps: openModal to open, highlightInModal for elements inside, closeAndHighlight to exit.
 6. Use <strong> tags for menu names, button names, values.
 7. Title = symptom not solution. Second person instructions.`;
@@ -722,13 +1016,14 @@ RULES:
     catch(e) { const m = raw.match(/\{[\s\S]*\}/); if (m) parsed = JSON.parse(m[0]); else throw new Error('Could not parse JSON'); }
     parsed.id = Date.now();
     aiResultData = parsed;
-    status.className = 'ai-gen-status success';
+    status.className   = 'ai-gen-status success';
     status.textContent = '✓ ' + parsed.steps.length + ' steps generated. Review below then import.';
     document.getElementById('aiResultPreview').textContent = JSON.stringify(parsed, null, 2);
     resultWrap.classList.add('show');
   } catch(err) {
-    status.className = 'ai-gen-status error';
+    status.className   = 'ai-gen-status error';
     status.textContent = 'Error: ' + err.message;
+    console.error('AI error:', err);
   } finally {
     btn.disabled = false;
     btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 14 14"><path d="M7 1 L8.5 5 L13 5 L9.5 7.5 L11 12 L7 9 L3 12 L4.5 7.5 L1 5 L5.5 5 Z" fill="white"/></svg> Generate Troubleshooting Path';
@@ -742,14 +1037,14 @@ function importAIResult() {
   renderAdmin(); renderTS();
   document.getElementById('aiResultWrap').classList.remove('show');
   document.getElementById('aiInputText').value = '';
-  document.getElementById('aiStatus').className = 'ai-gen-status success';
+  document.getElementById('aiStatus').className   = 'ai-gen-status success';
   document.getElementById('aiStatus').textContent = '✓ Imported successfully.';
   toast('✓ New troubleshooting path imported');
 }
 
 
 // ─────────────────────────────────────────────────────────────
-// INIT
+// INIT — called by index.html after all parts are loaded
 // ─────────────────────────────────────────────────────────────
 function initApp() {
   renderTS();
