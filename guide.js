@@ -9,11 +9,6 @@ let aiResultData = null;
 
 // ─────────────────────────────────────────────────────────────
 // DESTINATION LIBRARY
-// Each destination defines:
-//   label       — shown in picker and step list
-//   explanation — pre-filled hint for the instruction box
-//   navPath     — auto-generated steps to get there
-//                 last step is replaced by the user's explanation
 // ─────────────────────────────────────────────────────────────
 const destinations = [
 
@@ -476,32 +471,27 @@ const destinations = [
 
 
 // ─────────────────────────────────────────────────────────────
-// Build full step array from a destination + user explanation
-// Replaces the last nav step's instruction with the user text
+// Build full step array from destination + user explanation
 // ─────────────────────────────────────────────────────────────
 function buildStepsFromDestination(dest, userExplanation) {
-  const steps = dest.navPath.map((s, i) => {
-    // On the final step, use the user's explanation as the instruction
+  return dest.navPath.map((s, i) => {
     if (i === dest.navPath.length - 1) {
       return { inst: userExplanation, action: s.action };
     }
     return { inst: s.inst, action: s.action };
   });
-  return steps;
 }
 
 
 // ─────────────────────────────────────────────────────────────
 // TROUBLESHOOTING DATA
-// Each item stores destLabel + userExplanation
-// Steps are built on-the-fly from the destinations library
 // ─────────────────────────────────────────────────────────────
 let tsData = [
   {
     id: 1,
     title: "SNR Reading is 0",
     destLabel: "Device › Advanced Parameters › Output Dampening Power",
-    explanation: "Change <strong>Output Dampening Power</strong> to <strong>420</strong>, <strong>MPN Rate</strong> to <strong>7</strong>, <strong>Max Fill</strong> to <strong>7</strong>, <strong>Max Empty</strong> to <strong>8</strong>. Then click <strong>Upload All</strong>. Afterward go to <strong>Device › False Echo Mapping</strong>, select <strong>Reset Mapping</strong> and click Execute. Finally click <strong>Load from Vessel</strong> and monitor SNR."
+    explanation: "Change <strong>Output Dampening Power</strong> to <strong>420</strong>, <strong>MPN Rate</strong> to <strong>7</strong>, <strong>Max Fill</strong> to <strong>7</strong>, <strong>Max Empty</strong> to <strong>8</strong>. Click <strong>Upload All</strong>. Then go to Device › False Echo Mapping, select <strong>Reset Mapping</strong> and click Execute. Finally click <strong>Load from Vessel</strong> and monitor SNR."
   },
   {
     id: 2,
@@ -529,12 +519,10 @@ let tsData = [
   }
 ];
 
-// Resolve a tsData item into its full steps array
 function resolveSteps(item) {
   const dest = destinations.find(d => d.label === item.destLabel);
   if (!dest) {
-    // Fallback if destination not found
-    return [{ inst: item.explanation, action: { do:'highlightOnly', sel:'#menuBar' } }];
+    return [{ inst: item.explanation || 'No destination selected.', action: { do:'highlightOnly', sel:'#menuBar' } }];
   }
   return buildStepsFromDestination(dest, item.explanation);
 }
@@ -705,7 +693,7 @@ function endGuide() {
 
 
 // ─────────────────────────────────────────────────────────────
-// TROUBLESHOOT PANEL — right side, same size as before
+// TROUBLESHOOT PANEL
 // ─────────────────────────────────────────────────────────────
 function renderTS() {
   const el = document.getElementById('tsList');
@@ -716,6 +704,7 @@ function renderTS() {
     return;
   }
   tsData.forEach(p => {
+    if (!p.title || !p.title.trim()) return;
     const b = document.createElement('button');
     b.className = 'prob-btn';
     b.innerHTML = '⚡ ' + p.title;
@@ -774,21 +763,22 @@ function toggleTS() {
 
 
 // ─────────────────────────────────────────────────────────────
-// ADMIN PANEL — pencil icon opens this
-// Simple: title + pick destination + write explanation
+// ADMIN PANEL
 // ─────────────────────────────────────────────────────────────
 function openAdmin() { renderAdmin(); openM('mAdmin'); }
 
 function renderAdmin() {
   const b = document.getElementById('adminBody');
   b.innerHTML = `<p style="font-size:12px;color:#555;margin-bottom:14px">
-    Each troubleshooting item needs a <strong>title</strong>, a <strong>destination</strong> (where to go in the software), and a short <strong>explanation</strong> of what to do when you get there. The navigation path is built automatically.</p>`;
+    Each item needs a <strong>title</strong>, a <strong>destination</strong> (where to go in the software),
+    and a short <strong>explanation</strong> of what to do when you get there.
+    The navigation path is built automatically.</p>`;
 
   tsData.forEach((p, pi) => {
     const d = document.createElement('div');
     d.className = 'adm-block';
 
-    // Build destination dropdown
+    // Build grouped destination dropdown
     let destOptions = '<option value="">— Select a destination —</option>';
     let currentGroup = '';
     destinations.forEach(dest => {
@@ -797,32 +787,37 @@ function renderAdmin() {
         destOptions += `<optgroup label="${dest.group}">`;
         currentGroup = dest.group;
       }
-      const selected = p.destLabel === dest.label ? 'selected' : '';
-      destOptions += `<option value="${esc(dest.label)}" ${selected}>${esc(dest.label)}</option>`;
+      const sel = p.destLabel === dest.label ? 'selected' : '';
+      destOptions += `<option value="${esc(dest.label)}" ${sel}>${esc(dest.label)}</option>`;
     });
     if (currentGroup) destOptions += '</optgroup>';
 
     d.innerHTML = `
       <div class="adm-hdr">
         <input class="adm-tin" type="text" value="${esc(p.title)}"
-          oninput="tsData[${pi}].title=this.value;renderTS()"
-          placeholder="Problem title (e.g. SNR Reading is 0)">
+          placeholder="Problem title (e.g. SNR Reading is 0)"
+          oninput="tsData[${pi}].title=this.value">
         <button class="adm-del" onclick="delProb(${pi})">🗑</button>
       </div>
       <div style="margin-bottom:8px">
-        <div style="font-size:11px;font-weight:700;color:#555;margin-bottom:4px">DESTINATION — where does this lead?</div>
+        <div style="font-size:11px;font-weight:700;color:#555;margin-bottom:4px;text-transform:uppercase">
+          Destination — where does this lead?
+        </div>
         <select style="width:100%;border:1px solid #bbb;padding:6px 8px;font-size:12px;border-radius:4px;background:white"
           onchange="tsData[${pi}].destLabel=this.value">
           ${destOptions}
         </select>
       </div>
       <div>
-        <div style="font-size:11px;font-weight:700;color:#555;margin-bottom:4px">EXPLANATION — what should the technician do there?</div>
+        <div style="font-size:11px;font-weight:700;color:#555;margin-bottom:4px;text-transform:uppercase">
+          Explanation — what should the technician do there?
+        </div>
         <textarea style="width:100%;border:1px solid #bbb;padding:6px 8px;font-size:12px;border-radius:4px;resize:vertical;min-height:70px;font-family:inherit;line-height:1.5"
-          oninput="tsData[${pi}].explanation=this.value"
           placeholder="Describe what to do at the destination. Use &lt;strong&gt;text&lt;/strong&gt; for bold."
-          >${esc(p.explanation)}</textarea>
-        <div style="font-size:10px;color:#999;margin-top:2px">HTML supported: &lt;strong&gt;value&lt;/strong&gt; for bold, &lt;em&gt;text&lt;/em&gt; for italic.</div>
+          oninput="tsData[${pi}].explanation=this.value">${esc(p.explanation)}</textarea>
+        <div style="font-size:10px;color:#999;margin-top:2px">
+          HTML ok: &lt;strong&gt;value&lt;/strong&gt; for bold, &lt;em&gt;text&lt;/em&gt; for italic.
+        </div>
       </div>`;
     b.appendChild(d);
   });
@@ -831,13 +826,12 @@ function renderAdmin() {
 function addProblem() {
   tsData.push({
     id: Date.now(),
-    title: 'New Problem ' + (tsData.length + 1),
+    title: '',
     destLabel: '',
     explanation: ''
   });
   renderAdmin();
   renderTS();
-  // Scroll to bottom of admin panel so new item is visible
   setTimeout(() => {
     const body = document.getElementById('adminBody');
     if (body) body.scrollTop = body.scrollHeight;
@@ -853,6 +847,17 @@ function delProb(pi) {
 }
 
 function saveAdmin() {
+  // Explicitly read all field values from DOM before saving
+  const blocks = document.querySelectorAll('#adminBody .adm-block');
+  blocks.forEach((block, pi) => {
+    if (!tsData[pi]) return;
+    const titleEl  = block.querySelector('.adm-tin');
+    const destEl   = block.querySelector('select');
+    const explEl   = block.querySelector('textarea');
+    if (titleEl)  tsData[pi].title       = titleEl.value.trim();
+    if (destEl)   tsData[pi].destLabel   = destEl.value;
+    if (explEl)   tsData[pi].explanation = explEl.value.trim();
+  });
   renderTS();
   closeM('mAdmin');
   toast('✓ Saved');
