@@ -152,183 +152,228 @@
   <button class="vs-arr">▶</button>
 </div>
 
-<div class="main-area" id="viewHome">
-  <div class="home-tabs">
-    <span class="htab active">Vessels</span>
-    <span class="tsep">|</span>
-    <span class="htab">Logs</span>
-  </div>
-  <div class="silo-cards">
-    <div class="silo-card card-hl" onclick="openDetail('Coal')">
-      <div class="silo-hdr"><span class="dot green"></span><span class="silo-nm">Coal (MV)</span><span class="silo-poll">Poll:0</span></div>
-      <div class="silo-body">
-        <div class="silo-vis">
-          <div class="silo-nm-sm">Coal</div>
-          <div class="silo2d"><span class="slbl-f">F</span><div class="sfill coal" id="cFill" style="height:41%"></div><span class="slbl-e">E</span></div>
-        </div>
-        <div class="silo-stats">
-          <div class="stat-r"><span class="stat-l">Avg. Dist</span><span class="stat-v" id="cAvgD">10.60 m</span></div>
-          <div class="stat-r"><span class="stat-l">Max Dist.</span><span class="stat-v" id="cMaxD">11.09 m</span></div>
-          <div class="stat-r"><span class="stat-l">Min Dist.</span><span class="stat-v" id="cMinD">8.93 m</span></div>
-          <div class="stat-r"><span class="stat-l">Volume (%)</span><span class="stat-v" id="cVol">41.02 %</span></div>
-        </div>
-      </div>
-    </div>
-    <div class="silo-card" onclick="openDetail('FlyAsh')">
-      <div class="silo-hdr"><span class="dot green"></span><span class="silo-nm">Fly Ash (MV)</span><span class="silo-poll">Poll:1</span></div>
-      <div class="silo-body">
-        <div class="silo-vis">
-          <div class="silo-nm-sm">Fly Ash</div>
-          <div class="silo2d"><span class="slbl-f">F</span><div class="sfill flyash" id="fFill" style="height:75%"></div><span class="slbl-e">E</span></div>
-        </div>
-        <div class="silo-stats">
-          <div class="stat-r"><span class="stat-l">Avg. Dist</span><span class="stat-v" id="fAvgD">4.53 m</span></div>
-          <div class="stat-r"><span class="stat-l">Max Dist.</span><span class="stat-v" id="fMaxD">5.30 m</span></div>
-          <div class="stat-r"><span class="stat-l">Min Dist.</span><span class="stat-v" id="fMinD">3.44 m</span></div>
-          <div class="stat-r"><span class="stat-l">Volume (%)</span><span class="stat-v" id="fVol">75.41 %</span></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+<!-- PAGE WRAPPER — main content left, side panel right -->
+<div class="page-wrap">
 
-<div class="main-area hidden" id="viewDetail">
-  <div class="detail-bar">
-    <span class="dtab" id="dtOv" onclick="showDTab('Overview')">Overview</span>
-    <span class="tsep">|</span>
-    <span class="dtab" id="dtLg" onclick="showDTab('Logs')">Logs</span>
-    <span class="tsep">|</span>
-    <span class="dtab" id="dtPr" onclick="showDTab('Parameters')">Parameters</span>
-    <span class="tsep">|</span>
-    <span class="dtab" id="dtDv" onclick="showDTab('Devices')">Devices</span>
-    <div style="flex:1"></div>
-    <span style="font-size:12px;color:#555;margin-right:4px">Scanners:</span>
-    <select class="scan-sel" id="scanSel"><option>Coal (MV)</option><option>Fly Ash (MV)</option></select>
-    <button class="back-btn" onclick="showHome()">← Back</button>
-  </div>
+  <!-- MAIN CONTENT AREA -->
+  <div class="page-main">
 
-  <div id="tabOv" class="tab-body">
-    <div class="ov-layout">
-      <div class="ov-left">
-        <div class="ov-vname"><span class="dot green"></span><span id="ovName">Coal (MV)</span></div>
-        <div class="ov-mat">Material Type: <strong id="ovMat">Coal</strong><button class="mat-btn">Material...</button></div>
-        <div class="ov-silo2d"><span class="slbl-f">F</span><div class="sfill coal" id="ovFill" style="height:75%"></div><span class="slbl-e">E</span></div>
-        <div class="ov-params">
-          <div class="ov-pr"><span class="ov-pl">Avg. Dist.:</span><span class="ov-pv" id="ovAD">4.53</span><span class="ov-pu">m</span></div>
-          <div class="ov-pr"><span class="ov-pl">Min. Distance:</span><span class="ov-pv" id="ovMiD">3.44</span><span class="ov-pu">m</span></div>
-          <div class="ov-pr"><span class="ov-pl">Max. Distance:</span><span class="ov-pv" id="ovMaD">5.30</span><span class="ov-pu">m</span></div>
-          <div class="ov-pr"><span class="ov-pl">Avg. Distance (%):</span><span class="ov-pv">0.00</span><span class="ov-pu">%</span></div>
-          <div class="ov-pr"><span class="ov-pl">Volume:</span><span class="ov-pv" id="ovVol">80.55</span><span class="ov-pu">m^3</span></div>
-          <div class="ov-pr"><span class="ov-pl">Volume (%):</span><span class="ov-pv" id="ovVolP">75.41</span><span class="ov-pu">%</span></div>
-          <div class="ov-pr"><span class="ov-pl">Mass:</span><span class="ov-pv">-</span><span class="ov-pu">ton</span></div>
-          <div class="ov-pr"><span class="ov-pl">Max Scale Vol.:</span><span class="ov-pv">100.00</span><span class="ov-pu">m^3</span></div>
-          <div class="ov-pr"><span class="ov-pl">Max Scale Mass:</span><span class="ov-pv">-</span><span class="ov-pu">ton</span></div>
-          <div class="ov-pr"><span class="ov-pl">Temperature:</span><span class="ov-pv" id="ovTemp">24.83</span><span class="ov-pu">C</span></div>
-          <div class="ov-pr ov-snr"><span class="ov-pl">SNR</span><span class="ov-pv" id="ovSNR">62.24</span><span class="ov-pu">dB</span></div>
-          <div class="ov-pr"><span class="ov-pl">Output Current:</span><span class="ov-pv" id="ovOut">16.89</span><span class="ov-pu">mA</span></div>
-        </div>
+    <div class="main-area" id="viewHome">
+      <div class="home-tabs">
+        <span class="htab active">Vessels</span>
+        <span class="tsep">|</span>
+        <span class="htab">Logs</span>
       </div>
-      <div class="ov-center">
-        <canvas id="c3d" width="340" height="400"></canvas>
-        <label class="online-badge"><input type="checkbox" checked> On line</label>
-      </div>
-      <div class="ov-right">
-        <div class="ov-minimap"><canvas id="minimap" width="128" height="80"></canvas></div>
-        <div class="zoom-wrap">
-          <button class="zoom-btn">+</button>
-          <div class="zoom-track"><div class="zoom-thumb"></div></div>
-          <button class="zoom-btn">-</button>
+      <div class="silo-cards">
+        <div class="silo-card card-hl" onclick="openDetail('Coal')">
+          <div class="silo-hdr"><span class="dot green"></span><span class="silo-nm">Coal (MV)</span><span class="silo-poll">Poll:0</span></div>
+          <div class="silo-body">
+            <div class="silo-vis">
+              <div class="silo-nm-sm">Coal</div>
+              <div class="silo2d"><span class="slbl-f">F</span><div class="sfill coal" id="cFill" style="height:41%"></div><span class="slbl-e">E</span></div>
+            </div>
+            <div class="silo-stats">
+              <div class="stat-r"><span class="stat-l">Avg. Dist</span><span class="stat-v" id="cAvgD">10.60 m</span></div>
+              <div class="stat-r"><span class="stat-l">Max Dist.</span><span class="stat-v" id="cMaxD">11.09 m</span></div>
+              <div class="stat-r"><span class="stat-l">Min Dist.</span><span class="stat-v" id="cMinD">8.93 m</span></div>
+              <div class="stat-r"><span class="stat-l">Volume (%)</span><span class="stat-v" id="cVol">41.02 %</span></div>
+            </div>
+          </div>
         </div>
-        <div class="navpad">
-          <button class="npb" style="grid-column:2">▲</button>
-          <button class="npb" style="grid-column:1;grid-row:2">◀</button>
-          <button class="npb npb-c" style="grid-column:2;grid-row:2">●</button>
-          <button class="npb" style="grid-column:3;grid-row:2">▶</button>
-          <button class="npb" style="grid-column:2;grid-row:3">▼</button>
+        <div class="silo-card" onclick="openDetail('FlyAsh')">
+          <div class="silo-hdr"><span class="dot green"></span><span class="silo-nm">Fly Ash (MV)</span><span class="silo-poll">Poll:1</span></div>
+          <div class="silo-body">
+            <div class="silo-vis">
+              <div class="silo-nm-sm">Fly Ash</div>
+              <div class="silo2d"><span class="slbl-f">F</span><div class="sfill flyash" id="fFill" style="height:75%"></div><span class="slbl-e">E</span></div>
+            </div>
+            <div class="silo-stats">
+              <div class="stat-r"><span class="stat-l">Avg. Dist</span><span class="stat-v" id="fAvgD">4.53 m</span></div>
+              <div class="stat-r"><span class="stat-l">Max Dist.</span><span class="stat-v" id="fMaxD">5.30 m</span></div>
+              <div class="stat-r"><span class="stat-l">Min Dist.</span><span class="stat-v" id="fMinD">3.44 m</span></div>
+              <div class="stat-r"><span class="stat-l">Volume (%)</span><span class="stat-v" id="fVol">75.41 %</span></div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <div id="tabLg" class="tab-body hidden">
-    <div class="logs-bar">
-      <button class="log-ibtn" style="color:red;font-weight:bold">✕</button>
-      <button class="log-ibtn">⚙</button>
-      <label class="log-chk"><input type="checkbox" checked> On line</label>
-      <span style="font-size:12px;color:#555">Log Duration:</span>
-      <input type="text" class="log-dur">
-      <button class="log-abtn">Browse...</button>
-      <button class="log-abtn">Server Logs...</button>
-    </div>
-    <div class="charts-grid">
-      <div class="chart-cell"><div class="chart-ttl">Avg. Dist.</div><canvas id="chAD" width="540" height="190"></canvas></div>
-      <div class="chart-cell"><div class="chart-ttl">Volume/Mass (%)</div><canvas id="chVol" width="540" height="190"></canvas></div>
-      <div class="chart-cell"><div class="chart-ttl">SNR</div><canvas id="chSNR" width="540" height="190"></canvas></div>
-      <div class="chart-cell"><div class="chart-ttl">Temperature</div><canvas id="chTemp" width="540" height="190"></canvas></div>
-    </div>
-  </div>
+    <div class="main-area hidden" id="viewDetail">
+      <div class="detail-bar">
+        <span class="dtab" id="dtOv" onclick="showDTab('Overview')">Overview</span>
+        <span class="tsep">|</span>
+        <span class="dtab" id="dtLg" onclick="showDTab('Logs')">Logs</span>
+        <span class="tsep">|</span>
+        <span class="dtab" id="dtPr" onclick="showDTab('Parameters')">Parameters</span>
+        <span class="tsep">|</span>
+        <span class="dtab" id="dtDv" onclick="showDTab('Devices')">Devices</span>
+        <div style="flex:1"></div>
+        <span style="font-size:12px;color:#555;margin-right:4px">Scanners:</span>
+        <select class="scan-sel" id="scanSel"><option>Coal (MV)</option><option>Fly Ash (MV)</option></select>
+        <button class="back-btn" onclick="showHome()">← Back</button>
+      </div>
 
-  <div id="tabPr" class="tab-body hidden">
-    <div class="params-wrap">
-      <div class="params-scada">Vessel Scada ID: <strong>1</strong></div>
-      <table class="ptbl">
-        <tr><td class="pt-l">Scanner:</td><td class="pt-v"><strong>Carmel Ulpinim</strong></td></tr>
-        <tr><td class="pt-l">Poll Addr:</td><td class="pt-v">0</td></tr>
-        <tr><td class="pt-l">S/N:</td><td class="pt-v">709001467</td></tr>
-        <tr><td class="pt-l">Hardware:</td><td class="pt-v">16</td></tr>
-        <tr><td class="pt-l">Firmware:</td><td class="pt-v">2.9.986</td></tr>
-        <tr><td class="pt-l">Device Type:</td><td class="pt-v">MV</td></tr>
-        <tr><td class="pt-l">Avg. Dist.:</td><td class="pt-v">m &nbsp; 5.49</td></tr>
-        <tr><td class="pt-l">Min. Distance:</td><td class="pt-v">m &nbsp; 4.26</td></tr>
-        <tr><td class="pt-l">Max. Distance:</td><td class="pt-v">m &nbsp; 6.45</td></tr>
-        <tr><td class="pt-l">Avg. Dist. (%):</td><td class="pt-v">% &nbsp; 0.00</td></tr>
-        <tr><td class="pt-l">Volume:</td><td class="pt-v">m^3 &nbsp; 72.53</td></tr>
-        <tr><td class="pt-l">Volume:</td><td class="pt-v">% &nbsp; 73.02</td></tr>
-        <tr><td class="pt-l">Mass:</td><td class="pt-v">ton &nbsp; -</td></tr>
-        <tr><td class="pt-l">Max Volume Capacity:</td><td class="pt-v">m^3 &nbsp; 100.00</td></tr>
-        <tr><td class="pt-l">Max Mass Capacity:</td><td class="pt-v">ton &nbsp; -</td></tr>
-        <tr><td class="pt-l">Temperature:</td><td class="pt-v">C &nbsp; 24.83</td></tr>
-        <tr><td class="pt-l">SNR:</td><td class="pt-v">dB &nbsp; 47.08</td></tr>
-        <tr><td class="pt-l">Output Current:</td><td class="pt-v">mA &nbsp; 15.60</td></tr>
-      </table>
-    </div>
-  </div>
-
-  <div id="tabDv" class="tab-body hidden">
-    <div class="devs-layout">
-      <div class="devs-l">
-        <div class="devs-sec">Connection</div>
-        <div class="devs-sub">Connection Type</div>
-        <div class="conn-grid">
-          <label class="rl"><input type="radio" name="ct"> HART</label>
-          <label class="rl"><input type="radio" name="ct"> GPRS</label>
-          <label class="rl"><input type="radio" name="ct" checked> RS-485</label>
-          <label class="rl"><input type="radio" name="ct"> GPRS + SMS</label>
-          <label class="rl"><input type="radio" name="ct"> TCP/IP</label>
-          <label class="rl"><input type="radio" name="ct"> Smart GPRS</label>
-        </div>
-        <div class="devs-sub">Configuration</div>
-        <div class="cfg-row">
-          <span class="cfg-lbl">Serial Port:</span>
-          <select class="cfg-sel"><option>COM3</option><option>COM1</option><option>COM2</option></select>
+      <div id="tabOv" class="tab-body">
+        <div class="ov-layout">
+          <div class="ov-left">
+            <div class="ov-vname"><span class="dot green"></span><span id="ovName">Coal (MV)</span></div>
+            <div class="ov-mat">Material Type: <strong id="ovMat">Coal</strong><button class="mat-btn">Material...</button></div>
+            <div class="ov-silo2d"><span class="slbl-f">F</span><div class="sfill coal" id="ovFill" style="height:75%"></div><span class="slbl-e">E</span></div>
+            <div class="ov-params">
+              <div class="ov-pr"><span class="ov-pl">Avg. Dist.:</span><span class="ov-pv" id="ovAD">4.53</span><span class="ov-pu">m</span></div>
+              <div class="ov-pr"><span class="ov-pl">Min. Distance:</span><span class="ov-pv" id="ovMiD">3.44</span><span class="ov-pu">m</span></div>
+              <div class="ov-pr"><span class="ov-pl">Max. Distance:</span><span class="ov-pv" id="ovMaD">5.30</span><span class="ov-pu">m</span></div>
+              <div class="ov-pr"><span class="ov-pl">Avg. Distance (%):</span><span class="ov-pv">0.00</span><span class="ov-pu">%</span></div>
+              <div class="ov-pr"><span class="ov-pl">Volume:</span><span class="ov-pv" id="ovVol">80.55</span><span class="ov-pu">m^3</span></div>
+              <div class="ov-pr"><span class="ov-pl">Volume (%):</span><span class="ov-pv" id="ovVolP">75.41</span><span class="ov-pu">%</span></div>
+              <div class="ov-pr"><span class="ov-pl">Mass:</span><span class="ov-pv">-</span><span class="ov-pu">ton</span></div>
+              <div class="ov-pr"><span class="ov-pl">Max Scale Vol.:</span><span class="ov-pv">100.00</span><span class="ov-pu">m^3</span></div>
+              <div class="ov-pr"><span class="ov-pl">Max Scale Mass:</span><span class="ov-pv">-</span><span class="ov-pu">ton</span></div>
+              <div class="ov-pr"><span class="ov-pl">Temperature:</span><span class="ov-pv" id="ovTemp">24.83</span><span class="ov-pu">C</span></div>
+              <div class="ov-pr ov-snr"><span class="ov-pl">SNR</span><span class="ov-pv" id="ovSNR">62.24</span><span class="ov-pu">dB</span></div>
+              <div class="ov-pr"><span class="ov-pl">Output Current:</span><span class="ov-pv" id="ovOut">16.89</span><span class="ov-pu">mA</span></div>
+            </div>
+          </div>
+          <div class="ov-center">
+            <canvas id="c3d" width="340" height="400"></canvas>
+            <label class="online-badge"><input type="checkbox" checked> On line</label>
+          </div>
+          <div class="ov-right">
+            <div class="ov-minimap"><canvas id="minimap" width="128" height="80"></canvas></div>
+            <div class="zoom-wrap">
+              <button class="zoom-btn">+</button>
+              <div class="zoom-track"><div class="zoom-thumb"></div></div>
+              <button class="zoom-btn">-</button>
+            </div>
+            <div class="navpad">
+              <button class="npb" style="grid-column:2">▲</button>
+              <button class="npb" style="grid-column:1;grid-row:2">◀</button>
+              <button class="npb npb-c" style="grid-column:2;grid-row:2">●</button>
+              <button class="npb" style="grid-column:3;grid-row:2">▶</button>
+              <button class="npb" style="grid-column:2;grid-row:3">▼</button>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="devs-r">
-        <div class="devs-sec">Device Polling Addresses</div>
-        <table class="poll-tbl">
-          <tr><th>Device Name</th><th>Polling Address:</th><th></th></tr>
-          <tr>
-            <td>Carmel Ulpinim</td>
-            <td><select class="poll-sel"><option>0</option><option>1</option><option>2</option><option>3</option></select></td>
-            <td><button class="disconn-btn">Disconnect</button></td>
-          </tr>
-        </table>
+
+      <div id="tabLg" class="tab-body hidden">
+        <div class="logs-bar">
+          <button class="log-ibtn" style="color:red;font-weight:bold">✕</button>
+          <button class="log-ibtn">⚙</button>
+          <label class="log-chk"><input type="checkbox" checked> On line</label>
+          <span style="font-size:12px;color:#555">Log Duration:</span>
+          <input type="text" class="log-dur">
+          <button class="log-abtn">Browse...</button>
+          <button class="log-abtn">Server Logs...</button>
+        </div>
+        <div class="charts-grid">
+          <div class="chart-cell"><div class="chart-ttl">Avg. Dist.</div><canvas id="chAD" width="540" height="190"></canvas></div>
+          <div class="chart-cell"><div class="chart-ttl">Volume/Mass (%)</div><canvas id="chVol" width="540" height="190"></canvas></div>
+          <div class="chart-cell"><div class="chart-ttl">SNR</div><canvas id="chSNR" width="540" height="190"></canvas></div>
+          <div class="chart-cell"><div class="chart-ttl">Temperature</div><canvas id="chTemp" width="540" height="190"></canvas></div>
+        </div>
+      </div>
+
+      <div id="tabPr" class="tab-body hidden">
+        <div class="params-wrap">
+          <div class="params-scada">Vessel Scada ID: <strong>1</strong></div>
+          <table class="ptbl">
+            <tr><td class="pt-l">Scanner:</td><td class="pt-v"><strong>Carmel Ulpinim</strong></td></tr>
+            <tr><td class="pt-l">Poll Addr:</td><td class="pt-v">0</td></tr>
+            <tr><td class="pt-l">S/N:</td><td class="pt-v">709001467</td></tr>
+            <tr><td class="pt-l">Hardware:</td><td class="pt-v">16</td></tr>
+            <tr><td class="pt-l">Firmware:</td><td class="pt-v">2.9.986</td></tr>
+            <tr><td class="pt-l">Device Type:</td><td class="pt-v">MV</td></tr>
+            <tr><td class="pt-l">Avg. Dist.:</td><td class="pt-v">m &nbsp; 5.49</td></tr>
+            <tr><td class="pt-l">Min. Distance:</td><td class="pt-v">m &nbsp; 4.26</td></tr>
+            <tr><td class="pt-l">Max. Distance:</td><td class="pt-v">m &nbsp; 6.45</td></tr>
+            <tr><td class="pt-l">Avg. Dist. (%):</td><td class="pt-v">% &nbsp; 0.00</td></tr>
+            <tr><td class="pt-l">Volume:</td><td class="pt-v">m^3 &nbsp; 72.53</td></tr>
+            <tr><td class="pt-l">Volume:</td><td class="pt-v">% &nbsp; 73.02</td></tr>
+            <tr><td class="pt-l">Mass:</td><td class="pt-v">ton &nbsp; -</td></tr>
+            <tr><td class="pt-l">Max Volume Capacity:</td><td class="pt-v">m^3 &nbsp; 100.00</td></tr>
+            <tr><td class="pt-l">Max Mass Capacity:</td><td class="pt-v">ton &nbsp; -</td></tr>
+            <tr><td class="pt-l">Temperature:</td><td class="pt-v">C &nbsp; 24.83</td></tr>
+            <tr><td class="pt-l">SNR:</td><td class="pt-v">dB &nbsp; 47.08</td></tr>
+            <tr><td class="pt-l">Output Current:</td><td class="pt-v">mA &nbsp; 15.60</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div id="tabDv" class="tab-body hidden">
+        <div class="devs-layout">
+          <div class="devs-l">
+            <div class="devs-sec">Connection</div>
+            <div class="devs-sub">Connection Type</div>
+            <div class="conn-grid">
+              <label class="rl"><input type="radio" name="ct"> HART</label>
+              <label class="rl"><input type="radio" name="ct"> GPRS</label>
+              <label class="rl"><input type="radio" name="ct" checked> RS-485</label>
+              <label class="rl"><input type="radio" name="ct"> GPRS + SMS</label>
+              <label class="rl"><input type="radio" name="ct"> TCP/IP</label>
+              <label class="rl"><input type="radio" name="ct"> Smart GPRS</label>
+            </div>
+            <div class="devs-sub">Configuration</div>
+            <div class="cfg-row">
+              <span class="cfg-lbl">Serial Port:</span>
+              <select class="cfg-sel"><option>COM3</option><option>COM1</option><option>COM2</option></select>
+            </div>
+          </div>
+          <div class="devs-r">
+            <div class="devs-sec">Device Polling Addresses</div>
+            <table class="poll-tbl">
+              <tr><th>Device Name</th><th>Polling Address:</th><th></th></tr>
+              <tr>
+                <td>Carmel Ulpinim</td>
+                <td><select class="poll-sel"><option>0</option><option>1</option><option>2</option><option>3</option></select></td>
+                <td><button class="disconn-btn">Disconnect</button></td>
+              </tr>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-</div>
 
-<!-- MODALS -->
+  </div><!-- end .page-main -->
+
+  <!-- FIXED RIGHT SIDE PANEL -->
+  <div class="side-panel">
+
+    <!-- TROUBLESHOOT BOX -->
+    <div class="ts-panel" id="tsPanel">
+      <div class="ts-hdr" id="tsHdr">
+        <span class="ts-title">⚙ Troubleshoot</span>
+        <div class="ts-hbtns">
+          <button class="ts-hbtn" id="tsMin" onclick="toggleTS()">−</button>
+          <button class="ts-hbtn" onclick="openAdmin()" title="Edit Paths">✎</button>
+        </div>
+      </div>
+      <div class="ts-body" id="tsBody"><div id="tsList"></div></div>
+    </div>
+
+    <!-- GUIDE STEP BOX -->
+    <div class="guide-panel hidden" id="gPanel">
+      <div class="gp-hdr" id="gPanelHdr">
+        <span class="gp-title" id="gTitle">Step 1 of 5</span>
+        <button class="gp-x" onclick="endGuide()">✕</button>
+      </div>
+      <div class="gp-prob" id="gProb"></div>
+      <div class="gp-inst" id="gInst"></div>
+      <div class="gp-foot">
+        <button class="gp-prev" id="gPrev" onclick="guideNav(-1)">◀ Prev</button>
+        <span class="gp-ctr" id="gCtr">1 / 5</span>
+        <button class="gp-next" id="gNext" onclick="guideNav(1)">Next ▶</button>
+      </div>
+    </div>
+
+  </div><!-- end .side-panel -->
+
+</div><!-- end .page-wrap -->
+
+<div class="hl-circle hidden" id="hlCircle"></div>
+<div class="toast hidden" id="toastEl"></div>
+
+<!-- MODALS — all outside page-wrap so z-index works correctly -->
 <div class="modal-bg hidden" id="mAdvanced">
   <div class="modal-win" style="width:500px">
     <div class="modal-tbar">Advanced Parameters — <span id="advTitle">Coal</span><button class="modal-x" onclick="closeM('mAdvanced')">✕</button></div>
@@ -485,38 +530,6 @@
   </div>
 </div>
 
-<div class="toast hidden" id="toastEl"></div>
-
-<!-- TROUBLESHOOT PANEL -->
-<div class="ts-panel" id="tsPanel">
-  <div class="ts-hdr" id="tsHdr">
-    <span class="ts-title">⚙ Troubleshoot</span>
-    <div class="ts-hbtns">
-      <button class="ts-hbtn" id="tsMin" onclick="toggleTS()">−</button>
-      <button class="ts-hbtn" onclick="openAdmin()" title="Edit Paths">✎</button>
-    </div>
-  </div>
-  <div class="ts-body" id="tsBody"><div id="tsList"></div></div>
-</div>
-
-<!-- GUIDE PANEL -->
-<div class="guide-panel hidden" id="gPanel">
-  <div class="gp-hdr" id="gPanelHdr">
-    <span class="gp-title" id="gTitle">Step 1 of 5</span>
-    <button class="gp-x" onclick="endGuide()">✕</button>
-  </div>
-  <div class="gp-prob" id="gProb"></div>
-  <div class="gp-inst" id="gInst"></div>
-  <div class="gp-foot">
-    <button class="gp-prev" id="gPrev" onclick="guideNav(-1)">◀ Prev</button>
-    <span class="gp-ctr" id="gCtr">1 / 5</span>
-    <button class="gp-next" id="gNext" onclick="guideNav(1)">Next ▶</button>
-  </div>
-</div>
-
-<div class="hl-circle hidden" id="hlCircle"></div>
-
-<!-- ADMIN PANEL -->
 <div class="modal-bg hidden" id="mAdmin">
   <div class="modal-win" style="width:760px;max-height:90vh;overflow-y:auto">
     <div class="modal-tbar">🛠 Troubleshooting Path Editor<button class="modal-x" onclick="closeM('mAdmin')">✕</button></div>
@@ -525,23 +538,6 @@
       <button class="mbtn-p" onclick="addProblem()">+ Add Problem</button>
       <button class="mbtn-p" onclick="saveAdmin()">Save & Close</button>
       <button class="mbtn" onclick="closeM('mAdmin')">Cancel</button>
-    </div>
-  </div>
-</div>
-      <!-- STEP BUILDER MODAL -->
-<div class="modal-bg hidden" id="mStepBuilder">
-  <div class="modal-win" style="width:740px;max-height:92vh">
-    <div class="modal-tbar">
-      ➕ Add Step
-      <button class="modal-x" onclick="closeM('mStepBuilder')">✕</button>
-    </div>
-    <div class="modal-body" id="stepBuilderBody" style="padding:16px"></div>
-    <div class="modal-foot">
-      <button class="mbtn-p" onclick="saveBuilderStep()">✓ Add This Step</button>
-      <button class="mbtn" onclick="closeM('mStepBuilder')">Cancel</button>
-    </div>
-  </div>
-</div>
     </div>
   </div>
 </div>
