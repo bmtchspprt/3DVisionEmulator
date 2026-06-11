@@ -516,6 +516,33 @@ let tsData = [
     title: "Auto Beam Selection Issues",
     destLabel: "Device › Advanced Parameters › Beams Tab › Auto Beam Selection",
     explanation: "Verify all 6 beam checkboxes at the top are checked. <strong>Uncheck Auto Beam Selection</strong> at the bottom. Click <strong>Upload All</strong> to apply. Then click <strong>Load from Vessel</strong> to confirm correct readings."
+  },
+
+  // ── NEW PATHS ─────────────────────────────────────────────
+
+  {
+    id: 6,
+    title: "How to Read the Echo Curve",
+    destLabel: "Toolbar › Echo Curve",
+    explanation: "The Echo Curve starts automatically. Look for a <strong>grouping of colored lines</strong> — these represent the sensor's frequencies reflecting off the material. Lines start higher on the <strong>left</strong> (sensor at top of silo) and move right toward lower levels. Numbers along the bottom are <strong>feet from the sensor</strong>. Each line in the group is a different beam frequency. If all lines form a <strong>tight cluster with no erratic spikes away from the group</strong>, this is a <strong>Good echo curve</strong> — the sensor is reading correctly. An isolated spike far from the main cluster indicates a false echo."
+  },
+  {
+    id: 7,
+    title: "Reset Sensor Mapping",
+    destLabel: "Device › False Echo Mapping › Action Dropdown",
+    explanation: "From the <strong>Action</strong> dropdown, select <strong>Reset User and Auto False Echoes</strong>, then click <strong>Execute</strong>. This clears all stored false echo maps from the sensor. After executing, click <strong>Load from Vessel</strong> in the toolbar to confirm the sensor is reading correctly."
+  },
+  {
+    id: 8,
+    title: "Wizard — Confirm Dimensions & Dead-Zone",
+    destLabel: "Wizard › Step 4 › Full Calibration Distance (Top)",
+    explanation: "Confirm all silo measurements on each step are accurate, clicking <strong>Next</strong> through each screen. On the final <strong>Full Calibration</strong> screen, the <strong>Distance (Top)</strong> value must be <strong>no less than 1.64 ft</strong> — this is the sensor dead-zone. If material comes within 1.64 ft of the sensor, the sensor will lock at its last reading. You may enter a higher value to trigger 100% output before overfilling, but <strong>1.64 ft is the absolute minimum</strong>. Click <strong>Finish</strong> to save."
+  },
+  {
+    id: 9,
+    title: "Advanced Parameters — Full Review & Upload",
+    destLabel: "Device › Advanced Parameters",
+    explanation: "On the <strong>Basic tab</strong>, confirm no values are negative or in the thousands — factory defaults work for most vessels; professional programming is needed for tuned adjustments. Click the <strong>Advanced tab</strong> and set <strong>Auto False Echoes</strong> to <strong>Deactivated</strong>. Then click the <strong>Beams tab</strong>: uncheck <strong>Auto Beam Selection</strong> and <strong>Automatic Beams Range</strong>, then click <strong>Select All</strong> above the beam list to activate all echo beams. Click <strong>Upload All</strong> to apply all changes to the sensor, then click <strong>Close</strong>."
   }
 ];
 
